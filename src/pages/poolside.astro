@@ -230,19 +230,24 @@ float caustic(float2 suv) {
 
   <!-- Origin -->
   <span class="kicker" style="display:block;margin-bottom:12px">Origin · fig.03 · SkiaSharp 4 + runtime SkSL</span>
-  <h2 style="font-size:20px;font-weight:600;margin:0 0 12px">It started as a shader, not an app.</h2>
-  <p class="lede" style="margin-bottom:24px">
-    The first build was <span style="color:var(--ink)">Refraction Pixels</span> — an Uno Platform
-    desktop sample written to test SkiaSharp 4.148's runtime SkSL through SKCanvasElement.
-    Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens); the
-    POOL mode — a tiled floor under an animated water surface — is the frame below. Watching
-    the caustics run, the question changed from "can the canvas do this" to "what product
-    deserves this water." That answer is Poolside.
-  </p>
-
-  <div class="videocard">
-    <video controls muted playsinline preload="metadata" src="/videos/water-shader.mp4"></video>
-    <div class="cap"><b>The water shader, live on the desktop</b><span class="mono">screen recording · 2026-07 · Uno Platform + SkiaSharp 4.148</span></div>
+  <h2 style="font-size:20px;font-weight:600;margin:0 0 16px">It started as a shader, not an app.</h2>
+  <div class="origin-row">
+    <div>
+      <p style="font-size:15px;color:var(--ink);margin:0 0 12px;max-width:52ch;text-wrap:pretty">
+        The first build was <span style="font-weight:500">Refraction Pixels</span> — an Uno Platform
+        desktop sample written to test SkiaSharp 4.148's runtime SkSL through SKCanvasElement.
+        Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens); the
+        POOL mode — a tiled floor under an animated water surface — is the frame at right.
+      </p>
+      <p style="font-size:15px;color:var(--muted);margin:0;max-width:52ch;text-wrap:pretty">
+        Watching the caustics run, the question changed from "can the canvas do this" to
+        "what product deserves this water." That answer is Poolside.
+      </p>
+    </div>
+    <div class="videocard">
+      <video controls muted playsinline preload="metadata" src="/videos/water-shader.mp4"></video>
+      <div class="cap"><b>The water shader, live</b><span class="mono">Uno Platform · SkiaSharp 4.148</span></div>
+    </div>
   </div>
 
   <hr class="rule" />

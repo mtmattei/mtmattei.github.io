@@ -21,12 +21,7 @@ const tokens: [string, string][] = [
       code that describes it.
     </p>
     <div class="hero-fig">
-      <canvas id="herocv" aria-label="the name MATTHEW assembling out of the characters of the function that draws it"></canvas>
-      <div class="seg" id="heroSeg" role="group" aria-label="Interpolation">
-        <button data-mode="source">source</button>
-        <button class="on" data-mode="figure">figure</button>
-        <button data-mode="loop">loop</button>
-      </div>
+      <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATTHEW assembling out of the characters of its own source — click to replay"></canvas>
     </div>
   </div>
 
@@ -190,20 +185,14 @@ function buildHero() {
   prosePos = null; letterPos = null;
   if (!heroWired) {
     heroWired = true;
-    setT(RM ? 1 : 0);
+    setT(1);            // settle on the finished name
     heroDraw();
-    if (!RM) setTimeout(() => tweenHero(1, 2800), 400);
-    document.querySelectorAll('#heroSeg button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#heroSeg button').forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
-        const m = btn.dataset.mode;
-        if (m === 'source') tweenHero(0, 1200);
-        if (m === 'figure') tweenHero(1, 1200);
-        if (m === 'loop') loopHero();
-      });
-    });
-    heroCv.addEventListener('click', () => { setT(0); tweenHero(1, 2400); });
+    // one automatic cycle (figure → source → figure) shortly after load
+    if (!RM) setTimeout(loopHero, 600);
+    // replay one cycle on click / keyboard activation
+    const replay = () => { if (!heroLoopId) loopHero(); };
+    heroCv.addEventListener('click', replay);
+    heroCv.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replay(); } });
   } else {
     heroDraw();
   }
