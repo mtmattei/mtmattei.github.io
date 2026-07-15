@@ -209,6 +209,18 @@ a { color: inherit; }
 .nav-item.is-active .tick { background: var(--accent); }
 .nav-item .idx { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--line-2); }
 
+/* nested children (e.g. skills under XAML / Uno): indented bracket guide */
+.nav-children { position: relative; margin: 2px 0 6px 8px; padding-left: 9px; }
+.nav-children::before {
+  content: ""; position: absolute; left: 2px; top: 4px; bottom: 4px; width: 5px;
+  border: var(--bw) solid var(--line); border-right: none; transition: border-color .15s;
+}
+.nav-children:hover::before { border-color: var(--line-2); }
+.nav-children.has-active::before { border-color: var(--accent); }
+.nav-child { font-size: 12px; padding: 6px var(--s2); gap: var(--s2); }
+/* parent stays quietly lit while one of its children is the active page */
+.nav-item.has-child-active { color: var(--ink); }
+
 /* ---- Main / content ---- */
 .main {
   grid-area: main;

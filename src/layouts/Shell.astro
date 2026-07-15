@@ -24,7 +24,7 @@ const {
   wide = false,
 } = Astro.props;
 
-type NavItem = { label: string; href: string };
+type NavItem = { label: string; href: string; children?: NavItem[] };
 type NavSub = { kicker: string; items: NavItem[] };
 const NAV: { kicker: string; items?: NavItem[]; subs?: NavSub[] }[] = [
   { kicker: 'Overview', items: [{ label: 'Index', href: '/' }] },
@@ -43,10 +43,15 @@ const NAV: { kicker: string; items?: NavItem[]; subs?: NavSub[] }[] = [
       {
         kicker: 'Skills',
         items: [
-          { label: 'XAML / Uno', href: '/xaml-uno/' },
-          { label: 'xaml-design-polish', href: '/skills/xaml-design-polish/' },
-          { label: 'userinterface-wiki-uno', href: '/skills/userinterface-wiki-uno/' },
-          { label: 'winui-xaml', href: '/skills/winui-xaml/' },
+          {
+            label: 'XAML / Uno',
+            href: '/xaml-uno/',
+            children: [
+              { label: 'xaml-design-polish', href: '/skills/xaml-design-polish/' },
+              { label: 'userinterface-wiki-uno', href: '/skills/userinterface-wiki-uno/' },
+              { label: 'winui-xaml', href: '/skills/winui-xaml/' },
+            ],
+          },
           { label: 'Ledger', href: '/ledger/' },
         ],
       },
@@ -67,15 +72,19 @@ const isActive = (href: string) => {
   const h = href.replace(/\/$/, '') || '/';
   return h === '/' ? path === '/' : path === h;
 };
+/* an item is "lit" when it — or any nested child — is the active page */
+const itemActive = (i: NavItem): boolean =>
+  isActive(i.href) || (i.children?.some((c) => isActive(c.href)) ?? false);
 
-/* breadcrumb trail derived from the nav tree; leaf is the page's crumb */
+/* breadcrumb trail derived from the nav tree; leaf is the page's crumb.
+   Nested children keep the sub-level trail (projects / skills / <page>). */
 let trail: string[] = [crumb];
 for (const g of NAV) {
   if (g.items?.some((i) => isActive(i.href))) {
     trail = g.kicker === 'Overview' ? [crumb] : [g.kicker, crumb];
   }
   for (const s of g.subs ?? []) {
-    if (s.items.some((i) => isActive(i.href))) trail = [g.kicker, s.kicker, crumb];
+    if (s.items.some(itemActive)) trail = [g.kicker, s.kicker, crumb];
   }
 }
 const crumbs = trail.map((t) => t.toLowerCase());
@@ -137,15 +146,26 @@ const crumbs = trail.map((t) => t.toLowerCase());
           </div>
         )}
         {group.subs && (
-          <div class:list={['nav-nest', { 'has-active': group.subs.some((s) => s.items.some((i) => isActive(i.href))) }]}>
+          <div class:list={['nav-nest', { 'has-active': group.subs.some((s) => s.items.some(itemActive)) }]}>
             {group.subs.map((sub) => (
               <div class="nav-sub">
                 <span class="kicker">{sub.kicker}</span>
-                <div class:list={['nav-items', { 'has-active': sub.items.some((i) => isActive(i.href)) }]}>
+                <div class:list={['nav-items', { 'has-active': sub.items.some(itemActive) }]}>
                   {sub.items.map((item) => (
-                    <a class:list={['nav-item', { 'is-active': isActive(item.href) }]} href={item.href}>
-                      <span class="tick"></span>{item.label}
-                    </a>
+                    <Fragment>
+                      <a class:list={['nav-item', { 'is-active': isActive(item.href), 'has-child-active': !isActive(item.href) && itemActive(item) }]} href={item.href}>
+                        <span class="tick"></span>{item.label}
+                      </a>
+                      {item.children && (
+                        <div class:list={['nav-children', { 'has-active': item.children.some((c) => isActive(c.href)) }]}>
+                          {item.children.map((c) => (
+                            <a class:list={['nav-item', 'nav-child', { 'is-active': isActive(c.href) }]} href={c.href}>
+                              <span class="tick"></span>{c.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </Fragment>
                   ))}
                 </div>
               </div>
