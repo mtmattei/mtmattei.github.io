@@ -138,6 +138,15 @@ a { color: inherit; }
   color: var(--line-2);
   letter-spacing: 0.04em;
 }
+.icon-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--muted); position: relative;
+  transition: color .15s, scale .1s;
+}
+.icon-link::after { content: ""; position: absolute; inset: -10px; }
+.icon-link:hover { color: var(--ink); }
+.icon-link:active { scale: 0.96; }
+.icon-link svg { width: 17px; height: 17px; display: block; }
 
 /* ---- Sidebar nav ---- */
 .nav {
