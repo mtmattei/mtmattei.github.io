@@ -1,0 +1,24 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['status', '404'],
+  ['route', 'unresolved'],
+  ['return', 'index'],
+];
+---
+<Shell title="404" crumb="404" tokens={tokens}
+  description="Route not found.">
+  <div class="page-head">
+    <span class="kicker">Error · route unresolved</span>
+    <h1 class="title">404 — nothing hangs here.</h1>
+    <p class="lede">
+      This wall is empty. The piece may have been renamed, moved, or never entered
+      in the ledger. The index lists everything currently on exhibit.
+    </p>
+  </div>
+
+  <div class="srcblock" style="max-width:420px">
+    <pre><span class="ln"><b>return</b> <a class="ln" href="/" style="display:inline;padding:0"><span class="st">'/'</span></a>; <span class="cm">// back to the index</span></span></pre>
+  </div>
+</Shell>
