@@ -17,26 +17,16 @@ const tokens: [string, string][] = [
 <Shell title="Source / Figure" crumb="source · figure" tokens={tokens} wide
   description="Source / Figure — seven studies in self-referential notation, where each figure is drawn at runtime by the function printed beside it. A two-ink letterpress design study, retinted to the portfolio.">
 
-  <span class="kicker" style="display:block;margin-bottom:var(--s4)">Design · study · self-referential notation</span>
+  <div class="page-head">
+    <span class="kicker">Design · study · self-referential notation</span>
+    <h1 class="title">Source / Figure</h1>
+    <p class="lede">Seven studies in which source code is the structure, texture, and rhythm of the image drawn from it. The code becomes the image.</p>
+  </div>
 
   <div class="sf">
   <div class="sheet">
 
-    <header>
-      <div class="mast-meta">
-        <span>Sheet no. 1 — self-referential notation</span>
-        <span>Two inks: black + non-photo blue</span>
-        <span>MMXXVI</span>
-      </div>
-      <h1>SOURCE<span class="op">&nbsp;/&nbsp;</span>FIGURE</h1>
-      <div class="measure" id="measure">
-        <svg width="160" height="16" aria-hidden="true">
-          <line x1="0" y1="12" x2="160" y2="12" stroke="#3656D4" stroke-width="1"/>
-          <g id="mticks"></g>
-        </svg>
-        <span id="mread">measuring…</span>
-      </div>
-      <p class="dek">Seven studies in which source code is the structure, texture, and rhythm of the image drawn from it. The code becomes the image.</p>
+    <header class="intro">
       <div class="abstract">
         <p>Every figure on this sheet is drawn, at runtime, by the function printed beside it — and the printed text <em>is</em> the function: each source pane is <span style="font-family:var(--mono);font-size:13px">Function.prototype.toString()</span>, read back from the object that did the drawing.</p>
         <p>Two inks are used. Black is execution: what ran, what printed. Non-photo blue is the pre-press pencil the camera cannot see: measures, construction lines, untaken branches, iterations already passed.</p>
@@ -50,9 +40,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 01 =============== -->
     <section class="study" id="s1">
       <header class="s-head">
-        <span class="s-no">STUDY 01</span>
+        <span class="s-no">Study 01 · Line</span>
         <h2>A line of code is a line</h2>
-        <span class="s-tag">Line</span>
       </header>
       <div class="s-body cols">
         <div class="pane">
@@ -71,9 +60,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 02 =============== -->
     <section class="study" id="s2">
       <header class="s-head">
-        <span class="s-no">STUDY 02</span>
+        <span class="s-no">Study 02 · Depth</span>
         <h2>Indentation is depth</h2>
-        <span class="s-tag">Depth</span>
       </header>
       <div class="s-body cols">
         <div class="pane">
@@ -91,9 +79,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 03 =============== -->
     <section class="study" id="s3">
       <header class="s-head">
-        <span class="s-no">STUDY 03</span>
+        <span class="s-no">Study 03 · Containment</span>
         <h2>Brackets contain</h2>
-        <span class="s-tag">Containment</span>
       </header>
       <div class="s-body">
         <div class="cols">
@@ -113,9 +100,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 04 =============== -->
     <section class="study" id="s4">
       <header class="s-head">
-        <span class="s-no">STUDY 04</span>
+        <span class="s-no">Study 04 · Repetition</span>
         <h2>A loop is a rhythm</h2>
-        <span class="s-tag">Repetition</span>
       </header>
       <div class="s-body cols">
         <div class="pane">
@@ -134,9 +120,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 05 =============== -->
     <section class="study" id="s5">
       <header class="s-head">
-        <span class="s-no">STUDY 05</span>
+        <span class="s-no">Study 05 · Choice</span>
         <h2>A condition forks</h2>
-        <span class="s-tag">Choice</span>
       </header>
       <div class="s-body cols">
         <div class="pane">
@@ -164,9 +149,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 06 =============== -->
     <section class="study" id="s6">
       <header class="s-head">
-        <span class="s-no">STUDY 06</span>
+        <span class="s-no">Study 06 · Voice</span>
         <h2>Comments are the human hand</h2>
-        <span class="s-tag">Voice</span>
       </header>
       <div class="s-body">
         <div class="pane-label">fn execute — the program counter that swept Study 01</div>
@@ -182,9 +166,8 @@ const tokens: [string, string][] = [
     <!-- =============== STUDY 07 =============== -->
     <section class="study" id="s7">
       <header class="s-head">
-        <span class="s-no">STUDY 07</span>
+        <span class="s-no">Study 07 · Quine</span>
         <h2>Portrait of a function as itself</h2>
-        <span class="s-tag">Quine</span>
       </header>
       <div class="s-body">
         <div class="pane-label">fn portrait — the pane and the figure are the same characters</div>
@@ -725,14 +708,6 @@ Promise.all([
   mc.font = FS + 'px "JetBrains Mono"';
   CH = mc.measureText('0000000000').width / 10;
   CH11 = CH * 11 / FS;
-
-  // masthead measure: ch ticks on the blue rule
-  const mt = document.getElementById('mticks');
-  for (let x = 0; x <= 160; x += CH) {
-    el('line', { x1: x.toFixed(1), y1: 7, x2: x.toFixed(1), y2: 12, stroke: BLUE, 'stroke-width': 1 }, mt);
-  }
-  document.getElementById('mread').textContent =
-    'MEASURE: 1ch = ' + CH.toFixed(2) + 'px · 1 line = ' + LH + 'px — every figure below is plotted in these units';
 
   // sources, verbatim from the objects that draw
   typeset('src1', beams.toString());

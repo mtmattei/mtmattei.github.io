@@ -38,57 +38,34 @@
 /* sits inside the portfolio's padded main column */
 .sf .sheet { max-width: none; margin: 0; padding: 0 0 40px; }
 
-/* ---------- masthead ---------- */
-.sf .mast-meta {
-  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--soft);
-  border-top: 2px solid var(--ink); border-bottom: 1px solid var(--hair);
-  padding: 9px 0;
-}
-.sf h1 {
-  font-family: var(--mono); font-weight: 700;
-  font-size: clamp(42px, 8.6vw, 94px);
-  line-height: .98; letter-spacing: -.02em;
-  margin-top: clamp(28px, 5vw, 56px);
-  text-wrap: balance;
-}
-.sf h1 .op { color: var(--blue-deep); font-weight: 400; }
-.sf .measure {
-  margin-top: 18px;
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--soft);
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-}
-.sf .measure svg { display: block; flex: none; }
-.sf .dek {
-  font-style: italic; font-size: clamp(18px, 2.4vw, 21px); line-height: 1.5;
-  max-width: 34em; margin-top: clamp(22px, 4vw, 40px);
-  text-wrap: balance;
-}
-.sf .abstract { max-width: 62ch; margin-top: 26px; color: var(--ink); }
+/* ---------- intro (portfolio hierarchy: the masthead + measure
+   plate are gone; the page title lives in the Shell page-head) ---------- */
+.sf .intro { margin-bottom: var(--s8); }
+.sf .abstract { max-width: 62ch; }
+.sf .abstract p { font-family: var(--sans); font-size: 15px; line-height: 1.6; color: var(--muted); }
 .sf .abstract p + p { margin-top: 12px; }
 .sf .legend {
-  margin-top: 26px; display: flex; gap: 34px; flex-wrap: wrap;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  margin-top: var(--s6); display: flex; gap: 34px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted);
 }
 .sf .legend span { display: inline-flex; align-items: center; gap: 9px; }
 .sf .sw { width: 22px; height: 11px; flex: none; display: inline-block; }
 .sf .sw.ink { background: var(--ink); }
 .sf .sw.blue { background: var(--blue); }
 
-/* ---------- studies ---------- */
-.sf .study { margin-top: clamp(72px, 10vw, 116px); }
-.sf .s-head {
-  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
-  border-bottom: 1px solid var(--ink); padding-bottom: 10px;
+/* ---------- studies (portfolio section hierarchy: ruled top,
+   mono kicker, sans h2 — matching Poolside / Logo) ---------- */
+.sf .study { margin-top: var(--s12); border-top: var(--bw) solid var(--line); padding-top: var(--s8); }
+.sf .s-head { display: block; margin-bottom: var(--s6); }
+.sf .s-no {
+  display: block; font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: var(--s3);
 }
-.sf .s-no { font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--soft); }
 .sf .s-head h2 {
-  font-family: var(--mono); font-weight: 700; font-size: clamp(19px, 2.6vw, 26px);
-  letter-spacing: -.01em; text-wrap: balance;
+  font-family: var(--sans); font-weight: 600; font-size: 20px;
+  letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
 }
-.sf .s-tag { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: .16em; color: var(--blue-deep); text-transform: uppercase; }
-.sf .s-body { margin-top: 22px; }
+.sf .s-body { margin-top: var(--s6); }
 .sf .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(22px, 3.5vw, 44px); }
 @media (max-width: 840px) { .sf .cols { grid-template-columns: minmax(0, 1fr); } }
 
@@ -111,8 +88,8 @@
 .sf .figwrap { padding-top: 14px; overflow-x: auto; }
 .sf .fnote { margin-top: 10px; font-family: var(--mono); font-size: 10px; color: var(--soft); letter-spacing: .03em; }
 .sf .caption {
-  font-style: italic; font-size: 15px; color: var(--soft);
-  max-width: 60ch; margin-top: 20px;
+  font-family: var(--sans); font-style: normal; font-size: 14px; line-height: 1.5; color: var(--muted);
+  max-width: 60ch; margin-top: var(--s4); text-wrap: pretty;
 }
 .sf .caption b { font-family: var(--mono); font-style: normal; font-weight: 400; font-size: 12px; color: var(--ink); }
 
