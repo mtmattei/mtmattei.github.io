@@ -77,7 +77,6 @@ export const PROGRAM_SRC = `function portfolio() {
   pending('04', 'LiquidGlassLab', 'refraction on the Skia canvas');
   shipped('05', 'design-ledger', 'a public record of design DNA');
   texts(writing());
-  plates(printroom());
   toolchain(linked());
   return contact();
 }`;
