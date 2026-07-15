@@ -11,7 +11,8 @@ import { highlightSource } from '../data/portfolio';
 
 const tokens: [string, string][] = [
   ['medium', 'DOM + WebGL'],
-  ['breakdown', 'vue éclatée · 4 parts'],
+  ['stack', 'Uno Platform'],
+  ['breakdown', '4 key parts'],
   ['origin', 'SkSL · SkiaSharp 4'],
   ['faces', 'Fraunces · Instr.'],
   ['status', 'in build'],
@@ -50,7 +51,7 @@ float caustic(float2 suv) {
   description="Poolside — pool chemistry read like weather. A living exhibit: explode the real interface into its key features, back to the SkiaSharp shader it grew from.">
 
   <div class="page-head">
-    <span class="kicker">Code · exhibit · vue éclatée</span>
+    <span class="kicker">Code · exhibit · Uno Platform</span>
     <h1 class="title">Poolside</h1>
     <p class="lede">
       A premium companion for pool chemistry — water reported like weather. This is not a
@@ -60,7 +61,7 @@ float caustic(float2 suv) {
   </div>
 
   <div class="sheet-note" aria-hidden="true">
-    <span class="kicker">fig.02 · vue éclatée · the shell keeps running · dashed voids mark where each part lives</span>
+    <span class="kicker">fig.02 · component breakdown · the shell keeps running · dashed voids mark where each part lives</span>
   </div>
 
   <div class="hero-sheet">
@@ -185,7 +186,7 @@ float caustic(float2 suv) {
         <div class="work">Poolside — Home <span class="yr">2026</span></div>
         <div class="medium">Living interface · WebGL water · Fraunces &amp; Instrument Sans · Uno Platform target</div>
       </figcaption>
-      <div><button class="reveal-btn" id="revealBtn" aria-pressed="false">Explode the interface · Vue éclatée</button></div>
+      <div><button class="reveal-btn" id="revealBtn" aria-pressed="false">Explode the interface</button></div>
     </figure>
 
     <!-- concept rail -->
@@ -584,7 +585,7 @@ float caustic(float2 suv) {
     revealed = toGrid;
     phone.setAttribute('aria-pressed', String(toGrid));
     btn.setAttribute('aria-pressed', String(toGrid));
-    btn.textContent = toGrid ? 'Reassemble · Rassembler' : 'Explode the interface · Vue éclatée';
+    btn.textContent = toGrid ? 'Reassemble' : 'Explode the interface';
     drawTethers();
 
     if (reduce) { animating = false; return; }
