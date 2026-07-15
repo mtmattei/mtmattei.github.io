@@ -1,0 +1,42 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { TOOLS } from '../data/portfolio';
+
+const tokens: [string, string][] = [
+  ['unit', 'years'],
+  ['daily', 'ink fill'],
+  ['working', 'outline'],
+  ['learning', 'accent'],
+];
+---
+<Shell title="Toolchain" crumb="toolchain" tokens={tokens}
+  description="Skills as a ruler of years — filled bars are daily drivers, outlines are working fluency, accent is what is compiling.">
+  <div class="page-head">
+    <span class="kicker">System · linked against</span>
+    <h1 class="title">Toolchain</h1>
+    <p class="lede">Length is time: a line of practice is a line. Filled bars are daily drivers, outlined bars are working fluency, accent is what is currently compiling. No percentages, no stars.</p>
+  </div>
+
+  <div id="toolrows">
+    {TOOLS.map((s) => (
+      <div class="toolrow">
+        <span class="tname">{s.name}</span>
+        <span class="ttrack"><span class:list={['tb', s.grade]} data-w={s.years * 10} style="width:0"></span></span>
+        <span class="tmeta">{s.years} yrs · {s.grade === 'learning' ? <span class="acc">learning</span> : s.grade}</span>
+      </div>
+    ))}
+  </div>
+</Shell>
+
+<script is:inline>
+  (function () {
+    var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var bars = document.querySelectorAll('#toolrows .tb');
+    setTimeout(function () {
+      bars.forEach(function (b, i) {
+        b.style.transitionDelay = (RM ? 0 : i * 60) + 'ms';
+        b.style.width = b.dataset.w + '%';
+      });
+    }, 120);
+  })();
+</script>

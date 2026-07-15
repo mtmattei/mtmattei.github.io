@@ -1,0 +1,48 @@
+---
+// Square-grid marks. All variants live on an 18×18 grid so they swap freely.
+// 'grid-m' is the site mark: the four-squares DNA extended to a 5×5 pixel M —
+// verticals in ink, the diagonal valley in the same quiet gray as the original mark.
+interface Props {
+  variant?: 'grid-m' | 'bars-m' | 'bars-mm' | 'squares';
+  size?: number;
+}
+const { variant = 'grid-m', size = 18 } = Astro.props;
+
+type Cell = { x: number; y: number; w: number; h: number; tone: 'ink' | 'gray' };
+const cells: Cell[] = [];
+
+if (variant === 'grid-m') {
+  const c = 2.8, step = 3.8;
+  for (let r = 0; r < 5; r++) {
+    cells.push({ x: 0, y: r * step, w: c, h: c, tone: 'ink' });
+    cells.push({ x: 4 * step, y: r * step, w: c, h: c, tone: 'ink' });
+  }
+  cells.push({ x: 1 * step, y: 1 * step, w: c, h: c, tone: 'gray' });
+  cells.push({ x: 3 * step, y: 1 * step, w: c, h: c, tone: 'gray' });
+  cells.push({ x: 2 * step, y: 2 * step, w: c, h: c, tone: 'gray' });
+} else if (variant === 'bars-m') {
+  const w = 2.8, step = 3.8, heights = [18, 11, 7, 11, 18];
+  heights.forEach((h, i) => {
+    cells.push({ x: i * step, y: 0, w, h, tone: i === 0 || i === 4 ? 'ink' : 'gray' });
+  });
+} else if (variant === 'bars-mm') {
+  const w = 1.4, step = 2.075, heights = [18, 11, 7, 11, 18, 11, 7, 11, 18];
+  heights.forEach((h, i) => {
+    cells.push({ x: i * step, y: 0, w, h, tone: i % 4 === 0 ? 'ink' : 'gray' });
+  });
+} else {
+  // original four squares, for reference
+  cells.push({ x: 0, y: 0, w: 8, h: 8, tone: 'ink' });
+  cells.push({ x: 10, y: 0, w: 8, h: 8, tone: 'gray' });
+  cells.push({ x: 0, y: 10, w: 8, h: 8, tone: 'gray' });
+  cells.push({ x: 10, y: 10, w: 8, h: 8, tone: 'ink' });
+}
+---
+<svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" style="flex:none;display:block">
+  {cells.map((c) => (
+    <rect
+      x={c.x} y={c.y} width={c.w} height={c.h} rx="0.8"
+      fill={c.tone === 'ink' ? 'var(--ink)' : 'var(--line-2)'}
+    />
+  ))}
+</svg>

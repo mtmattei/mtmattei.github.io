@@ -1,0 +1,199 @@
+---
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+
+interface Props {
+  title: string;
+  crumb: string;
+  description?: string;
+  /* INSPECT readout: the tokens of the active view */
+  tokens?: [string, string][];
+  /* widen the content column (exploded exhibit views) */
+  wide?: boolean;
+}
+const {
+  title,
+  crumb,
+  description = 'Matt Mattei — design engineer in Montréal. Code, design, writing, and the toolchain behind them, measured in monochrome.',
+  tokens = [],
+  wide = false,
+} = Astro.props;
+
+type NavItem = { label: string; href: string };
+type NavSub = { kicker: string; items: NavItem[] };
+const NAV: { kicker: string; items?: NavItem[]; subs?: NavSub[] }[] = [
+  { kicker: 'Overview', items: [{ label: 'Index', href: '/' }] },
+  {
+    kicker: 'Projects',
+    subs: [
+      { kicker: 'Code', items: [{ label: 'Lagoon', href: '/lagoon/' }] },
+      {
+        kicker: 'Design',
+        items: [
+          { label: 'Plates', href: '/plates/' },
+          { label: 'Ledger', href: '/ledger/' },
+          { label: 'Colophon', href: '/colophon/' },
+        ],
+      },
+      { kicker: 'Writing', items: [{ label: 'Texts', href: '/texts/' }] },
+      { kicker: 'Skills', items: [{ label: 'XAML / Uno', href: '/xaml-uno/' }] },
+    ],
+  },
+  {
+    kicker: 'Return',
+    items: [
+      { label: 'Program', href: '/program/' },
+      { label: 'Toolchain', href: '/toolchain/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => {
+  const h = href.replace(/\/$/, '') || '/';
+  return h === '/' ? path === '/' : path === h;
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="generator" content={Astro.generator} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>{title} — Matt Mattei</title>
+</head>
+<body>
+<div class="app">
+
+  <!-- Brand -->
+  <div class="brand">
+    <a class="brand-link" href="/">
+      <Logo height={26} />
+      <span class="brand-name">MATT&nbsp;MATTEI</span>
+    </a>
+    <button class="toggle nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-pressed="false"><span class="dot"></span>MENU</button>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="crumb mono">
+      <span class="ident-role">design engineer · Montréal</span>
+      <span class="sep ident-role">/</span><span class="here">{crumb}</span>
+    </div>
+    <div class="controls">
+      <span class="build">v0.2 · source → figure</span>
+      <button class="toggle" id="gridToggle" aria-pressed="false"><span class="dot"></span>GRID</button>
+      <button class="toggle" id="inspToggle" aria-pressed="false"><span class="dot"></span>INSPECT</button>
+    </div>
+  </div>
+
+  <!-- Sidebar nav -->
+  <nav class="nav" id="nav" aria-label="Sections">
+    {NAV.map((group) => (
+      <div class="nav-group">
+        <span class="kicker">{group.kicker}</span>
+        {group.items && (
+          <div class:list={['nav-items', { 'has-active': group.items.some((i) => isActive(i.href)) }]}>
+            {group.items.map((item) => (
+              <a class:list={['nav-item', { 'is-active': isActive(item.href) }]} href={item.href}>
+                <span class="tick"></span>{item.label}
+              </a>
+            ))}
+          </div>
+        )}
+        {group.subs && (
+          <div class:list={['nav-nest', { 'has-active': group.subs.some((s) => s.items.some((i) => isActive(i.href))) }]}>
+            {group.subs.map((sub) => (
+              <div class="nav-sub">
+                <span class="kicker">{sub.kicker}</span>
+                <div class:list={['nav-items', { 'has-active': sub.items.some((i) => isActive(i.href)) }]}>
+                  {sub.items.map((item) => (
+                    <a class:list={['nav-item', { 'is-active': isActive(item.href) }]} href={item.href}>
+                      <span class="tick"></span>{item.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class:list={['main-inner', { wide }]}>
+      <slot />
+    </div>
+  </main>
+</div>
+
+<!-- Inspector -->
+<aside class="inspector" id="inspector" aria-label="Token inspector" aria-hidden="true">
+  <div class="insp-head">
+    <span class="kicker">Inspector</span>
+    <button class="insp-close" id="inspClose" aria-label="Close inspector">✕</button>
+  </div>
+  <div class="insp-body">
+    <div class="grp">
+      <span class="kicker">{crumb}</span>
+      {tokens.map(([k, v]) => (
+        <div class="tok"><span class="k">{k}</span><span class="v">{v}</span></div>
+      ))}
+    </div>
+  </div>
+</aside>
+
+<!-- Grid / measurement overlay -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="col-guide"></div>
+  <div class="dim">content · 760px · margin 48px · baseline 8px</div>
+</div>
+
+<script is:inline>
+  // GRID and INSPECT survive page navigation via sessionStorage (MPA).
+  const overlay = document.getElementById('overlay');
+  const gridToggle = document.getElementById('gridToggle');
+  const inspector = document.getElementById('inspector');
+  const inspToggle = document.getElementById('inspToggle');
+  const nav = document.getElementById('nav');
+
+  function setGrid(on) {
+    gridToggle.setAttribute('aria-pressed', String(on));
+    overlay.classList.toggle('on', on);
+    sessionStorage.setItem('mm.grid', on ? '1' : '0');
+  }
+  function setInsp(on) {
+    inspToggle.setAttribute('aria-pressed', String(on));
+    inspector.classList.toggle('open', on);
+    inspector.setAttribute('aria-hidden', String(!on));
+    sessionStorage.setItem('mm.inspect', on ? '1' : '0');
+  }
+
+  gridToggle.addEventListener('click', () => setGrid(gridToggle.getAttribute('aria-pressed') !== 'true'));
+  inspToggle.addEventListener('click', () => setInsp(inspToggle.getAttribute('aria-pressed') !== 'true'));
+  document.getElementById('inspClose').addEventListener('click', () => setInsp(false));
+
+  document.getElementById('navToggle').addEventListener('click', (e) => {
+    const t = e.currentTarget;
+    const open = t.getAttribute('aria-pressed') === 'true';
+    t.setAttribute('aria-pressed', String(!open));
+    nav.classList.toggle('open', !open);
+  });
+
+  if (sessionStorage.getItem('mm.grid') === '1') setGrid(true);
+  if (sessionStorage.getItem('mm.inspect') === '1') setInsp(true);
+</script>
+</body>
+</html>

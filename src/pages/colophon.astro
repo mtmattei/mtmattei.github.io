@@ -1,0 +1,123 @@
+---
+import Shell from '../layouts/Shell.astro';
+import Mark from '../components/Mark.astro';
+import Logo from '../components/Logo.astro';
+
+const tokens: [string, string][] = [
+  ['ink', '#14161A'],
+  ['accent', '#3656D4'],
+  ['base', '8px'],
+  ['radius', '4px'],
+  ['border', '1px'],
+  ['mark', 'M.M · hand-drawn'],
+];
+---
+<Shell title="Colophon" crumb="colophon" tokens={tokens}>
+  <div class="page-head">
+    <span class="kicker">Design · tokens</span>
+    <h1 class="title">Colophon</h1>
+    <p class="lede">
+      The smallest set that holds the site together: one ink, one accent, an 8px base,
+      and a hand-drawn mark. Everything on every page is measured against this sheet.
+    </p>
+  </div>
+
+  <span class="kicker" style="display:block;margin-bottom:12px">Mark · M.M</span>
+  <div class="grid">
+    <div class="mark-cell is-selected" style="padding:32px 16px">
+      <span class="sel-tag">IN USE</span>
+      <Logo height={72} />
+      <span class="mono">hand-drawn double M + point<br />echo stroke at 40% · rough displacement</span>
+    </div>
+    <div class="mark-cell" style="padding:32px 16px;background:#1A1815;border-color:#1A1815">
+      <span style="color:#EFEAE2"><Logo height={72} /></span>
+      <span class="mono" style="color:#EFEAE2">paper on ink · #EFEAE2 / #1A1815<br />draws with currentColor</span>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="specimen" style="border-top:1px solid var(--line)">
+    <span class="k">Favicon set</span>
+    <div class="read">echo + texture stripped below 48px · svg swaps ink/paper by scheme</div>
+  </div>
+
+  <div style="height:24px"></div>
+  <span class="kicker" style="display:block;margin-bottom:12px">Earlier studies · square-grid M</span>
+  <div class="mark-study">
+    <div class="mark-cell">
+      <Mark variant="grid-m" size={44} />
+      <span class="mono">grid-m · 5×5 cells</span>
+    </div>
+    <div class="mark-cell">
+      <Mark variant="bars-m" size={44} />
+      <span class="mono">bars-m · 5 columns</span>
+    </div>
+    <div class="mark-cell">
+      <Mark variant="bars-mm" size={44} />
+      <span class="mono">bars-mm · shared stem</span>
+    </div>
+    <div class="mark-cell">
+      <Mark variant="squares" size={44} />
+      <span class="mono">origin · four squares</span>
+    </div>
+  </div>
+
+  <hr class="rule" />
+
+  <span class="kicker" style="display:block;margin-bottom:12px">Ink &amp; neutrals</span>
+  <div class="ramp">
+    <div class="sw" style="background:#14161A"><span style="color:#fff">ink</span></div>
+    <div class="sw" style="background:#6B7077"><span style="color:#fff">muted</span></div>
+    <div class="sw" style="background:#C9CCD2"><span>line-2</span></div>
+    <div class="sw" style="background:#E2E4E8"><span>line</span></div>
+    <div class="sw" style="background:#EDEEF1"><span>gray-2</span></div>
+    <div class="sw" style="background:#F6F7F8"><span>gray-1</span></div>
+    <div class="sw" style="background:#FFFFFF;border-left:1px solid #E2E4E8"><span>paper</span></div>
+  </div>
+
+  <div style="height:24px"></div>
+  <span class="kicker" style="display:block;margin-bottom:12px">Accent — state only</span>
+  <div class="swatch-accent">
+    <div class="chip"></div>
+    <div>
+      <div style="font-weight:500">#3656D4</div>
+      <div class="mono">focus · active · selection · measurement guides</div>
+    </div>
+  </div>
+
+  <div style="height:24px"></div>
+  <span class="kicker" style="display:block;margin-bottom:14px">Spacing scale (8px base)</span>
+  <div class="space-scale">
+    <div class="col"><div class="bar" style="height:4px"></div><span class="mono">4</span></div>
+    <div class="col"><div class="bar" style="height:8px"></div><span class="mono">8</span></div>
+    <div class="col"><div class="bar" style="height:12px"></div><span class="mono">12</span></div>
+    <div class="col"><div class="bar" style="height:16px"></div><span class="mono">16</span></div>
+    <div class="col"><div class="bar" style="height:24px"></div><span class="mono">24</span></div>
+    <div class="col"><div class="bar" style="height:32px"></div><span class="mono">32</span></div>
+    <div class="col"><div class="bar" style="height:48px"></div><span class="mono">48</span></div>
+    <div class="col"><div class="bar" style="height:64px"></div><span class="mono">64</span></div>
+  </div>
+
+  <hr class="rule" />
+
+  <span class="kicker" style="display:block;margin-bottom:4px">Typography</span>
+  <div class="type-row"><span class="meta">32 / 600 · title</span><span style="font-size:32px;font-weight:600;letter-spacing:-.015em">Section title</span></div>
+  <div class="type-row"><span class="meta">20 / 600 · page</span><span style="font-size:20px;font-weight:600">Page title</span></div>
+  <div class="type-row"><span class="meta">16 / 400 · body</span><span style="font-size:16px">Body copy and descriptions</span></div>
+  <div class="type-row"><span class="meta">14 / 400 · support</span><span style="font-size:14px;color:var(--muted)">Supporting text</span></div>
+  <div class="type-row"><span class="meta">12 / 500 · label</span><span class="mono" style="font-size:12px">MONO LABEL · 0.04EM</span></div>
+
+  <div style="height:28px"></div>
+  <div class="specimen" style="border-top:1px solid var(--line)">
+    <span class="k">Radius</span><div class="read">--radius · 4px · all corners</div>
+  </div>
+  <div class="specimen">
+    <span class="k">Border</span><div class="read">--bw · 1px · no shadows</div>
+  </div>
+  <div class="specimen">
+    <span class="k">Set in</span><div class="read">Inter · JetBrains Mono · self-hosted</div>
+  </div>
+  <div class="specimen">
+    <span class="k">Built with</span><div class="read">Astro 7 · static · zero framework JS</div>
+  </div>
+</Shell>

@@ -1,0 +1,51 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['curve', '0.22,1 0.36,1'],
+  ['durations', '150 · 200 · 280'],
+  ['press', 'scale 0.98'],
+  ['motion', 'always gated'],
+];
+---
+<Shell title="XAML / Uno design" crumb="xaml-uno" tokens={tokens}
+  description="The motion-and-feel system I bring to Uno Platform and WinUI surfaces — tuned numbers, not adjectives.">
+  <div class="page-head">
+    <span class="kicker">Skills · the feel system</span>
+    <h1 class="title">XAML / Uno design</h1>
+    <p class="lede">
+      The motion-and-feel system I bring to Uno Platform and WinUI surfaces. Numbers, not
+      adjectives: every interaction has a tuned value it must hit, and the same sheet travels
+      from prototype to shipped app. The exhibits on this site are built against it.
+    </p>
+  </div>
+
+  <span class="kicker" style="display:block;margin-bottom:4px">House numbers</span>
+  <div class="type-row"><span class="meta">easing · house curve</span><span class="mono" style="color:var(--ink)">KeySpline 0.22,1 0.36,1 — fast out, long settle</span></div>
+  <div class="type-row"><span class="meta">durations</span><span class="mono" style="color:var(--ink)">150ms micro · 200ms standard · 280ms entrance</span></div>
+  <div class="type-row"><span class="meta">press</span><span class="mono" style="color:var(--ink)">scale 0.98 on XAML surfaces (web presses 0.96)</span></div>
+  <div class="type-row"><span class="meta">entrances</span><span class="mono" style="color:var(--ink)">fade + 6px rise · blur-in reserved for hero surfaces</span></div>
+  <div class="type-row"><span class="meta">shadows</span><span class="mono" style="color:var(--ink)">layered ambient + key · never one big blur</span></div>
+  <div class="type-row"><span class="meta">drag</span><span class="mono" style="color:var(--ink)">spring physics · two-zone snap points</span></div>
+
+  <div style="height:32px"></div>
+
+  <div class="specimen" style="border-top:1px solid var(--line)">
+    <div><h3>State-driven, not event-driven</h3><p>Visual states own the look; interactions only request transitions. If a state cannot be named, the design is not finished yet.</p></div>
+    <div class="read">VisualStateManager first</div>
+  </div>
+  <div class="specimen">
+    <div><h3>Reduced motion is a contract</h3><p>Every animation is gated on the platform's animation setting with a designed static fallback — the quiet version is designed, never a broken one.</p></div>
+    <div class="read">gated · static fallback</div>
+  </div>
+  <div class="specimen">
+    <div><h3>Tokens over hex</h3><p>Color comes from Material roles, type from the scale, overrides through lightweight styling keys. A hardcoded hex in XAML is a bug report I file against myself.</p></div>
+    <div class="read">roles · scale · lightweight styling</div>
+  </div>
+  <div class="specimen">
+    <div><h3>Proved on this site</h3><p>Lagoon's shader water, the FLIP explode, and the tuned Skia effects all come from the same sheet — see the exhibit and the toolchain it links against.</p></div>
+    <div class="read"><a class="link-inline" href="/lagoon/">lagoon</a> · <a class="link-inline" href="/toolchain/">toolchain</a></div>
+  </div>
+
+  <p class="annotate" style="margin-top:var(--s6)"><span class="q">Question:</span> can "feels right" be written down precisely enough to hand to an agent?</p>
+</Shell>

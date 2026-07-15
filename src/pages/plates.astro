@@ -1,0 +1,32 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['plate.01', 'web print'],
+  ['plate.02', 'quine wordmark'],
+  ['reserved', 'accent frame'],
+  ['rule', 'never redrawn'],
+];
+---
+<Shell title="Plates" crumb="plates" tokens={tokens}
+  description="Design that is not an interface, hung as the scanned artifact itself.">
+  <div class="page-head">
+    <span class="kicker">Design · print · scanned artifacts</span>
+    <h1 class="title">Plates</h1>
+    <p class="lede">Design that is not an interface hangs as the artifact itself — scanned in, never redrawn. Reserved positions wait in accent.</p>
+  </div>
+
+  <div class="platecard" style="margin-bottom:var(--s3)">
+    <img src="/plates/plate-01.jpg" alt="Source / Figure — sheet no. 1, a two-ink web print study" loading="lazy" />
+    <div class="cap"><b>Source / Figure — sheet no. 1</b><span class="mono">plate 01 · two-ink web print · 2026</span></div>
+  </div>
+  <div class="grid">
+    <div class="platecard">
+      <img src="/plates/plate-02.jpg" alt="MATTHEW — quine wordmark print" loading="lazy" />
+      <div class="cap"><b>MATTHEW — quine wordmark</b><span class="mono">plate 02 · 2026</span></div>
+    </div>
+    <div class="platecard pendingp"><span>plate reserved — banner series, awaiting scan</span></div>
+  </div>
+
+  <p class="annotate"><span class="q">Question:</span> does the scan carry the artifact, or just describe it?</p>
+</Shell>

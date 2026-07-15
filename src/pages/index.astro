@@ -1,0 +1,225 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['concept', 'source → figure'],
+  ['hero.src', 'hero.toString()'],
+  ['points', '≤1500'],
+  ['accent.use', 'state · future'],
+];
+---
+<Shell title="Index" crumb="index" tokens={tokens}>
+  <!-- the name is the title; no headline competes with it -->
+  <div class="stage" style="min-height:0;padding:var(--s6);margin-top:var(--s2)">
+    <div class="hero-stage">
+      <canvas id="herocv" aria-label="the name MATTHEW assembling out of the characters of the function that draws it"></canvas>
+      <div class="seg" id="heroSeg" role="group" aria-label="Interpolation">
+        <button data-mode="source">source</button>
+        <button class="on" data-mode="figure">figure</button>
+        <button data-mode="loop">loop</button>
+      </div>
+    </div>
+  </div>
+  <p class="annotate"><span class="q">Question:</span> can a name be typeset from nothing but its own source?</p>
+
+  <hr class="rule" />
+
+  <span class="kicker" style="display:block;margin-bottom:var(--s3)">Index</span>
+  <a class="idx-row" href="/lagoon/"><span class="no">01</span><span class="t">Lagoon</span><span class="d">water, read like weather — the real interface, exploded</span><span class="tag">code · exhibit</span></a>
+  <a class="idx-row" href="/plates/"><span class="no">02</span><span class="t">Plates</span><span class="d">design off the screen, hung as the artifact</span><span class="tag">design · print</span></a>
+  <a class="idx-row" href="/ledger/"><span class="no">03</span><span class="t">Ledger</span><span class="d">a public record of design DNA</span><span class="tag">design · oss</span></a>
+  <a class="idx-row" href="/texts/"><span class="no">04</span><span class="t">Texts</span><span class="d">essays in galley, quoted at reading measure</span><span class="tag">writing</span></a>
+  <a class="idx-row" href="/xaml-uno/"><span class="no">05</span><span class="t">XAML / Uno</span><span class="d">the feel system — tuned numbers, not adjectives</span><span class="tag">skills</span></a>
+  <a class="idx-row" href="/program/"><span class="no">06</span><span class="t">Program</span><span class="d">the portfolio as it runs — the source is the sitemap</span><span class="tag">return</span></a>
+
+  <hr class="rule" />
+  <p class="mono">Toggle GRID to see the baseline and column. Toggle INSPECT to read the tokens of the active view.</p>
+</Shell>
+
+<script is:inline>
+/* ============================================================
+   HERO — the name is its own source (instrument edition).
+   This script is inline and unminified on purpose: hero() reads
+   its own toString(), so the printed prose IS this source.
+   ============================================================ */
+
+function hero(cv, t) {
+  const src = hero.toString();
+  const marks = glyphs(src);
+  const a = prose(src), b = letterform(src);
+  const g = cv.getContext('2d');
+  g.clearRect(0, 0, cv.width, cv.height);
+  for (let i = 0; i < b.length; i++) {
+    const k = marks[i % marks.length];
+    stamp(g, src[k], glide(a[k], b[i], t, i));
+  }
+}
+
+const INK = '#14161A', ACCENT = '#3656D4';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let CH = 7.2;
+
+const hash01 = i => {
+  let x = (i + 1) * 2654435761 % 4294967296;
+  x = (x ^ (x >> 13)) * 1274126177 % 4294967296;
+  return (x % 10000) / 10000;
+};
+const smooth = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+
+let heroCv, prosePos = null, letterPos = null, glyphIdx = null, HW = 0, HH = 0;
+let heroT = 1, heroTween = null, heroLoopId = null;
+
+function glyphs(src) {
+  if (glyphIdx) return glyphIdx;
+  glyphIdx = [];
+  for (let i = 0; i < src.length; i++) {
+    if (src[i] !== ' ' && src[i] !== '\n') glyphIdx.push(i);
+  }
+  return glyphIdx;
+}
+function prose(src) {
+  if (prosePos) return prosePos;
+  const chC = CH * 10.5 / 12;
+  const rows = src.split('\n');
+  const maxc = Math.max(...rows.map(r => r.length));
+  const ox = Math.max(10, (HW - maxc * chC) / 2), oy = (HH - rows.length * 15) / 2 + 7;
+  const out = [];
+  let col = 0, row = 0;
+  for (let i = 0; i < src.length; i++) {
+    if (src[i] === '\n') { out.push(null); row++; col = 0; continue; }
+    out.push({ x: ox + col * chC, y: oy + row * 15 });
+    col++;
+  }
+  prosePos = out;
+  return out;
+}
+function letterform(src) {
+  if (letterPos) return letterPos;
+  const S = Math.min((HW * 0.86) / 4.25, HH * 0.5);
+  const off = document.createElement('canvas');
+  off.width = HW; off.height = HH;
+  const og = off.getContext('2d');
+  og.font = '500 ' + S + 'px "JetBrains Mono"';
+  og.textAlign = 'center'; og.textBaseline = 'middle';
+  og.lineWidth = Math.max(4, S * 0.055);
+  og.strokeText('MATTHEW', HW / 2, HH / 2);
+  const data = og.getImageData(0, 0, HW, HH).data;
+  let step = 4, pts = [];
+  do {
+    pts = [];
+    for (let y = 2; y < HH; y += step) {
+      for (let x = 2; x < HW; x += step) {
+        if (data[(y * HW + x) * 4 + 3] > 140) pts.push({ x: x, y: y });
+      }
+    }
+    step += 1;
+  } while (pts.length > 1500 && step < 40);
+  letterPos = pts;
+  return pts;
+}
+function glide(p, q, t, i) {
+  if (!q) return { x: p.x, y: p.y, ink: true };
+  const s = hash01(i) * 0.35;
+  const u = smooth((t * 1.35 - s) / 1.0);
+  const x = p.x + (q.x - p.x) * u;
+  const y = p.y + (q.y - p.y) * u - Math.sin(u * Math.PI) * (10 + hash01(i + 7) * 22);
+  return { x: x, y: y, ink: u <= 0 || u >= 1, sz: 8.6 - 1.8 * u };
+}
+function stamp(g, chr, pos) {
+  g.fillStyle = pos.ink ? INK : ACCENT;
+  const sz = (pos.sz || 8.6).toFixed(1);
+  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "JetBrains Mono"' : sz + 'px "JetBrains Mono"';
+  g.fillText(chr, pos.x, pos.y);
+}
+function heroDraw() { hero(heroCv, heroT); }
+function setT(t) { heroT = Math.max(0, Math.min(1, t)) || 0; }
+function stopHeroMotion() {
+  heroTween = null;
+  if (heroLoopId) cancelAnimationFrame(heroLoopId);
+  heroLoopId = null;
+}
+function tweenHero(to, dur) {
+  stopHeroMotion();
+  if (RM) { setT(to); heroDraw(); return; }
+  const from = heroT, start = performance.now();
+  heroTween = true;
+  (function frame(now) {
+    if (!heroTween) return;
+    let u = Math.min(1, (now - start) / dur);
+    u = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    setT(from + (to - from) * u);
+    heroDraw();
+    if (u < 1) requestAnimationFrame(frame);
+    else heroTween = null;
+  })(start);
+}
+function loopHero() {
+  stopHeroMotion();
+  if (RM) { setT(1); heroDraw(); return; }
+  const period = 9000;
+  const t0 = performance.now();
+  (function step(now) {
+    const u = (now - t0) / period;
+    if (u >= 1) { setT(1); heroDraw(); heroLoopId = null; return; }
+    setT(0.5 + 0.5 * Math.cos(u * 2 * Math.PI));
+    heroDraw();
+    heroLoopId = requestAnimationFrame(step);
+  })(performance.now());
+}
+let heroWired = false;
+function buildHero() {
+  heroCv = document.getElementById('herocv');
+  const holder = heroCv.parentElement.parentElement; // stage
+  HW = Math.min(560, Math.max(280, holder.clientWidth - 24));
+  HH = 220;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  heroCv.width = HW * dpr; heroCv.height = HH * dpr;
+  heroCv.style.width = HW + 'px'; heroCv.style.height = HH + 'px';
+  const g = heroCv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.textBaseline = 'middle';
+  prosePos = null; letterPos = null;
+  if (!heroWired) {
+    heroWired = true;
+    setT(RM ? 1 : 0);
+    heroDraw();
+    if (!RM) setTimeout(() => tweenHero(1, 2800), 400);
+    document.querySelectorAll('#heroSeg button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#heroSeg button').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        const m = btn.dataset.mode;
+        if (m === 'source') tweenHero(0, 1200);
+        if (m === 'figure') tweenHero(1, 1200);
+        if (m === 'loop') loopHero();
+      });
+    });
+    heroCv.addEventListener('click', () => { setT(0); tweenHero(1, 2400); });
+  } else {
+    heroDraw();
+  }
+}
+
+Promise.all([
+  document.fonts.load('12px "JetBrains Mono"'),
+  document.fonts.load('500 12px "JetBrains Mono"')
+]).then(() => document.fonts.ready).then(() => {
+  const mc = document.createElement('canvas').getContext('2d');
+  mc.font = '12px "JetBrains Mono"';
+  CH = mc.measureText('0000000000').width / 10;
+  buildHero();
+
+  let rsz = null;
+  addEventListener('resize', () => {
+    clearTimeout(rsz);
+    rsz = setTimeout(() => {
+      const t = heroT;
+      const looping = !!heroLoopId;
+      stopHeroMotion();
+      buildHero();
+      setT(t); heroDraw();
+      if (looping) loopHero();
+    }, 160);
+  });
+});
+</script>

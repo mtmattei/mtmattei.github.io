@@ -1,0 +1,621 @@
+---
+import '@fontsource/fraunces/300.css';
+import '@fontsource/fraunces/400.css';
+import '@fontsource/fraunces/400-italic.css';
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
+import '../styles/lagoon.css';
+import Shell from '../layouts/Shell.astro';
+import { highlightSource } from '../data/portfolio';
+
+const tokens: [string, string][] = [
+  ['medium', 'DOM + WebGL'],
+  ['breakdown', 'vue éclatée · 4 parts'],
+  ['origin', 'SkSL · SkiaSharp 4'],
+  ['faces', 'Fraunces · Instr.'],
+  ['status', 'in build'],
+];
+
+const DISPERSION_SRC = `// The warp is linear in its scale, so one evaluation
+// gives all three dispersion channels: s(k) = suv + k*disp.
+float2 sg = waterUv(suv, 1.00);
+float2 disp = sg - suv;
+float2 sr = sg + disp * 0.06;
+float2 sb = sg - disp * 0.06;
+float3 col = float3(
+    tileColor(float2(sr.x, 1.0 - sr.y)).r,
+    tileColor(float2(sg.x, 1.0 - sg.y)).g,
+    tileColor(float2(sb.x, 1.0 - sb.y)).b);`;
+
+const CAUSTIC_SRC = `// Caustic web: warped-sine interference. Organic because the
+// domain is rotated off-grid, warped by slow value noise, and a
+// third rotated layer breaks the symmetry.
+float caustic(float2 suv) {
+  float t = iTime * 0.6;
+  float2 p = rot(suv, 0.47) * 9.0;
+  p += 2.8 * float2(
+      vnoise(p * 0.35 + t * 0.25) - 0.5,
+      vnoise(p * 0.35 + 7.3 - t * 0.21) - 0.5);
+  float a = sin(p.x + sin(p.y + t * 1.3) * 1.6 + t);
+  float b = sin(p.y + sin(p.x - t * 1.1) * 1.7 - t * 0.8);
+  float2 q = rot(p, 1.9) * 0.57;
+  float c = sin(q.x + sin(q.y * 1.3 - t * 0.7) * 1.8 + t * 0.5);
+  float web = pow(clamp(1.0 - abs(a + b + 0.8 * c) * 0.5, 0.0, 1.0), 6.0);
+  web *= 0.55 + 0.9 * vnoise(p * 0.8 + t * 0.15);
+  return web;
+}`;
+---
+<Shell title="Lagoon" crumb="lagoon" tokens={tokens} wide
+  description="Lagoon — pool chemistry read like weather. A living exhibit: explode the real interface into its key features, back to the SkiaSharp shader it grew from.">
+
+  <div class="page-head">
+    <span class="kicker">Code · exhibit · vue éclatée</span>
+    <h1 class="title">Lagoon</h1>
+    <p class="lede">
+      A premium companion for pool chemistry — water reported like weather. This is not a
+      screenshot: the phone is the interface itself, running. Explode it and the key features
+      lift out of the shell, still live, tethered to where they belong.
+    </p>
+  </div>
+
+  <div class="sheet-note" aria-hidden="true">
+    <span class="kicker">fig.02 · vue éclatée · the shell keeps running · dashed voids mark where each part lives</span>
+  </div>
+
+  <div class="hero-sheet">
+    <!-- key points -->
+    <div class="hero-side keypoints">
+      <div>
+        <div class="rail-head">Key features</div>
+        <ul>
+          <li><b>The water is a shader.</b> Clarity, tint, and murk are uniforms fed by the chemistry.</li>
+          <li><b>One etched plate,</b> four chemistries. Color only ever means a verdict.</li>
+          <li><b>One typed sentence.</b> The app speaks once, then stops.</li>
+          <li><b>The not-yet is dashed.</b> Projection never borrows the ink of history.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- the framed exhibit -->
+    <figure class="painting">
+      <div class="frame">
+        <div class="mat">
+          <div class="lg exploded-stage" id="xstage">
+            <svg class="tethers" id="tethers" aria-hidden="true"></svg>
+
+            <!-- THE ACTUAL UI -->
+            <div class="x-phone" id="xphone">
+              <div class="phone" id="phone" role="button" tabindex="0" aria-pressed="false"
+                   aria-label="Lagoon home screen, a working interface. Activate to explode its key features out of the shell.">
+                <div class="screen">
+                  <div class="p-status"><span id="pClock">21:41</span><span class="p-batt"><i></i></span></div>
+                  <div class="p-header"><div class="glyph"></div><h2>Lagoon</h2><span class="sub">Backyard · 34 000 L</span></div>
+
+                  <div class="p-sec" data-comp="swatch">
+                    <div class="swatch-stage">
+                      <div class="basin flat pocket" id="basin">
+                        <div class="b-wall n"></div><div class="b-wall s"></div><div class="b-wall w"></div><div class="b-wall e"></div>
+                        <div class="b-floor"></div>
+                        <div class="b-surf"><canvas id="swgl"></canvas>
+                          <div class="b-pill">Crystal clear</div>
+                          <div class="b-badge"><div class="n">97</div><div class="c">clarity</div></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-sec" data-comp="plate">
+                    <div class="plate mini" id="plate">
+                      <div class="gauge"><div class="glabel">pH</div><div class="grow"><span class="gval" id="v0">7.4</span><span class="gdot" id="d0"></span></div>
+                        <div class="gtrack"><div class="gband" id="b0"></div><div class="gmark" id="m0"></div></div><div class="gnote">ideal 7.2–7.6</div></div>
+                      <div class="gauge"><div class="glabel">Chlorine</div><div class="grow"><span class="gval" id="v1">2.4</span><span class="gdot" id="d1"></span></div>
+                        <div class="gtrack"><div class="gband" id="b1"></div><div class="gmark" id="m1"></div></div><div class="gnote">1–3 ppm</div></div>
+                      <div class="gauge"><div class="glabel">Alkalinity</div><div class="grow"><span class="gval" id="v2">100</span><span class="gdot" id="d2"></span></div>
+                        <div class="gtrack"><div class="gband" id="b2"></div><div class="gmark" id="m2"></div></div><div class="gnote">80–120 ppm</div></div>
+                      <div class="gauge"><div class="glabel">Stabilizer</div><div class="grow"><span class="gval" id="v3">40</span><span class="gdot" id="d3"></span></div>
+                        <div class="gtrack"><div class="gband" id="b3"></div><div class="gmark" id="m3"></div></div><div class="gnote">30–50 ppm</div></div>
+                    </div>
+                  </div>
+
+                  <div class="p-sec" data-comp="insight">
+                    <div class="insight">
+                      <div class="ihead">
+                        <div class="ibadge"><svg viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/><circle cx="12" cy="12" r="3.4"/></svg></div>
+                        <span class="ieyebrow">Lagoon insight</span>
+                        <span class="itag" id="itag">Balanced</span>
+                      </div>
+                      <div class="ihl" id="ihl"></div>
+                      <div class="isrc" id="isrc">From your test strip · 2h ago</div>
+                    </div>
+                  </div>
+
+                  <div class="p-sec" data-comp="forecast">
+                    <div class="fc-stage">
+                      <svg viewBox="0 0 260 104" preserveAspectRatio="none">
+                        <line class="fc-thresh" x1="4" y1="34" x2="256" y2="34"/>
+                        <polyline class="fc-line" points="6,20 34,24 62,30 90,26 118,38 146,48 174,44 202,58"/>
+                        <line class="fc-proj" x1="202" y1="58" x2="248" y2="80"/>
+                        <circle class="fc-ghost" cx="248" cy="80" r="4"/>
+                      </svg>
+                      <p class="fc-warn">Clarity is slipping — a shock this week holds it clear past <b>Aug 14</b>.</p>
+                    </div>
+                  </div>
+
+                  <div class="tabbar">
+                    <div class="tab active"><svg viewBox="0 0 24 24"><path d="M12 3 C8.5 8 7 10.5 7 13.5 a5 5 0 0 0 10 0 C17 10.5 15.5 8 12 3 Z"/></svg>Pool<span class="tdot"></span></div>
+                    <div class="tab"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M10.5 7h3M10.5 11h3M10.5 15h3"/></svg>Scan<span class="tdot"></span></div>
+                    <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Season<span class="tdot"></span></div>
+                  </div>
+
+                  <div class="p-hint">Tap to explode</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- lifted parts -->
+            <div class="x-part" data-side="left" data-slot="swatch" style="top:2%">
+              <div class="fig-tag"><span class="fig-no">1</span><span class="fig-cap">the water · live shader · iso ⇄ flat</span></div>
+              <div class="x-hold"></div>
+              <p class="x-note"><b>The report is the water.</b> Tint, murk, and caustic brightness are uniforms fed by the current chemistry — clarity 97 is rendered, never illustrated.</p>
+            </div>
+
+            <div class="x-part" data-side="right" data-slot="plate" style="top:14%">
+              <div class="fig-tag"><span class="fig-no">2</span><span class="fig-cap">the instrument · 4 gauges · 3 states</span></div>
+              <div class="x-hold"></div>
+              <p class="x-note"><b>Compact on the device, full range here:</b> each gauge gains its ideal band and marker. The dot turns terracotta only when a value leaves its band.</p>
+            </div>
+
+            <div class="x-part" data-side="left" data-slot="insight" style="top:52%">
+              <div class="fig-tag"><span class="fig-no">3</span><span class="fig-cap">the insight · one line, typed</span></div>
+              <div class="x-hold"></div>
+              <p class="x-note"><b>The whole intelligence layer is one sentence,</b> typed in Fraunces, severity carried by the tag color. Amber is reserved for this voice.</p>
+            </div>
+
+            <div class="x-part" data-side="right" data-slot="forecast" style="top:62%">
+              <div class="fig-tag"><span class="fig-no">4</span><span class="fig-cap">the forecast · dashed = projection</span></div>
+              <div class="x-hold"></div>
+              <p class="x-note"><b>Solid stroke is measured history;</b> the projection switches to dashes and ends in a ghost ring. Same grammar as this site: broken line = not yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <figcaption class="plaque">
+        <div class="artist">Matt Mattei <span>(Canadian, works in Montréal)</span></div>
+        <div class="work">Lagoon — Home <span class="yr">2026</span></div>
+        <div class="medium">Living interface · WebGL water · Fraunces &amp; Instrument Sans · Uno Platform target</div>
+      </figcaption>
+      <div><button class="reveal-btn" id="revealBtn" aria-pressed="false">Explode the interface · Vue éclatée</button></div>
+    </figure>
+
+    <!-- concept rail -->
+    <div class="hero-side">
+      <div>
+        <div class="rail-head">Concept</div>
+        <p class="concept-p">A premium companion for pool chemistry. <b>Water reported like weather</b> — quiet, precise, without alarm.</p>
+        <p class="concept-p">These are the <b>actual components</b>: they lift out of the running shell and keep working, tethered to their voids.</p>
+      </div>
+      <div>
+        <div class="rail-head">Details</div>
+        <div class="detail-row"><span class="dot"></span><span>Real DOM · FLIP explode · 4 key parts</span></div>
+        <div class="detail-row"><span class="dot"></span><span>Live WebGL water shader</span></div>
+        <div class="detail-row"><span class="dot"></span><span>Fraunces readings · Instrument Sans actions</span></div>
+        <div class="detail-row"><span class="dot"></span><span>In active build · Uno Platform target</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="annotate"><span class="q">Question:</span> how quiet can a chemistry report be and still be trusted?</p>
+
+  <hr class="rule" />
+
+  <!-- Origin -->
+  <span class="kicker" style="display:block;margin-bottom:12px">Origin · fig.03 · SkiaSharp 4 + runtime SkSL</span>
+  <h2 style="font-size:20px;font-weight:600;margin:0 0 12px">It started as a shader, not an app.</h2>
+  <p class="lede" style="margin-bottom:24px">
+    The first build was <span style="color:var(--ink)">Refraction Pixels</span> — an Uno Platform
+    desktop sample written to test SkiaSharp 4.148's runtime SkSL through SKCanvasElement.
+    Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens); the
+    POOL mode — a tiled floor under an animated water surface — is the frame below. Watching
+    the caustics run, the question changed from "can the canvas do this" to "what product
+    deserves this water." That answer is Lagoon.
+  </p>
+
+  <div class="videocard">
+    <video controls muted playsinline preload="metadata" src="/videos/pool-first-test.mp4"></video>
+    <div class="cap"><b>First test — POOL mode, live on the desktop</b><span class="mono">screen recording · 2026-07-07 · Uno Platform + SkiaSharp 4.148</span></div>
+  </div>
+
+  <hr class="rule" />
+
+  <!-- Shader teardown -->
+  <span class="kicker" style="display:block;margin-bottom:12px">The shader, taken apart · fig.04–07 · live</span>
+  <h2 style="font-size:20px;font-weight:600;margin:0 0 12px">Four stages, one pass.</h2>
+  <p class="lede" style="margin-bottom:24px">
+    The figures below are not diagrams — each one runs the isolated stage in WebGL, in this
+    site's inks. The composed result keeps Lagoon's own.
+  </p>
+
+  <div class="figrow">
+    <div class="figcell">
+      <canvas data-fig-shader="field"></canvas>
+      <div class="cap"><b>Value noise → fbm</b><span class="mono">fig.04</span></div>
+      <p>A hashed lattice smoothed with a cubic fade, then four octaves summed. Everything
+        organic in the shader — surface wobble, caustic warp, murk — is drawn from this field.</p>
+    </div>
+    <div class="figcell">
+      <canvas data-fig-shader="warp"></canvas>
+      <div class="cap"><b>Directional wave warp</b><span class="mono">fig.05</span></div>
+      <p>Three sine waves at odd angles with incommensurate frequencies displace the sampling
+        position, so nothing ever lines up with the grid. Gray is the undisturbed grid; ink
+        is what the water does to it.</p>
+    </div>
+    <div class="figcell">
+      <canvas data-fig-shader="caustic"></canvas>
+      <div class="cap"><b>Caustic web</b><span class="mono">fig.06</span></div>
+      <p>Warped-sine interference, rotated off-grid and bent by slow value noise. A sixth-power
+        falloff pinches the bright bands into filaments; a third rotated layer breaks the
+        remaining symmetry.</p>
+    </div>
+    <div class="figcell">
+      <canvas data-fig-shader="water"></canvas>
+      <div class="cap"><b>Composite — Lagoon's water</b><span class="mono">fig.07 · own inks</span></div>
+      <p>Depth tint, caustics scaled by clarity, spec highlights from the noise gradient, and
+        sparkle on the filament cores. The exhibit above runs exactly this.</p>
+    </div>
+  </div>
+
+  <div style="height:24px"></div>
+  <span class="kicker" style="display:block;margin-bottom:12px">Key passages — PoolWater.sksl</span>
+  <div class="srcblock" style="margin-bottom:12px">
+    <pre set:html={highlightSource(DISPERSION_SRC)} />
+  </div>
+  <div class="srcblock">
+    <pre set:html={highlightSource(CAUSTIC_SRC)} />
+  </div>
+
+  <hr class="rule" />
+
+  <!-- Technical footer -->
+  <div class="footer4">
+    <div>
+      <h4>One warp, three channels</h4>
+      <p>The displacement is linear in its scale, so s(k) = suv + k·disp derives the red and blue samples exactly from the green evaluation.</p>
+      <span class="read">disp · ±0.06 · dispersion for free</span>
+    </div>
+    <div>
+      <h4>Cache the builder</h4>
+      <p>SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect — next render access-violates.</p>
+      <span class="read">build once · feed uniforms</span>
+    </div>
+    <div>
+      <h4>Zero-alloc loop</h4>
+      <p>The render loop rides CompositionTarget.Rendering, snapshots inputs to plain fields, and reuses uniform buffers. At 0% intensity it stops painting.</p>
+      <span class="read">vsync · idle at 0%</span>
+    </div>
+    <div>
+      <h4>GLSL → SkSL</h4>
+      <p>No varyings, no gl_FragColor — return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.</p>
+      <span class="read">half4 · Y-down DIPs</span>
+    </div>
+  </div>
+</Shell>
+
+<script is:inline>
+/* ============================================================
+   Lagoon — vue éclatée.
+   The shell keeps running; key parts FLIP out, tethered to voids.
+   ============================================================ */
+(function () {
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hsl2rgb(h, s, l) {
+    h /= 360;
+    function q(p, Q, t) {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (Q - p) * 6 * t;
+      if (t < 1 / 2) return Q;
+      if (t < 2 / 3) return p + (Q - p) * (2 / 3 - t) * 6;
+      return p;
+    }
+    let r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else { const Q = l < .5 ? l * (1 + s) : l + s - l * s, P = 2 * l - Q; r = q(P, Q, h + 1 / 3); g = q(P, Q, h); b = q(P, Q, h - 1 / 3); }
+    return [r, g, b];
+  }
+
+  const vsrc = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
+
+  const HELPERS =
+    'precision highp float;varying vec2 v_uv;uniform vec2 u_res;uniform float u_time;' +
+    'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}' +
+    'float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);' +
+    'float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));' +
+    'vec2 u=f*f*(3.0-2.0*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}' +
+    'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*vnoise(p);p=p*2.02+vec2(1.7,9.2);a*=0.5;}return v;}' +
+    'float caustic(vec2 uv,float t){vec2 p=mod(uv*6.28318,6.28318)-250.0;vec2 i=p;float c=1.0,inten=0.0045;' +
+    'for(int n=0;n<5;n++){float tt=t*0.5*(1.0-(3.5/float(n+1)));' +
+    'i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x));' +
+    'c+=1.0/length(vec2(p.x/(sin(i.x+tt)/inten),p.y/(cos(i.y+tt)/inten)));}' +
+    'c/=5.0;c=1.17-pow(c,1.4);return clamp(pow(abs(c),8.0),0.0,1.0);}';
+
+  const WATER_FRAG =
+    HELPERS +
+    'uniform vec3 u_tint;uniform vec3 u_murkCol;uniform float u_clarity;uniform float u_murk;uniform float u_caustic;' +
+    'void main(){vec2 uv=v_uv;float asp=u_res.x/u_res.y;vec2 auv=vec2(uv.x*asp,uv.y);float t=u_time;' +
+    'vec2 w=vec2(fbm(auv*3.2+t*0.10),fbm(auv*3.2-t*0.12+5.0));vec2 cuv=auv*1.5+(w-0.5)*0.10;' +
+    'float ca=caustic(cuv,t);float ca2=caustic(cuv*1.8+4.0,t*1.15);ca=max(ca,ca2*0.55);' +
+    'float d=distance(uv,vec2(0.5,0.54));float depth=smoothstep(0.05,0.85,d);' +
+    'vec3 shallow=clamp(u_tint*1.35+0.10,0.0,1.0);vec3 deep=u_tint*0.5;vec3 col=mix(shallow,deep,depth);' +
+    'col+=(1.0-uv.y)*0.05;' +
+    'float cVis=u_caustic*(0.30+u_clarity*0.95)*(1.0-u_murk*0.55);col+=vec3(0.72,0.95,1.0)*ca*cVis;' +
+    'float e=0.006;' +
+    'float nx=fbm(auv*3.2+t*0.10)-fbm(auv*3.2+t*0.10+vec2(e,0.0));' +
+    'float ny=fbm(auv*3.2+t*0.10)-fbm(auv*3.2+t*0.10+vec2(0.0,e));' +
+    'vec3 n=normalize(vec3(nx,ny,0.06));' +
+    'float spec=pow(max(dot(n,normalize(vec3(0.35,0.55,1.0))),0.0),22.0);col+=spec*0.7*u_clarity;' +
+    'float spk=pow(fbm(auv*13.0+t*0.35),7.0);col+=spk*u_clarity*0.55;' +
+    'float hz=u_murk*(0.30+0.55*depth);col=mix(col,u_murkCol,hz);' +
+    'float vig=smoothstep(1.15,0.35,d);col*=0.82+0.18*vig;' +
+    'gl_FragColor=vec4(col,1.0);}';
+
+  const INKF = 'vec3(0.078,0.086,0.102)', PAPERF = 'vec3(1.0)';
+  const FIG_FRAGS = {
+    water: WATER_FRAG,
+    field: HELPERS +
+      'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);' +
+      'float v=fbm(auv*3.2+u_time*0.10);v=smoothstep(0.22,0.78,v);' +
+      'gl_FragColor=vec4(mix(' + PAPERF + ',' + INKF + ',v),1.0);}',
+    warp: HELPERS +
+      'float grid(vec2 p){vec2 f=abs(fract(p)-0.5);float d=min(f.x,f.y);return 1.0-smoothstep(0.0,0.045,d);}' +
+      'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);float t=u_time;' +
+      'vec2 d1=vec2(0.83,0.55),d2=vec2(-0.42,0.91),d3=vec2(0.66,-0.75);' +
+      'vec2 w=d1*sin(dot(auv,d1)*11.3+t*1.21)+d2*(0.7*sin(dot(auv,d2)*17.7-t*1.63))+d3*(0.5*sin(dot(auv,d3)*26.9+t*0.87));' +
+      'vec3 col=' + PAPERF + ';' +
+      'col=mix(col,vec3(0.79,0.80,0.82),grid(auv*6.0));' +
+      'col=mix(col,' + INKF + ',grid((auv+w*0.03)*6.0));' +
+      'gl_FragColor=vec4(col,1.0);}',
+    caustic: HELPERS +
+      'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);float t=u_time;' +
+      'vec2 w=vec2(fbm(auv*3.2+t*0.10),fbm(auv*3.2-t*0.12+5.0));vec2 cuv=auv*1.5+(w-0.5)*0.10;' +
+      'float ca=caustic(cuv,t);float ca2=caustic(cuv*1.8+4.0,t*1.15);ca=max(ca,ca2*0.55);' +
+      'gl_FragColor=vec4(mix(' + PAPERF + ',' + INKF + ',clamp(ca*1.7,0.0,1.0)),1.0);}'
+  };
+
+  function makeGL(cv, fsrc) {
+    const g = cv.getContext('webgl', { antialias: true, premultipliedAlpha: false });
+    if (!g) return null;
+    function sh(t, s) { const x = g.createShader(t); g.shaderSource(x, s); g.compileShader(x); return x; }
+    const p = g.createProgram();
+    g.attachShader(p, sh(g.VERTEX_SHADER, vsrc));
+    g.attachShader(p, sh(g.FRAGMENT_SHADER, fsrc));
+    g.linkProgram(p); g.useProgram(p);
+    const bb = g.createBuffer();
+    g.bindBuffer(g.ARRAY_BUFFER, bb);
+    g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), g.STATIC_DRAW);
+    const l = g.getAttribLocation(p, 'p');
+    g.enableVertexAttribArray(l);
+    g.vertexAttribPointer(l, 2, g.FLOAT, false, 0, 0);
+    const U = {};
+    ['u_res', 'u_time', 'u_tint', 'u_murkCol', 'u_clarity', 'u_murk', 'u_caustic'].forEach(k => U[k] = g.getUniformLocation(p, k));
+    return function (u, time) {
+      g.viewport(0, 0, cv.width, cv.height); g.useProgram(p);
+      g.uniform2f(U.u_res, cv.width, cv.height); g.uniform1f(U.u_time, time);
+      if (U.u_tint) g.uniform3fv(U.u_tint, u.tint);
+      if (U.u_murkCol) g.uniform3fv(U.u_murkCol, u.murkCol);
+      if (U.u_clarity) g.uniform1f(U.u_clarity, u.clarity);
+      if (U.u_murk) g.uniform1f(U.u_murk, u.murk);
+      if (U.u_caustic) g.uniform1f(U.u_caustic, u.caustic);
+      g.drawArrays(g.TRIANGLES, 0, 3);
+    };
+  }
+
+  /* ---------- water ---------- */
+  const swgl = document.getElementById('swgl'), drawSw = makeGL(swgl, WATER_FRAG);
+  function fit() {
+    const dpr = Math.min(devicePixelRatio || 1, 2), r = swgl.getBoundingClientRect();
+    swgl.width = Math.max(2, Math.round((r.width || 290) * dpr));
+    swgl.height = Math.max(2, Math.round((r.height || 164) * dpr));
+  }
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(fit).observe(swgl);
+  fit();
+  const swU = {
+    tint: hsl2rgb(194, clamp(.62 * 1.15, .28, .85), .42),
+    murkCol: hsl2rgb(194, .62 * .4, .82),
+    clarity: .97, murk: .05, caustic: .3 + .97 * .8
+  };
+
+  const figSurfaces = [];
+  document.querySelectorAll('canvas[data-fig-shader]').forEach(cv => {
+    const draw = makeGL(cv, FIG_FRAGS[cv.dataset.figShader]);
+    if (!draw) return;
+    function ffit() {
+      const dpr = Math.min(devicePixelRatio || 1, 2), r = cv.getBoundingClientRect();
+      cv.width = Math.max(2, Math.round((r.width || 290) * dpr));
+      cv.height = Math.max(2, Math.round((r.height || 130) * dpr));
+      draw(swU, 3);
+    }
+    ffit();
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(ffit).observe(cv);
+    figSurfaces.push({ cv, draw });
+  });
+
+  if (!reduce) {
+    (function raf(now) {
+      if (drawSw && swgl.offsetParent) drawSw(swU, now / 1000);
+      for (const s of figSurfaces) if (s.cv.offsetParent) s.draw(swU, now / 1000);
+      requestAnimationFrame(raf);
+    })(0);
+  } else if (drawSw) drawSw(swU, 3);
+
+  const basin = document.getElementById('basin');
+  let basinCycle = null;
+  function basinShowcase(on) {
+    clearInterval(basinCycle); basinCycle = null;
+    if (on) {
+      basin.classList.remove('pocket');
+      if (!reduce) {
+        basin.classList.remove('flat');
+        basinCycle = setInterval(() => basin.classList.toggle('flat'), 3800);
+      } else basin.classList.add('flat');
+    } else {
+      basin.classList.add('flat', 'pocket');
+    }
+  }
+
+  /* ---------- chemistry ---------- */
+  const DISP = { ph: [6.6, 8.2], cl: [0, 6], alk: [40, 180], cya: [0, 100] };
+  const IDEAL = { ph: [7.2, 7.6], cl: [1, 3], alk: [80, 120], cya: [30, 50] };
+  const WARNB = { ph: [7.0, 7.8], cl: [.5, 5], alk: [60, 140], cya: [20, 70] };
+  const ORDER = ['ph', 'cl', 'alk', 'cya'], DEC = { ph: 1, cl: 1, alk: 0, cya: 0 };
+  const COL = { good: '#57b394', warn: '#e3b15e', bad: '#e0745b' };
+  function pct(k, v) { const d = DISP[k]; return clamp((v - d[0]) / (d[1] - d[0]), 0, 1) * 100; }
+  function statusOf(k, v) {
+    const i = IDEAL[k], w = WARNB[k];
+    if (v >= i[0] && v <= i[1]) return 'good';
+    if (v >= w[0] && v <= w[1]) return 'warn';
+    return 'bad';
+  }
+  function setChem(vals) {
+    ORDER.forEach((k, i) => {
+      const st = statusOf(k, vals[k]), c = COL[st];
+      document.getElementById('v' + i).textContent = vals[k].toFixed(DEC[k]);
+      document.getElementById('d' + i).style.background = c;
+      const m = document.getElementById('m' + i), b = document.getElementById('b' + i);
+      m.style.left = pct(k, vals[k]) + '%'; m.style.background = c;
+      b.style.left = pct(k, IDEAL[k][0]) + '%';
+      b.style.width = (pct(k, IDEAL[k][1]) - pct(k, IDEAL[k][0])) + '%';
+    });
+  }
+  const CHEMS = [{ ph: 7.4, cl: 2.4, alk: 100, cya: 40 }, { ph: 7.9, cl: 0.6, alk: 72, cya: 38 }, { ph: 7.3, cl: 1.8, alk: 96, cya: 44 }];
+  let ci = 0; setChem(CHEMS[0]);
+  const plate = document.getElementById('plate');
+  if (!reduce) setInterval(() => { ci = (ci + 1) % CHEMS.length; setChem(CHEMS[ci]); }, 3400);
+
+  /* ---------- insight ---------- */
+  const INS = [
+    { tag: 'Balanced', col: '#57b394', bg: 'rgba(87,179,148,.14)', hl: 'Nothing needed today.', src: 'From your test strip · 2h ago' },
+    { tag: 'Action needed', col: '#e0745b', bg: 'rgba(224,116,91,.14)', hl: 'Bring your chlorine up.', src: 'From your test strip · just now' },
+    { tag: 'Worth a look', col: '#e3b15e', bg: 'rgba(227,177,94,.16)', hl: 'pH is drifting high.', src: 'From your water photo · 1h ago' }
+  ];
+  const ihl = document.getElementById('ihl'), itag = document.getElementById('itag'), isrc = document.getElementById('isrc');
+  let ii = 0;
+  function typeIt(o) {
+    itag.textContent = o.tag; itag.style.color = o.col; itag.style.background = o.bg; isrc.textContent = o.src;
+    if (reduce) { ihl.textContent = o.hl; return; }
+    let i = 0; ihl.innerHTML = '<span class="caret"></span>';
+    (function step() {
+      if (i <= o.hl.length) { ihl.innerHTML = o.hl.slice(0, i) + '<span class="caret"></span>'; i++; setTimeout(step, 34); }
+    })();
+  }
+  typeIt(INS[0]);
+  if (!reduce) setInterval(() => { ii = (ii + 1) % INS.length; typeIt(INS[ii]); }, 5200);
+
+  /* ---------- clock ---------- */
+  const pClock = document.getElementById('pClock');
+  function tickClock() { pClock.textContent = new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+  tickClock(); if (!reduce) setInterval(tickClock, 20000);
+
+  /* ================= FLIP explode ================= */
+  const phone = document.getElementById('phone');
+  const stage = document.getElementById('xstage');
+  const tethersEl = document.getElementById('tethers');
+  const btn = document.getElementById('revealBtn');
+  const comps = [...document.querySelectorAll('[data-comp]')];
+  const homes = new Map(), voids = new Map();
+  comps.forEach(c => {
+    const m = document.createComment('home:' + c.dataset.comp);
+    c.parentNode.insertBefore(m, c); homes.set(c, m);
+  });
+  const holdFor = c => stage.querySelector('.x-part[data-slot="' + c.dataset.comp + '"] .x-hold');
+  const partFor = c => stage.querySelector('.x-part[data-slot="' + c.dataset.comp + '"]');
+
+  let revealed = false, animating = false, tetherTick = null;
+
+  function drawTethers() {
+    if (!revealed) { tethersEl.innerHTML = ''; return; }
+    const sr = stage.getBoundingClientRect();
+    tethersEl.setAttribute('viewBox', '0 0 ' + sr.width + ' ' + sr.height);
+    let svg = '';
+    comps.forEach(c => {
+      const v = voids.get(c), part = partFor(c);
+      if (!v || !part || !part.offsetParent) return;
+      const vr = v.getBoundingClientRect(), hr = part.querySelector('.x-hold').getBoundingClientRect();
+      if (!vr.width || !hr.width) return;
+      const left = part.dataset.side === 'left';
+      const x1 = (left ? hr.right : hr.left) - sr.left;
+      const y1 = hr.top + hr.height / 2 - sr.top;
+      const x2 = (left ? vr.left : vr.right) - sr.left;
+      const y2 = vr.top + vr.height / 2 - sr.top;
+      svg += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+      svg += '<circle cx="' + x2 + '" cy="' + y2 + '" r="2.6"/>';
+    });
+    tethersEl.innerHTML = svg;
+  }
+
+  function flip(toGrid) {
+    if (animating) return; animating = true;
+    const movers = [phone, ...comps];
+    const first = new Map(movers.map(el => [el, el.getBoundingClientRect()]));
+
+    document.body.classList.toggle('revealed', toGrid);
+    if (toGrid) {
+      comps.forEach(c => {
+        const v = document.createElement('div');
+        v.className = 'p-sec void';
+        v.style.height = first.get(c).height + 'px';
+        homes.get(c).parentNode.insertBefore(v, homes.get(c).nextSibling);
+        voids.set(c, v);
+        holdFor(c).appendChild(c);
+      });
+      plate.classList.remove('mini');
+      basinShowcase(true);
+      tetherTick = setInterval(drawTethers, 900);
+    } else {
+      clearInterval(tetherTick); tetherTick = null;
+      comps.forEach(c => {
+        const v = voids.get(c); if (v) v.remove(); voids.delete(c);
+        const m = homes.get(c); m.parentNode.insertBefore(c, m.nextSibling);
+      });
+      plate.classList.add('mini');
+      basinShowcase(false);
+    }
+    revealed = toGrid;
+    phone.setAttribute('aria-pressed', String(toGrid));
+    btn.setAttribute('aria-pressed', String(toGrid));
+    btn.textContent = toGrid ? 'Reassemble · Rassembler' : 'Explode the interface · Vue éclatée';
+    drawTethers();
+
+    if (reduce) { animating = false; return; }
+    let done = 0, total = 0;
+    movers.forEach(el => {
+      const last = el.getBoundingClientRect(), f = first.get(el);
+      if (!f || f.width === 0 || last.width === 0) return;
+      const dx = f.left - last.left, dy = f.top - last.top;
+      const sx = f.width / last.width, sy = f.height / last.height;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1 && Math.abs(sx - 1) < .01) return;
+      total++;
+      el.style.transformOrigin = 'top left';
+      const a = el.animate(
+        [{ transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')' }, { transform: 'none' }],
+        { duration: 620, easing: 'cubic-bezier(.25,.8,.3,1)' });
+      a.onfinish = () => { if (++done >= total) { animating = false; drawTethers(); } };
+    });
+    if (!total) animating = false;
+    setTimeout(() => { animating = false; drawTethers(); }, 760);
+  }
+
+  function toggle() { flip(!revealed); }
+  phone.addEventListener('click', toggle);
+  phone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+  btn.addEventListener('click', toggle);
+  basinShowcase(false);
+
+  let rsz = null;
+  addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(drawTethers, 180); });
+})();
+</script>

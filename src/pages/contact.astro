@@ -1,0 +1,27 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { CONTACT, CONTACT_SRC, highlightSource } from '../data/portfolio';
+
+const tokens: [string, string][] = [
+  ['returns', 'object'],
+  ['email', 'gmail'],
+  ['github', 'mtmattei'],
+  ['langs', 'EN / FR'],
+];
+---
+<Shell title="Contact" crumb="contact" tokens={tokens}
+  description="The last call the program makes — its literal return value, rendered.">
+  <div class="page-head">
+    <span class="kicker">Return</span>
+    <h1 class="title">return contact()</h1>
+    <p class="lede">The last call the program makes. The object below is its literal return value, rendered.</p>
+  </div>
+
+  <div class="srcblock" style="margin-bottom:var(--s6)"><pre set:html={highlightSource(CONTACT_SRC)} /></div>
+
+  <div class="list" style="max-width:460px">
+    <div class="row"><span>email</span><a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></div>
+    <div class="row"><span>github</span><a href={`https://${CONTACT.github}`} target="_blank" rel="noopener">{CONTACT.github} ↗</a></div>
+    <div class="row"><span>city</span><span class="mono" style="color:var(--ink)">{CONTACT.city}</span></div>
+  </div>
+</Shell>

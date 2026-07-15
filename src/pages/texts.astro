@@ -1,0 +1,32 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { WRITING } from '../data/portfolio';
+
+const tokens: [string, string][] = [
+  ['measure', '~60ch'],
+  ['t.01', 'set'],
+  ['t.02 · t.03', 'composing'],
+  ['medium', 'prose = print'],
+];
+---
+<Shell title="Texts" crumb="texts" tokens={tokens}
+  description="Essays shown as galley proofs — real excerpts at reading measure.">
+  <div class="page-head">
+    <span class="kicker">Writing · galleys</span>
+    <h1 class="title">Texts</h1>
+    <p class="lede">Essays shown as galley proofs: a real excerpt at reading measure, the count in the margin, drafts marked in accent.</p>
+  </div>
+
+  {WRITING.map((t, i) => (
+    <div class="specimen">
+      <div>
+        <h3>{t.title}</h3>
+        <p>{t.sub}</p>
+        {i === 0 && <p class="ex">{t.excerpt}</p>}
+      </div>
+      <div class="read">{t.count}<br />{t.status === 'set' ? 'set' : <span class="acc">composing</span>}</div>
+    </div>
+  ))}
+
+  <p class="annotate" style="margin-top:var(--s6)"><span class="q">Question:</span> can a portfolio quote its writing without performing it?</p>
+</Shell>

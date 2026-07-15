@@ -1,0 +1,43 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { REGISTRY, PROGRAM_SRC, highlightSource } from '../data/portfolio';
+
+const tokens: [string, string][] = [
+  ['nav', 'portfolio()'],
+  ['calls', '9'],
+  ['queue', 'return value'],
+  ['pending', 'accent'],
+];
+
+const links: [string, string][] = [
+  ["'Lagoon'", '/lagoon/'],
+  ["'design-ledger'", 'https://github.com/mtmattei/design-ledger'],
+  ['texts(', '/texts/'],
+  ['plates(', '/plates/'],
+  ['toolchain(', '/toolchain/'],
+  ['contact()', '/contact/'],
+];
+---
+<Shell title="Program" crumb="program" tokens={tokens}
+  description="The portfolio as it runs — the source is the sitemap.">
+  <div class="page-head">
+    <span class="kicker">System · the source is the sitemap</span>
+    <h1 class="title">Program</h1>
+    <p class="lede">This portfolio is a program; this is its text. Click a call to follow it — the site is the return value.</p>
+  </div>
+
+  <div class="srcblock"><pre set:html={highlightSource(PROGRAM_SRC, links)} /></div>
+
+  <hr class="rule" />
+  <span class="kicker" style="display:block;margin-bottom:var(--s3)">Queue — the return value, rendered</span>
+  <div class="list">
+    {REGISTRY.map((e) => (
+      <div class:list={['row', { sel: e.kind === 'exhibit' }]}>
+        <span>{e.no} · <b style="font-weight:500">{e.name}</b> — <span style="color:var(--muted)">{e.desc}</span></span>
+        {e.kind === 'exhibit' && <a href={e.href} style="color:var(--accent)">exhibited</a>}
+        {e.kind === 'shipped' && <a href={e.href} target="_blank" rel="noopener">github ↗</a>}
+        {e.kind === 'pending' && <span class="mono">pending</span>}
+      </div>
+    ))}
+  </div>
+</Shell>

@@ -1,0 +1,41 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['medium', 'markdown ledger'],
+  ['rule', 'no design repeats'],
+  ['entries', 'append-only'],
+  ['repo', 'mtmattei/design-ledger'],
+];
+---
+<Shell title="Ledger" crumb="ledger" tokens={tokens}
+  description="design-ledger — a public, append-only record of design DNA that mechanically guarantees no generated interface repeats a previous one.">
+  <div class="page-head">
+    <span class="kicker">Design · public record</span>
+    <h1 class="title">Ledger</h1>
+    <p class="lede">
+      design-ledger is a public, append-only record of design DNA. Every generated interface
+      writes its fingerprint before it ships; the next one must prove distance from every
+      prior entry. Taste enforced mechanically, not remembered.
+    </p>
+  </div>
+
+  <div class="specimen" style="border-top:1px solid var(--line)">
+    <div><h3>What an entry records</h3><p>Palette DNA, type pairing, layout genome, and the one signature interaction — enough to detect a repeat, small enough to diff by eye.</p></div>
+    <div class="read">4 fields · plain markdown</div>
+  </div>
+  <div class="specimen">
+    <div><h3>The rule</h3><p>A new design must differ from every ledger entry across the recorded axes. Similar is allowed once it is declared; identical is a build failure of taste.</p></div>
+    <div class="read">distance · not vibes</div>
+  </div>
+  <div class="specimen">
+    <div><h3>Proof of work</h3><p>The Hollowpoint proof shipped as the first public demonstration: one prompt, one ledger, visibly divergent outputs.</p></div>
+    <div class="read">hollowpoint · 2026-06</div>
+  </div>
+  <div class="specimen">
+    <div><h3><a class="link-inline" href="https://github.com/mtmattei/design-ledger" target="_blank" rel="noopener">github.com/mtmattei/design-ledger</a></h3><p>Open source. Bring your own agent; the ledger does not care which one.</p></div>
+    <div class="read">public · OSS</div>
+  </div>
+
+  <p class="annotate" style="margin-top:var(--s6)"><span class="q">Question:</span> can aesthetic non-repetition be enforced by append-only history?</p>
+</Shell>
