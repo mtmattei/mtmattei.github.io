@@ -1,0 +1,99 @@
+---
+import Shell from '../../layouts/Shell.astro';
+import { SKILLS } from '../../data/portfolio';
+
+export function getStaticPaths() {
+  return SKILLS.map((skill) => ({ params: { slug: skill.slug }, props: { skill } }));
+}
+
+const { skill } = Astro.props;
+---
+<Shell title={skill.name} crumb={skill.slug} tokens={skill.tokens}
+  description={skill.lede}>
+  <div class="page-head">
+    <span class="kicker">{skill.kicker}</span>
+    <h1 class="title mono-title">{skill.name}</h1>
+    <p class="lede">{skill.lede}</p>
+  </div>
+
+  <!-- Install -->
+  <span class="kicker" style="display:block;margin-bottom:var(--s3)">Install</span>
+  <div class="srcblock install">
+    <pre id="cmd">{skill.install}</pre>
+    <button class="copy" id="copyBtn" type="button" aria-label="Copy install command">copy</button>
+  </div>
+  <div class="skill-links">
+    <a class="link-inline" href={skill.repo} target="_blank" rel="noopener">Source ↗</a>
+    <span class="sep">·</span>
+    <a class="link-inline" href="/xaml-uno/">← all skills</a>
+  </div>
+
+  <p class="tagline">{skill.tagline}</p>
+
+  {skill.numbers && (
+    <>
+      <span class="kicker" style="display:block;margin-bottom:4px">House numbers</span>
+      {skill.numbers.map(([k, v]) => (
+        <div class="type-row"><span class="meta">{k}</span><span class="mono" style="color:var(--ink)">{v}</span></div>
+      ))}
+      <div style="height:32px"></div>
+    </>
+  )}
+
+  <!-- Breakdown -->
+  {skill.sections.map((sec) => (
+    <>
+      <span class="kicker" style="display:block;margin-bottom:var(--s3)">{sec.kicker}</span>
+      {sec.blurb && <p class="lede" style="margin-bottom:var(--s4)">{sec.blurb}</p>}
+      <div class="list">
+        {sec.rows.map((r) => (
+          <div class="row">
+            <span><b style="font-weight:500">{r.label}</b> <span style="color:var(--muted)">· {r.desc}</span></span>
+            {r.tag && <span class="mono">{r.tag}</span>}
+          </div>
+        ))}
+      </div>
+    </>
+  ))}
+
+  <p class="annotate" style="margin-top:var(--s6)"><span class="q">Question:</span> {skill.question}</p>
+</Shell>
+
+<style>
+  .mono-title { font-family: var(--mono); font-size: 26px; letter-spacing: -0.01em; }
+  .install { display: flex; align-items: center; gap: var(--s3); }
+  .install pre { flex: 1; }
+  .copy {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    background: var(--paper); border: var(--bw) solid var(--line-2);
+    border-radius: var(--radius); padding: 4px 10px; cursor: pointer; flex: none;
+    transition: border-color .15s, color .15s;
+  }
+  .copy:hover { border-color: var(--ink); color: var(--ink); }
+  .copy.done { color: var(--accent); border-color: var(--accent); }
+  .skill-links { display: flex; gap: var(--s3); align-items: baseline; margin: var(--s3) 0 var(--s8); font-size: 14px; }
+  .skill-links .sep { color: var(--line-2); }
+  .tagline {
+    font-size: 18px; line-height: 1.4; color: var(--ink);
+    max-width: 54ch; text-wrap: pretty;
+    padding: var(--s4) 0 var(--s8); margin: 0;
+    border-bottom: var(--bw) solid var(--line);
+    margin-bottom: var(--s8);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('copyBtn');
+    var cmd = document.getElementById('cmd');
+    if (!btn || !cmd) return;
+    btn.addEventListener('click', function () {
+      var text = (cmd.textContent || '').trim();
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'copied';
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1400);
+      });
+    });
+  })();
+</script>
