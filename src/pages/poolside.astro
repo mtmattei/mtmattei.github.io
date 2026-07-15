@@ -156,27 +156,27 @@ float caustic(float2 suv) {
 
             <!-- lifted parts -->
             <div class="x-part" data-side="left" data-slot="swatch" style="top:2%">
-              <div class="fig-tag"><span class="fig-no">1</span><span class="fig-cap">the water · live shader · iso ⇄ flat</span></div>
+              <div class="fig-tag"><span class="fig-no">1</span><span class="fig-cap">WaterConditionCanvas · WaterCondition.sksl</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>The report is the water.</b> Tint, murk, and caustic brightness are uniforms fed by the current chemistry — clarity 97 is rendered, never illustrated.</p>
+              <p class="x-note"><b>WaterConditionCanvas is an SKCanvasElement</b> running WaterCondition.sksl. Clarity, green, milky, and sediment are DependencyProperties snapshotted to fields for the render thread; the loop is vsync-aligned, capped at 30fps, and lives inside the folding IsoBasin control.</p>
             </div>
 
             <div class="x-part" data-side="right" data-slot="plate" style="top:14%">
-              <div class="fig-tag"><span class="fig-no">2</span><span class="fig-cap">the instrument · 4 gauges · 3 states</span></div>
+              <div class="fig-tag"><span class="fig-no">2</span><span class="fig-cap">engraved plate · IState&lt;PoolSnapshot&gt;</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>Compact on the device, full range here:</b> each gauge gains its ideal band and marker. The dot turns terracotta only when a value leaves its band.</p>
+              <p class="x-note"><b>One recessed plate, four gauges in a 2×2 grid</b> — Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState&lt;PoolSnapshot&gt;; a ChemistryExpanded state swaps compact numbers for full range bands.</p>
             </div>
 
             <div class="x-part" data-side="left" data-slot="insight" style="top:52%">
-              <div class="fig-tag"><span class="fig-no">3</span><span class="fig-cap">the insight · one line, typed</span></div>
+              <div class="fig-tag"><span class="fig-no">3</span><span class="fig-cap">IWaterAnalyzer · PoolModel · one line</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>The whole intelligence layer is one sentence,</b> typed in Fraunces, severity carried by the tag color. Amber is reserved for this voice.</p>
+              <p class="x-note"><b>The insight is a service, not a string:</b> IWaterAnalyzer is DI-registered and injected via PoolModel(IWaterAnalyzer Analyzer). It reads the snapshot and the test strip (StripReader) and returns one sentence with a status tone.</p>
             </div>
 
             <div class="x-part" data-side="right" data-slot="forecast" style="top:62%">
-              <div class="fig-tag"><span class="fig-no">4</span><span class="fig-cap">the forecast · dashed = projection</span></div>
+              <div class="fig-tag"><span class="fig-no">4</span><span class="fig-cap">TrendsModel · Polyline · WaterThumbnail</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>Solid stroke is measured history;</b> the projection switches to dashes and ends in a ghost ring. Same grammar as this site: broken line = not yet.</p>
+              <p class="x-note"><b>History is a Polyline sparkline</b> fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed — the not-yet never borrows history's ink.</p>
             </div>
           </div>
         </div>
@@ -198,10 +198,10 @@ float caustic(float2 suv) {
       </div>
       <div>
         <div class="rail-head">Details</div>
-        <div class="detail-row"><span class="dot"></span><span>Real DOM · FLIP explode · 4 key parts</span></div>
-        <div class="detail-row"><span class="dot"></span><span>Live WebGL water shader</span></div>
+        <div class="detail-row"><span class="dot"></span><span>Uno Platform · net10.0 · desktop + Android</span></div>
+        <div class="detail-row"><span class="dot"></span><span>SkiaSharp 4.148 GA · runtime SkSL water</span></div>
+        <div class="detail-row"><span class="dot"></span><span>MVUX · Toolkit TabBar · ShadowContainer</span></div>
         <div class="detail-row"><span class="dot"></span><span>Fraunces readings · Instrument Sans actions</span></div>
-        <div class="detail-row"><span class="dot"></span><span>In active build · Uno Platform target</span></div>
       </div>
     </div>
   </div>
