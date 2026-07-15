@@ -685,15 +685,15 @@ float caustic(float2 suv) {
     border: var(--bw) solid var(--line);
     border-radius: var(--radius);
     background: var(--gray-1);
-    padding: var(--s4);
-    height: 460px;
-    perspective: 1150px;
-    perspective-origin: 50% 42%;
+    padding: 0;
+    height: 480px;
+    perspective: 1250px;
+    perspective-origin: 50% 44%;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
+    overflow: hidden;  /* the deck is larger than the frame, so the layers bleed off the edges */
   }
   .pl-deck {
-    position: relative; width: 300px; height: 300px;
+    position: relative; width: 420px; height: 420px;
     transform-style: preserve-3d;
     transform: rotateX(54deg) rotateZ(-32deg);
   }
@@ -731,7 +731,7 @@ float caustic(float2 suv) {
   .pl-ticks { display: flex; justify-content: space-between; margin-top: 5px; }
   .pl-ticks span { font-family: var(--mono); font-size: 9px; color: var(--line-2); letter-spacing: .06em; }
 
-  .pl-legend { list-style: none; margin: 0; padding: 0; }
+  .pl-legend { list-style: none; margin: 0; padding: 0 0 0 var(--s6); }
   .pl-row { padding: var(--s3) 0; border-top: var(--bw) solid var(--line); transition: background .15s; }
   .pl-row:last-child { border-bottom: var(--bw) solid var(--line); }
   .pl-row.hot { background: var(--accent-soft); }
