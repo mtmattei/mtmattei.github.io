@@ -48,15 +48,15 @@ float caustic(float2 suv) {
 }`;
 ---
 <Shell title="Poolside" crumb="poolside" tokens={tokens} wide
-  description="Poolside — pool chemistry read like weather. A living exhibit: explode the real interface into its key features, back to the SkiaSharp shader it grew from.">
+  description="Poolside. Pool chemistry read like weather. A living exhibit that explodes the real interface into its key features, back to the SkiaSharp shader it grew from.">
 
   <div class="page-head">
     <span class="kicker">Code · exhibit · Uno Platform</span>
     <h1 class="title">Poolside</h1>
     <p class="lede">
-      A premium companion for pool chemistry — water reported like weather. This is not a
-      screenshot: the phone is the interface itself, running. Explode it and the key features
-      lift out of the shell, still live, tethered to where they belong.
+      A companion for pool chemistry that reads the water like weather: quiet, precise, no
+      alarms. This is not a screenshot. The phone is the interface itself, running. Explode it
+      and the key features lift out of the shell, still live, tethered to where they belong.
     </p>
   </div>
 
@@ -182,19 +182,19 @@ float caustic(float2 suv) {
             <div class="x-part" data-side="right" data-slot="plate">
               <div class="fig-tag"><span class="fig-no">2</span><span class="fig-cap">engraved plate · IState&lt;PoolSnapshot&gt;</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>One recessed plate, four gauges in a 2×2 grid</b> — Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState&lt;PoolSnapshot&gt;; a ChemistryExpanded state swaps compact numbers for full range bands.</p>
+              <p class="x-note"><b>One recessed plate, four gauges in a 2×2 grid.</b> Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState&lt;PoolSnapshot&gt;; a ChemistryExpanded state swaps compact numbers for full range bands.</p>
             </div>
 
             <div class="x-part" data-side="left" data-slot="insight">
               <div class="fig-tag"><span class="fig-no">3</span><span class="fig-cap">IWaterAnalyzer · PoolModel · one line</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>The insight is a service, not a string:</b> IWaterAnalyzer is DI-registered and injected via PoolModel(IWaterAnalyzer Analyzer). It reads the snapshot and the test strip (StripReader) and returns one sentence with a status tone.</p>
+              <p class="x-note"><b>The insight is a service.</b> IWaterAnalyzer is DI-registered and injected through the PoolModel(IWaterAnalyzer Analyzer) primary constructor. It reads the snapshot and the test strip (StripReader), then returns one sentence carrying a status tone.</p>
             </div>
 
             <div class="x-part" data-side="right" data-slot="forecast">
               <div class="fig-tag"><span class="fig-no">4</span><span class="fig-cap">TrendsModel · Polyline · WaterThumbnail</span></div>
               <div class="x-hold"></div>
-              <p class="x-note"><b>History is a Polyline sparkline</b> fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed — the not-yet never borrows history's ink.</p>
+              <p class="x-note"><b>History is a Polyline sparkline</b> fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed, so the not-yet never borrows the ink of what happened.</p>
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@ float caustic(float2 suv) {
     <div class="hero-side">
       <div>
         <div class="rail-head">Concept</div>
-        <p class="concept-p">A premium companion for pool chemistry. <b>Water reported like weather</b> — quiet, precise, without alarm.</p>
+        <p class="concept-p">A companion for pool chemistry. <b>The water is reported like weather:</b> quiet, precise, without alarm.</p>
         <p class="concept-p">These are the <b>actual components</b>: they lift out of the running shell and keep working, tethered to their voids.</p>
       </div>
       <div>
@@ -234,10 +234,10 @@ float caustic(float2 suv) {
   <div class="origin-row">
     <div>
       <p style="font-size:15px;color:var(--ink);margin:0 0 12px;max-width:52ch;text-wrap:pretty">
-        The first build was <span style="font-weight:500">Refraction Pixels</span> — an Uno Platform
+        The first build was <span style="font-weight:500">Refraction Pixels</span>, an Uno Platform
         desktop sample written to test SkiaSharp 4.148's runtime SkSL through SKCanvasElement.
-        Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens); the
-        POOL mode — a tiled floor under an animated water surface — is the frame at right.
+        Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens). The
+        POOL mode, a tiled floor under an animated water surface, is the frame at right.
       </p>
       <p style="font-size:15px;color:var(--muted);margin:0;max-width:52ch;text-wrap:pretty">
         Watching the caustics run, the question changed from "can the canvas do this" to
@@ -256,7 +256,7 @@ float caustic(float2 suv) {
   <span class="kicker" style="display:block;margin-bottom:12px">The shader, taken apart · fig.04–07 · live</span>
   <h2 style="font-size:20px;font-weight:600;margin:0 0 12px">Four stages, one pass.</h2>
   <p class="lede" style="margin-bottom:24px">
-    The figures below are not diagrams — each one runs the isolated stage in WebGL, in this
+    The figures below are not diagrams. Each one runs the isolated stage in WebGL, in this
     site's inks. The composed result keeps Poolside's own.
   </p>
 
@@ -265,7 +265,7 @@ float caustic(float2 suv) {
       <canvas data-fig-shader="field"></canvas>
       <div class="cap"><b>Value noise → fbm</b><span class="mono">fig.04</span></div>
       <p>A hashed lattice smoothed with a cubic fade, then four octaves summed. Everything
-        organic in the shader — surface wobble, caustic warp, murk — is drawn from this field.</p>
+        organic in the shader (surface wobble, caustic warp, murk) is drawn from this field.</p>
     </div>
     <div class="figcell">
       <canvas data-fig-shader="warp"></canvas>
@@ -283,14 +283,14 @@ float caustic(float2 suv) {
     </div>
     <div class="figcell">
       <canvas data-fig-shader="water"></canvas>
-      <div class="cap"><b>Composite — Poolside's water</b><span class="mono">fig.07 · own inks</span></div>
+      <div class="cap"><b>Composite · Poolside's water</b><span class="mono">fig.07 · own inks</span></div>
       <p>Depth tint, caustics scaled by clarity, spec highlights from the noise gradient, and
         sparkle on the filament cores. The exhibit above runs exactly this.</p>
     </div>
   </div>
 
   <div style="height:24px"></div>
-  <span class="kicker" style="display:block;margin-bottom:12px">Key passages — PoolWater.sksl</span>
+  <span class="kicker" style="display:block;margin-bottom:12px">Key passages · PoolWater.sksl</span>
   <div class="srcblock" style="margin-bottom:12px">
     <pre set:html={highlightSource(DISPERSION_SRC)} />
   </div>
@@ -309,7 +309,7 @@ float caustic(float2 suv) {
     </div>
     <div>
       <h4>Cache the builder</h4>
-      <p>SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect — next render access-violates.</p>
+      <p>SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect, and the next render access-violates.</p>
       <span class="read">build once · feed uniforms</span>
     </div>
     <div>
@@ -319,7 +319,7 @@ float caustic(float2 suv) {
     </div>
     <div>
       <h4>GLSL → SkSL</h4>
-      <p>No varyings, no gl_FragColor — return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.</p>
+      <p>No varyings, no gl_FragColor. Return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.</p>
       <span class="read">half4 · Y-down DIPs</span>
     </div>
   </div>
