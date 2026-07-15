@@ -10,7 +10,7 @@ export type RegistryEntry = {
 };
 
 export const REGISTRY: RegistryEntry[] = [
-  { no: '01', name: 'Lagoon', desc: 'water, read like weather', kind: 'exhibit', href: '/lagoon/' },
+  { no: '01', name: 'Poolside', desc: 'water, read like weather', kind: 'exhibit', href: '/poolside/' },
   { no: '02', name: 'MomentUI', desc: 'an interface composed at runtime', kind: 'pending' },
   { no: '03', name: 'UnoAnnotation', desc: 'eyes and hands for agents', kind: 'pending' },
   { no: '04', name: 'LiquidGlassLab', desc: 'refraction on the Skia canvas', kind: 'pending' },
@@ -71,7 +71,7 @@ export const CONTACT = {
 
 export const PROGRAM_SRC = `function portfolio() {
   // chaque pièce est une fonction
-  exhibit('01', 'Lagoon', 'water, read like weather');
+  exhibit('01', 'Poolside', 'water, read like weather');
   pending('02', 'MomentUI', 'an interface composed at runtime');
   pending('03', 'UnoAnnotation', 'eyes and hands for agents');
   pending('04', 'LiquidGlassLab', 'refraction on the Skia canvas');

@@ -5,7 +5,7 @@ import '@fontsource/fraunces/400-italic.css';
 import '@fontsource/instrument-sans/400.css';
 import '@fontsource/instrument-sans/500.css';
 import '@fontsource/instrument-sans/600.css';
-import '../styles/lagoon.css';
+import '../styles/poolside.css';
 import Shell from '../layouts/Shell.astro';
 import { highlightSource } from '../data/portfolio';
 
@@ -46,12 +46,12 @@ float caustic(float2 suv) {
   return web;
 }`;
 ---
-<Shell title="Lagoon" crumb="lagoon" tokens={tokens} wide
-  description="Lagoon — pool chemistry read like weather. A living exhibit: explode the real interface into its key features, back to the SkiaSharp shader it grew from.">
+<Shell title="Poolside" crumb="poolside" tokens={tokens} wide
+  description="Poolside — pool chemistry read like weather. A living exhibit: explode the real interface into its key features, back to the SkiaSharp shader it grew from.">
 
   <div class="page-head">
     <span class="kicker">Code · exhibit · vue éclatée</span>
-    <h1 class="title">Lagoon</h1>
+    <h1 class="title">Poolside</h1>
     <p class="lede">
       A premium companion for pool chemistry — water reported like weather. This is not a
       screenshot: the phone is the interface itself, running. Explode it and the key features
@@ -87,10 +87,10 @@ float caustic(float2 suv) {
             <!-- THE ACTUAL UI -->
             <div class="x-phone" id="xphone">
               <div class="phone" id="phone" role="button" tabindex="0" aria-pressed="false"
-                   aria-label="Lagoon home screen, a working interface. Activate to explode its key features out of the shell.">
+                   aria-label="Poolside home screen, a working interface. Activate to explode its key features out of the shell.">
                 <div class="screen">
                   <div class="p-status"><span id="pClock">21:41</span><span class="p-batt"><i></i></span></div>
-                  <div class="p-header"><div class="glyph"></div><h2>Lagoon</h2><span class="sub">Backyard · 34 000 L</span></div>
+                  <div class="p-header"><div class="glyph"></div><h2>Poolside</h2><span class="sub">Backyard · 34 000 L</span></div>
 
                   <div class="p-sec" data-comp="swatch">
                     <div class="swatch-stage">
@@ -122,7 +122,7 @@ float caustic(float2 suv) {
                     <div class="insight">
                       <div class="ihead">
                         <div class="ibadge"><svg viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/><circle cx="12" cy="12" r="3.4"/></svg></div>
-                        <span class="ieyebrow">Lagoon insight</span>
+                        <span class="ieyebrow">Poolside insight</span>
                         <span class="itag" id="itag">Balanced</span>
                       </div>
                       <div class="ihl" id="ihl"></div>
@@ -183,7 +183,7 @@ float caustic(float2 suv) {
 
       <figcaption class="plaque">
         <div class="artist">Matt Mattei <span>(Canadian, works in Montréal)</span></div>
-        <div class="work">Lagoon — Home <span class="yr">2026</span></div>
+        <div class="work">Poolside — Home <span class="yr">2026</span></div>
         <div class="medium">Living interface · WebGL water · Fraunces &amp; Instrument Sans · Uno Platform target</div>
       </figcaption>
       <div><button class="reveal-btn" id="revealBtn" aria-pressed="false">Explode the interface · Vue éclatée</button></div>
@@ -219,7 +219,7 @@ float caustic(float2 suv) {
     Three shaders shared one uniform contract (iResolution, iTime, iIntensity, iLens); the
     POOL mode — a tiled floor under an animated water surface — is the frame below. Watching
     the caustics run, the question changed from "can the canvas do this" to "what product
-    deserves this water." That answer is Lagoon.
+    deserves this water." That answer is Poolside.
   </p>
 
   <div class="videocard">
@@ -234,7 +234,7 @@ float caustic(float2 suv) {
   <h2 style="font-size:20px;font-weight:600;margin:0 0 12px">Four stages, one pass.</h2>
   <p class="lede" style="margin-bottom:24px">
     The figures below are not diagrams — each one runs the isolated stage in WebGL, in this
-    site's inks. The composed result keeps Lagoon's own.
+    site's inks. The composed result keeps Poolside's own.
   </p>
 
   <div class="figrow">
@@ -260,7 +260,7 @@ float caustic(float2 suv) {
     </div>
     <div class="figcell">
       <canvas data-fig-shader="water"></canvas>
-      <div class="cap"><b>Composite — Lagoon's water</b><span class="mono">fig.07 · own inks</span></div>
+      <div class="cap"><b>Composite — Poolside's water</b><span class="mono">fig.07 · own inks</span></div>
       <p>Depth tint, caustics scaled by clarity, spec highlights from the noise gradient, and
         sparkle on the filament cores. The exhibit above runs exactly this.</p>
     </div>
@@ -304,7 +304,7 @@ float caustic(float2 suv) {
 
 <script is:inline>
 /* ============================================================
-   Lagoon — vue éclatée.
+   Poolside — vue éclatée.
    The shell keeps running; key parts FLIP out, tethered to voids.
    ============================================================ */
 (function () {
