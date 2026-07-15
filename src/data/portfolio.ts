@@ -27,7 +27,7 @@ export type Galley = {
 
 export const WRITING: Galley[] = [
   {
-    title: 'Using AI as a design engineer',
+    title: 'Using AI in design and development',
     sub: 'How agentic tools change the craft, and what stays human.',
     excerpt:
       'The tool does not replace the hand; it changes what the hand is for. After a year of building with agents, the work that remains is exactly the work I wanted to keep: deciding what matters, and knowing why it looks right when it does.',
@@ -58,7 +58,7 @@ export const TOOLS: Tool[] = [
   { name: 'Motion / interaction design', years: 8, grade: 'working' },
   { name: 'TypeScript / web', years: 7, grade: 'working' },
   { name: 'SkiaSharp / 2D GPU', years: 3, grade: 'daily' },
-  { name: 'AI-assisted engineering', years: 3, grade: 'daily' },
+  { name: 'AI-assisted development', years: 3, grade: 'daily' },
   { name: 'GLSL / shaders', years: 2, grade: 'learning' },
   { name: 'Technical writing · EN / FR', years: 9, grade: 'working' },
 ];

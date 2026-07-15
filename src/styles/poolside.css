@@ -107,10 +107,10 @@
 .gauge { position: relative; z-index: 2; padding: 10px 12px 9px; }
 .glabel { font-size: 9px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--lg-slate2); }
 .grow { display: flex; align-items: center; gap: 6px; }
-.plate.mini .gauge { padding: 10px 10px 9px; }
-.plate.mini .grow { flex-wrap: wrap; gap: 5px; }
+.plate.mini .gauge { padding: 9px 8px 8px; }
+.plate.mini .grow { flex-wrap: wrap; gap: 4px; }
 .plate.mini .glabel { width: 100%; margin-bottom: 4px; }
-.plate.mini .gval { font-size: 19px; }
+.plate.mini .gval { font-size: 17px; }
 .plate:not(.mini) .glabel { flex: 1; text-transform: none; font-size: 10.5px; letter-spacing: .2px; color: var(--lg-slate); }
 .plate:not(.mini) .gdot { display: none; }
 .gval { font-family: 'Fraunces', serif; font-weight: 300; font-size: 22px; line-height: 1; letter-spacing: -.4px; text-shadow: 0 1px 0 rgba(255, 255, 255, .7); }
@@ -233,19 +233,30 @@ body.revealed .mat { background: var(--gray-1); border-color: var(--line); }
 
 /* ---------- the exploded stage ---------- */
 .exploded-stage { position: relative; display: flex; justify-content: center; }
-body.revealed .exploded-stage { width: min(1020px, calc(100vw - 400px)); min-height: 700px; }
+body.revealed .exploded-stage {
+  width: min(1020px, calc(100vw - 400px));
+  display: grid;
+  grid-template-columns: minmax(200px, 330px) auto minmax(200px, 330px);
+  grid-template-rows: auto auto;
+  gap: 26px 26px;
+  align-items: center;
+  justify-content: center;
+}
 .x-phone { position: relative; z-index: 2; }
+body.revealed .x-phone { grid-column: 2; grid-row: 1 / 3; }
 .tethers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
 body.revealed .tethers { display: block; }
 .tethers line { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 4; }
 .tethers circle { fill: none; stroke: var(--accent); stroke-width: 1; }
 
-/* lifted parts */
-.x-part { display: none; position: absolute; width: min(330px, calc(50% - 200px)); z-index: 3; text-align: left; }
+/* lifted parts — grid cells, so they can never overlap */
+.x-part { display: none; z-index: 3; text-align: left; min-width: 0; }
 body.revealed .x-part { display: block; animation: xrise .45s ease-out both; }
 @keyframes xrise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.x-part[data-side="left"] { left: 0; }
-.x-part[data-side="right"] { right: 0; }
+.x-part[data-slot="swatch"] { grid-column: 1; grid-row: 1; }
+.x-part[data-slot="insight"] { grid-column: 1; grid-row: 2; }
+.x-part[data-slot="plate"] { grid-column: 3; grid-row: 1; }
+.x-part[data-slot="forecast"] { grid-column: 3; grid-row: 2; }
 .x-hold { background: linear-gradient(170deg, #faf8f4, #efece5); border: 1px solid var(--line);
   border-radius: 16px; padding: 12px; }
 .x-note { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
@@ -259,9 +270,9 @@ body.revealed .x-part { display: block; animation: xrise .45s ease-out both; }
 .fig-cap { font-family: var(--mono); font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 
 /* narrow: parts stack under the shell, tethers off */
-@media (max-width: 1000px){
-  body.revealed .exploded-stage { width: 100%; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 18px; }
-  .x-part, .x-part[data-side="left"], .x-part[data-side="right"] { position: static; width: min(360px, 100%); }
+@media (max-width: 1200px){
+  body.revealed .exploded-stage { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  body.revealed .x-part { width: min(360px, 100%); }
   body.revealed .tethers { display: none; }
 }
 

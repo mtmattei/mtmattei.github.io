@@ -173,25 +173,25 @@ float caustic(float2 suv) {
             </div>
 
             <!-- lifted parts -->
-            <div class="x-part" data-side="left" data-slot="swatch" style="top:2%">
+            <div class="x-part" data-side="left" data-slot="swatch">
               <div class="fig-tag"><span class="fig-no">1</span><span class="fig-cap">WaterConditionCanvas · WaterCondition.sksl</span></div>
               <div class="x-hold"></div>
               <p class="x-note"><b>WaterConditionCanvas is an SKCanvasElement</b> running WaterCondition.sksl. Clarity, green, milky, and sediment are DependencyProperties snapshotted to fields for the render thread; the loop is vsync-aligned, capped at 30fps, and lives inside the folding IsoBasin control.</p>
             </div>
 
-            <div class="x-part" data-side="right" data-slot="plate" style="top:14%">
+            <div class="x-part" data-side="right" data-slot="plate">
               <div class="fig-tag"><span class="fig-no">2</span><span class="fig-cap">engraved plate · IState&lt;PoolSnapshot&gt;</span></div>
               <div class="x-hold"></div>
               <p class="x-note"><b>One recessed plate, four gauges in a 2×2 grid</b> — Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState&lt;PoolSnapshot&gt;; a ChemistryExpanded state swaps compact numbers for full range bands.</p>
             </div>
 
-            <div class="x-part" data-side="left" data-slot="insight" style="top:52%">
+            <div class="x-part" data-side="left" data-slot="insight">
               <div class="fig-tag"><span class="fig-no">3</span><span class="fig-cap">IWaterAnalyzer · PoolModel · one line</span></div>
               <div class="x-hold"></div>
               <p class="x-note"><b>The insight is a service, not a string:</b> IWaterAnalyzer is DI-registered and injected via PoolModel(IWaterAnalyzer Analyzer). It reads the snapshot and the test strip (StripReader) and returns one sentence with a status tone.</p>
             </div>
 
-            <div class="x-part" data-side="right" data-slot="forecast" style="top:62%">
+            <div class="x-part" data-side="right" data-slot="forecast">
               <div class="fig-tag"><span class="fig-no">4</span><span class="fig-cap">TrendsModel · Polyline · WaterThumbnail</span></div>
               <div class="x-hold"></div>
               <p class="x-note"><b>History is a Polyline sparkline</b> fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed — the not-yet never borrows history's ink.</p>
