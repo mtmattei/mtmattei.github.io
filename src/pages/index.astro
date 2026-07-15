@@ -9,9 +9,18 @@ const tokens: [string, string][] = [
 ];
 ---
 <Shell title="Index" crumb="index" tokens={tokens}>
-  <!-- the name is the title; no headline competes with it -->
-  <div class="stage" style="min-height:0;padding:var(--s6);margin-top:var(--s2)">
-    <div class="hero-stage">
+  <div class="page-head" style="margin-bottom:var(--s4)">
+    <span class="kicker">Portfolio · Montréal · EN / FR</span>
+    <h1 class="title">Matt Mattei.</h1>
+  </div>
+  <div class="hero-idx">
+    <p class="lede">
+      Developer and design engineer. I build cross-platform interfaces with
+      Uno Platform and XAML, and the instruments around them — shaders, agents,
+      and type — often with AI in the loop. Everything here is placed by the
+      code that describes it.
+    </p>
+    <div class="hero-fig">
       <canvas id="herocv" aria-label="the name MATTHEW assembling out of the characters of the function that draws it"></canvas>
       <div class="seg" id="heroSeg" role="group" aria-label="Interpolation">
         <button data-mode="source">source</button>
@@ -20,7 +29,6 @@ const tokens: [string, string][] = [
       </div>
     </div>
   </div>
-  <p class="annotate"><span class="q">Question:</span> can a name be typeset from nothing but its own source?</p>
 
   <hr class="rule" />
 
@@ -168,9 +176,9 @@ function loopHero() {
 let heroWired = false;
 function buildHero() {
   heroCv = document.getElementById('herocv');
-  const holder = heroCv.parentElement.parentElement; // stage
-  HW = Math.min(560, Math.max(280, holder.clientWidth - 24));
-  HH = 220;
+  const holder = heroCv.parentElement; // hero-fig
+  HW = Math.min(340, Math.max(250, holder.clientWidth));
+  HH = 170;
   const dpr = Math.min(devicePixelRatio || 1, 2);
   heroCv.width = HW * dpr; heroCv.height = HH * dpr;
   heroCv.style.width = HW + 'px'; heroCv.style.height = HH + 'px';

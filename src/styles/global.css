@@ -455,6 +455,15 @@ h1.title {
 .hero-stage { width: 100%; display: flex; flex-direction: column; gap: var(--s3); align-items: center; }
 .hero-stage canvas { display: block; background: var(--paper); border: var(--bw) solid var(--line-2); border-radius: var(--radius); max-width: 100%; cursor: pointer; }
 
+/* ---- Index hero: name + about left, the quine breathing beside it ---- */
+.hero-idx { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s6); align-items: center; }
+.hero-fig { display: flex; flex-direction: column; gap: var(--s2); align-items: center; }
+.hero-fig canvas { display: block; max-width: 100%; cursor: pointer; }
+@media (max-width: 1180px){
+  .hero-idx { grid-template-columns: 1fr; }
+  .hero-fig { align-items: flex-start; }
+}
+
 /* ---- Program source ---- */
 .srcblock { border: var(--bw) solid var(--line); border-radius: var(--radius); background: var(--gray-1); padding: var(--s4); overflow-x: auto; }
 .srcblock pre { margin: 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.8; color: var(--ink); }
