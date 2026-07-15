@@ -55,8 +55,6 @@ export type Tool = { name: string; years: number; grade: 'daily' | 'working' | '
 export const TOOLS: Tool[] = [
   { name: 'C# / .NET', years: 5, grade: 'daily' },
   { name: 'Uno Platform / XAML', years: 5, grade: 'daily' },
-  { name: 'Motion / interaction design', years: 8, grade: 'working' },
-  { name: 'TypeScript / web', years: 7, grade: 'working' },
   { name: 'SkiaSharp / 2D GPU', years: 3, grade: 'daily' },
   { name: 'AI-assisted development', years: 3, grade: 'daily' },
   { name: 'GLSL / shaders', years: 2, grade: 'learning' },
