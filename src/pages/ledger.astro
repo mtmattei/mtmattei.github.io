@@ -15,8 +15,8 @@ const tokens: [string, string][] = [
     <h1 class="title">Ledger</h1>
     <p class="lede">
       design-ledger is a public, append-only record of design DNA. Every generated interface
-      writes its fingerprint before it ships; the next one must prove distance from every
-      prior entry. Taste enforced mechanically, not remembered.
+      writes its fingerprint before it ships, and the next one must prove distance from every
+      prior entry. The distance is checked in code, so consistency never depends on memory.
     </p>
   </div>
 
@@ -25,8 +25,8 @@ const tokens: [string, string][] = [
     <div class="read">4 fields · plain markdown</div>
   </div>
   <div class="specimen">
-    <div><h3>The rule</h3><p>A new design must differ from every ledger entry across the recorded axes. Similar is allowed once it is declared; identical is a build failure of taste.</p></div>
-    <div class="read">distance · not vibes</div>
+    <div><h3>The rule</h3><p>A new design must differ from every ledger entry across the recorded axes. A near-match is allowed once you declare it; a design identical to an existing entry does not pass.</p></div>
+    <div class="read">measured distance</div>
   </div>
   <div class="specimen">
     <div><h3>Proof of work</h3><p>The Hollowpoint proof shipped as the first public demonstration: one prompt, one ledger, visibly divergent outputs.</p></div>

@@ -107,7 +107,7 @@
 
   var CATEGORIES = [
     { id: "code",    href: "/poolside/", h: 16, name: "CODE",    sub: "apps · exhibits · systems",   count: "open the exhibit" },
-    { id: "design",  href: "/colophon/", h: 12, name: "DESIGN",  sub: "interfaces · identity · type", count: "open the colophon" },
+    { id: "design",  href: "/logo/", h: 12, name: "DESIGN",  sub: "interfaces · identity · type", count: "open the logo" },
     { id: "writing", href: "/texts/",    h: 12, name: "WRITING", sub: "essays · series · notes",      count: "open the texts" },
     { id: "skills",  href: "/xaml-uno/", h: 10, name: "SKILLS",  sub: "the feel system · tooling",    count: "open the sheet" }
   ];
@@ -165,7 +165,7 @@
   var dimG = el("g", { "class": "lbl", style: "--dl:1.1s" }, svg);
 
   CATEGORIES.forEach(function (L, i) {
-    var a = el("a", { "class": "cat", href: L.href, "aria-label": L.name + " — " + L.count }, svg);
+    var a = el("a", { "class": "cat", href: L.href, "aria-label": L.name + " · " + L.count }, svg);
     a.setAttributeNS(XLINK, "xlink:href", L.href);
     var g = el("g", { "class": "layer", style: "--dl:" + (0.16 * i) + "s" }, a);
     var nudge = el("g", { "class": "nudge" }, g);

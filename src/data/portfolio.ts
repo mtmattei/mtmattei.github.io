@@ -64,7 +64,7 @@ export const TOOLS: Tool[] = [
 export const CONTACT = {
   email: 'matthewunoplatform@gmail.com',
   github: 'github.com/mtmattei',
-  city: 'Montréal, QC — EN / FR',
+  city: 'Montréal, QC · EN / FR',
 };
 
 /* ---- Skills (Claude Code skills authored for the XAML / Uno feel system) ---- */
@@ -91,9 +91,10 @@ export const SKILLS: Skill[] = [
     slug: 'xaml-design-polish',
     name: 'xaml-design-polish',
     kicker: 'Skill · the feel layer',
-    tagline: 'Give numbers, never adjectives. "Smooth" is unbuildable; KeySpline 0.22,1 0.36,1 at 280ms is.',
+    tagline:
+      'The point is to write motion as numbers instead of adjectives. You cannot build "smooth," but you can build a KeySpline of 0.22,1 0.36,1 that settles over 280ms.',
     lede:
-      'The motion-and-feel system for Uno Platform and WinUI surfaces. Define the feel once as tokens — easing, durations, radius, shadows — then every control inherits it. Ten rules that separate "an LLM built this" from "a person with taste built this."',
+      'The motion-and-feel system I use on Uno Platform and WinUI surfaces. You define the feel once as tokens (easing, durations, radius, shadows), and every control inherits it. Ten rules for the details that make an interface read as hand-built.',
     install: 'npx skills add mtmattei/xaml-design-polish',
     repo: 'https://github.com/mtmattei/xaml-design-polish',
     tokens: [
@@ -105,25 +106,25 @@ export const SKILLS: Skill[] = [
     numbers: [
       ['easing · default', 'EaseSmooth · KeySpline 0.22,1 0.36,1'],
       ['durations', '150 fast · 200 normal · 280 slow (ms)'],
-      ['press', 'scale 0.98 (0.96/0.97 superseded)'],
+      ['press', 'scale 0.98 (0.96 and 0.97 superseded)'],
       ['radius', '6 · 12 · 24'],
-      ['shadow', '2–8% opacity · never pure black · layered'],
+      ['shadow', '2-8% opacity, never pure black, several layers'],
     ],
     sections: [
       {
         kicker: 'The ten rules',
-        blurb: 'XAML / C# / Composition native. House values are pinned; correctness of any single detail defers to userinterface-wiki-uno.',
+        blurb: 'Written for XAML, C#, and Composition. The house values above are fixed; whether any single detail is correct is userinterface-wiki-uno\'s job.',
         rows: [
-          { label: 'Easing is everything', desc: 'the system default transition curve is banned for anything expressive', tag: '01' },
-          { label: 'Tokens before controls', desc: 'merge MotionTokens.xaml first; forbid one-off curves, durations, radii', tag: '02' },
-          { label: 'Draggable = real physics', desc: 'velocity from ManipulationDelta, momentum on release, soft springy edges', tag: '03' },
-          { label: 'Two-zone snap points', desc: 'tight pull-in to lock, larger release to break free; pulse the label on catch', tag: '04' },
-          { label: 'Entrances blur in', desc: 'fade + 6px rise + a 2px Composition blur that clears, ~280ms on EaseSmooth', tag: '05' },
-          { label: 'Depth is layered light', desc: 'hairline ring instead of a border; stacked contact + ambient shadows', tag: '06' },
-          { label: 'Press is felt', desc: 'every interactive element scales to 0.98 over the fast duration', tag: '07' },
-          { label: 'Reveal height honestly', desc: 'measure-on-inner / animate-on-wrapper with clip; ConnectedAnimation across containers', tag: '08' },
-          { label: 'Performance and a11y or it is not polished', desc: 'gate motion on AnimationsEnabled; Translation/Opacity/Scale over layout', tag: '09' },
-          { label: 'State-driven design is the job', desc: 'a control is a system of states discovered through use, never specced up front', tag: '10' },
+          { label: 'Never ship the default easing curve', desc: 'the built-in transition curve is the clearest sign nobody tuned the motion', tag: '01' },
+          { label: 'Define tokens before the first control', desc: 'merge MotionTokens.xaml first so nothing invents one-off curves, durations, or radii', tag: '02' },
+          { label: 'Drag needs real physics', desc: 'velocity from ManipulationDelta, momentum on release, edges that stretch and spring back', tag: '03' },
+          { label: 'Two-zone snap points', desc: 'a tight zone to pull in and lock, a wider one to break free, and a flash on the label when it catches', tag: '04' },
+          { label: 'Entrances fade, rise, and unblur', desc: 'opacity 0 to 1, a 6px rise, and a 2px Composition blur that clears over about 280ms', tag: '05' },
+          { label: 'Layer the shadows', desc: 'a hairline ring instead of a border, plus stacked contact and ambient shadows at low opacity', tag: '06' },
+          { label: 'Every press scales to 0.98', desc: 'interactive elements scale to 0.98 over the fast duration, firm rather than a collapse', tag: '07' },
+          { label: 'Reveal height with a measure and animate split', desc: 'the inner element measures, the wrapper animates, and you clip during resize', tag: '08' },
+          { label: 'Keep motion on the compositor and gated', desc: 'honor AnimationsEnabled, and animate Translation, Opacity, and Scale over layout', tag: '09' },
+          { label: 'Design the states, not the picture', desc: 'a control is a set of states you mostly find by using it, not by speccing it up front', tag: '10' },
         ],
       },
     ],
@@ -133,9 +134,9 @@ export const SKILLS: Skill[] = [
     slug: 'userinterface-wiki-uno',
     name: 'userinterface-wiki-uno',
     kicker: 'Skill · XAML detail rules',
-    tagline: 'The correctness reference behind the feel. One rule per file: a wrong example, a right example, and why.',
+    tagline: 'The correctness reference I check against. Each file is one rule: the wrong version, the right version, and why it matters.',
     lede:
-      'UI/UX best practices adapted for WinUI 3, XAML, and Uno Platform. Eight categories, each a folder of single-rule files with an incorrect example, a correct example, and the reason it matters. Outputs file:line findings.',
+      'UI and UX best practices adapted for WinUI 3, XAML, and Uno Platform. Eight categories, each a folder of single-rule files with an incorrect example, a correct example, and the reason it matters. It reports findings as file:line.',
     install: 'npx skills add mtmattei/userinterface-wiki-uno',
     repo: 'https://github.com/mtmattei/userinterface-wiki-uno',
     tokens: [
@@ -147,7 +148,7 @@ export const SKILLS: Skill[] = [
     sections: [
       {
         kicker: 'Rule categories by priority',
-        blurb: 'Each prefix is a folder of one-rule files. The feel layer decides how a thing should move; this layer decides whether the move is correct.',
+        blurb: 'Each prefix is a folder of one-rule files. Where xaml-design-polish decides how something should move, these rules check that the move is built correctly.',
         rows: [
           { label: 'XAML Typography', desc: 'tabular nums, variable fonts, line height, trimming, character spacing', tag: 'type-xaml' },
           { label: 'Transitions & Exit', desc: 'ThemeTransition, ConnectedAnimation, mirror-the-entrance exits', tag: 'exit-xaml' },
@@ -166,7 +167,8 @@ export const SKILLS: Skill[] = [
     slug: 'winui-xaml',
     name: 'winui-xaml',
     kicker: 'Skill · XAML correctness',
-    tagline: 'Twelve categories, ordered by impact. From crash-class to polish, validated against WinUI 3 and Uno Platform.',
+    tagline:
+      'Twelve categories of XAML practice, ordered by impact and validated against WinUI 3 and Uno Platform, from the mistakes that crash an app down to the ones that only cost polish.',
     lede:
       'WinUI 3 and XAML fundamentals: layout, binding, async, collections, rendering, memory, accessibility, and localization. Every pattern carries a rule, a rationale with measurable impact, a correct example, and Uno Platform notes.',
     install: 'npx skills add mtmattei/winui-xaml',
@@ -178,11 +180,11 @@ export const SKILLS: Skill[] = [
       ['scope', 'WinUI 3 · Uno'],
     ],
     numbers: [
-      ['never block', 'the UI thread — async/await for all I/O'],
-      ['x:Bind over Binding', 'compile-time checked · ~3x faster'],
+      ['never block the UI thread', 'use async and await for every I/O or long operation'],
+      ['x:Bind over Binding', 'compile-time checked, about 3x faster'],
       ['virtualize', 'any list over 20 items'],
-      ['unsubscribe', 'handlers in Unloaded to prevent leaks'],
-      ['Grid over StackPanels', 'one layout pass, not many'],
+      ['unsubscribe handlers', 'in Unloaded, or the page leaks'],
+      ['Grid over nested StackPanels', 'one layout pass instead of several'],
     ],
     sections: [
       {
@@ -204,7 +206,7 @@ export const SKILLS: Skill[] = [
         ],
       },
     ],
-    question: 'Can most of "feels right" be proven by a compiler? More than you would think.',
+    question: 'How much of a solid XAML UI is just avoiding the known mechanical mistakes?',
   },
 ];
 

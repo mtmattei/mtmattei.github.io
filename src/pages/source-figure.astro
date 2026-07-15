@@ -1,0 +1,797 @@
+---
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/radley/400.css';
+import '@fontsource/radley/400-italic.css';
+import '../styles/source-figure.css';
+import Shell from '../layouts/Shell.astro';
+
+const tokens: [string, string][] = [
+  ['medium', 'canvas + SVG'],
+  ['ink', 'executed · #14161A'],
+  ['blue', 'construction · #3656D4'],
+  ['unit', '1ch × 21px'],
+  ['studies', '7'],
+  ['method', 'fn.toString()'],
+];
+---
+<Shell title="Source / Figure" crumb="source · figure" tokens={tokens} wide
+  description="Source / Figure — seven studies in self-referential notation, where each figure is drawn at runtime by the function printed beside it. A two-ink letterpress design study, retinted to the portfolio.">
+
+  <span class="kicker" style="display:block;margin-bottom:var(--s4)">Design · study · self-referential notation</span>
+
+  <div class="sf">
+  <div class="sheet">
+
+    <header>
+      <div class="mast-meta">
+        <span>Sheet no. 1 — self-referential notation</span>
+        <span>Two inks: black + non-photo blue</span>
+        <span>MMXXVI</span>
+      </div>
+      <h1>SOURCE<span class="op">&nbsp;/&nbsp;</span>FIGURE</h1>
+      <div class="measure" id="measure">
+        <svg width="160" height="16" aria-hidden="true">
+          <line x1="0" y1="12" x2="160" y2="12" stroke="#3656D4" stroke-width="1"/>
+          <g id="mticks"></g>
+        </svg>
+        <span id="mread">measuring…</span>
+      </div>
+      <p class="dek">Seven studies in which source code is the structure, texture, and rhythm of the image drawn from it. The code becomes the image.</p>
+      <div class="abstract">
+        <p>Every figure on this sheet is drawn, at runtime, by the function printed beside it — and the printed text <em>is</em> the function: each source pane is <span style="font-family:var(--mono);font-size:13px">Function.prototype.toString()</span>, read back from the object that did the drawing.</p>
+        <p>Two inks are used. Black is execution: what ran, what printed. Non-photo blue is the pre-press pencil the camera cannot see: measures, construction lines, untaken branches, iterations already passed.</p>
+      </div>
+      <div class="legend">
+        <span><i class="sw ink"></i>INK — EXECUTED, PRINTS</span>
+        <span><i class="sw blue"></i>NON-PHOTO BLUE — CONSTRUCTION, DOES NOT PRINT</span>
+      </div>
+    </header>
+
+    <!-- =============== STUDY 01 =============== -->
+    <section class="study" id="s1">
+      <header class="s-head">
+        <span class="s-no">STUDY 01</span>
+        <h2>A line of code is a line</h2>
+        <span class="s-tag">Line</span>
+      </header>
+      <div class="s-body cols">
+        <div class="pane">
+          <div class="pane-label">fn beams — Function.prototype.toString()</div>
+          <pre id="src1"></pre>
+          <div class="fnote">lines(fn) = fn.toString().split('\n') — the same rows drive both panes.</div>
+        </div>
+        <div class="pane">
+          <div class="pane-label">Fig. 1 — beams(beams, fig)</div>
+          <div class="figwrap" id="fig1w"></div>
+        </div>
+      </div>
+      <p class="caption">Fig.&nbsp;1 is <b>beams</b> applied to itself: every printed line of the function becomes one beam — indentation for offset, character count for length. The beams begin in blue; as the program counter sweeps the source, each executed line receives its ink. Point at a beam and its line answers.</p>
+    </section>
+
+    <!-- =============== STUDY 02 =============== -->
+    <section class="study" id="s2">
+      <header class="s-head">
+        <span class="s-no">STUDY 02</span>
+        <h2>Indentation is depth</h2>
+        <span class="s-tag">Depth</span>
+      </header>
+      <div class="s-body cols">
+        <div class="pane">
+          <div class="pane-label">fn profile — Function.prototype.toString()</div>
+          <pre id="src2"></pre>
+        </div>
+        <div class="pane">
+          <div class="pane-label">Fig. 2 — profile(profile, fig)</div>
+          <div class="figwrap" id="fig2w"></div>
+        </div>
+      </div>
+      <p class="caption">Read the left edge of any program and a terrain appears. <b>profile</b> traces its own margin: each row contributes its depth, the staircase is the scope structure, and the blue wash is the mass of nesting. Rows in the figure sit on the same 21-pixel rhythm as the rows of text.</p>
+    </section>
+
+    <!-- =============== STUDY 03 =============== -->
+    <section class="study" id="s3">
+      <header class="s-head">
+        <span class="s-no">STUDY 03</span>
+        <h2>Brackets contain</h2>
+        <span class="s-tag">Containment</span>
+      </header>
+      <div class="s-body">
+        <div class="cols">
+          <div class="pane">
+            <div class="pane-label">fn arcs — Function.prototype.toString()</div>
+            <pre id="src3"></pre>
+          </div>
+          <div class="pane">
+            <div class="pane-label">Fig. 3 — arcs(beams, fig) · scrolls →</div>
+            <div class="scrollx"><div class="arcblock" id="fig3w"></div></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption"><b>arcs</b> flattens Study&nbsp;01 to a single line — a line of code owes you no line break — and draws a span for every matched pair. Containment becomes altitude: outer pairs arc higher, inner pairs shelter beneath them. The brackets themselves are set bold; they are the load-bearing glyphs.</p>
+    </section>
+
+    <!-- =============== STUDY 04 =============== -->
+    <section class="study" id="s4">
+      <header class="s-head">
+        <span class="s-no">STUDY 04</span>
+        <h2>A loop is a rhythm</h2>
+        <span class="s-tag">Repetition</span>
+      </header>
+      <div class="s-body cols">
+        <div class="pane">
+          <div class="pane-label">fn unroll — Function.prototype.toString()</div>
+          <pre id="src4"></pre>
+          <div class="fnote">TURN = Math.PI / 16 — one sixteenth of a half turn per iteration.</div>
+        </div>
+        <div class="pane">
+          <div class="pane-label">Fig. 4 — unroll(fig) · the loop, unrolled</div>
+          <div class="figwrap" id="fig4w"></div>
+        </div>
+      </div>
+      <p class="caption">One motif and a rule. The loop body prints eight times; each cell inks the current iteration and leaves the previous one in blue, so the rhythm of <b>i</b> is visible as motion. Superimposed at <b>Σ</b>, the cycle closes into a figure no single iteration contains.</p>
+    </section>
+
+    <!-- =============== STUDY 05 =============== -->
+    <section class="study" id="s5">
+      <header class="s-head">
+        <span class="s-no">STUDY 05</span>
+        <h2>A condition forks</h2>
+        <span class="s-tag">Choice</span>
+      </header>
+      <div class="s-body cols">
+        <div class="pane">
+          <div class="pane-label">let sunlit; fn fork — Function.prototype.toString()</div>
+          <pre id="src5"></pre>
+          <button class="runbtn" id="forkbtn" type="button">sunlit = !sunlit; fork(fig)</button>
+        </div>
+        <div class="pane">
+          <div class="pane-label">Fig. 5 — both branches exist; one executes</div>
+          <div class="fork-fig">
+            <div class="fork-panel">
+              <svg id="figL" width="100%" viewBox="0 0 220 160" aria-label="consequent branch"></svg>
+              <div class="fork-cap" id="capL">consequent — inked</div>
+            </div>
+            <div class="fork-panel">
+              <svg id="figR" width="100%" viewBox="0 0 220 160" aria-label="alternate branch"></svg>
+              <div class="fork-cap" id="capR">alternate — blue</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Both branches exist in the source, so both panels exist on the plate. Only the branch that executes receives ink; the alternate stays in non-photo blue, and its lines of source print blue with it. Flip the value and the ink changes sides. The blue panels are painted by the plate itself — code that does not run leaves no ink.</p>
+    </section>
+
+    <!-- =============== STUDY 06 =============== -->
+    <section class="study" id="s6">
+      <header class="s-head">
+        <span class="s-no">STUDY 06</span>
+        <h2>Comments are the human hand</h2>
+        <span class="s-tag">Voice</span>
+      </header>
+      <div class="s-body">
+        <div class="pane-label">fn execute — the program counter that swept Study 01</div>
+        <div class="margins" id="margins">
+          <pre id="src6"></pre>
+          <div class="notes" id="notes6"></div>
+          <svg class="leaders" id="leaders6" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <p class="caption"><b>execute</b> is the function that swept the program counter across Study&nbsp;01. Its machine text stays in the column; its comments step out into the margin, set in a human hand. Voice and instruction are different materials, and the typeface says so.</p>
+    </section>
+
+    <!-- =============== STUDY 07 =============== -->
+    <section class="study" id="s7">
+      <header class="s-head">
+        <span class="s-no">STUDY 07</span>
+        <h2>Portrait of a function as itself</h2>
+        <span class="s-tag">Quine</span>
+      </header>
+      <div class="s-body">
+        <div class="pane-label">fn portrait — the pane and the figure are the same characters</div>
+        <div class="stage">
+          <canvas id="cv7" aria-label="the source of portrait() interpolating between readable text and a spiral figure"></canvas>
+          <div class="tbar">
+            <span class="end">source</span>
+            <input type="range" id="tslider" min="0" max="1000" value="0" step="1" aria-label="interpolation between source layout and figure layout">
+            <span class="end">figure</span>
+            <span class="tread" id="tread">t = 0.00</span>
+            <button class="runbtn" id="loopbtn" type="button" aria-pressed="false" title="drive t back and forth between source and figure">loop</button>
+          </div>
+        </div>
+      </div>
+      <p class="caption">The portrait's only material is its own text: <b>portrait.toString()</b>, placed character by character. At <b>t = 0</b> the canvas typesets the function and you can read it. At <b>t = 1</b> the same characters sit on a spiral and you can only see it. Every point between is both. The code does not describe the image; it becomes it.</p>
+    </section>
+
+    <footer class="colophon">
+      <div class="row">
+        <span>Source / Figure — Sheet no. 1</span>
+        <span>Set in JetBrains Mono &amp; Radley, inlined</span>
+        <span>Plotted in ch × 21px</span>
+      </div>
+      <p>One theme only: this is a printed sheet, and non-photo blue does not survive inversion. Every figure above was drawn at runtime by the function shown beside it. View source — the page you are reading is the program that drew it.</p>
+    </footer>
+
+  </div>
+  </div>
+</Shell>
+
+<script is:inline>
+/* ============================================================
+   The plate. Functions displayed on the sheet are defined at
+   column zero so Function.prototype.toString() reads clean.
+   ============================================================ */
+
+function lines(fn) { return fn.toString().split('\n'); }
+
+function beams(fn, fig) {
+  const rows = lines(fn);
+  for (let y = 0; y < rows.length; y++) {
+    const line = rows[y];
+    const indent = line.length - line.trimStart().length;
+    const span = line.trim().length;
+    if (span > 0) bar(fig, indent, y, span);
+  }
+}
+
+function profile(fn, fig) {
+  const rows = lines(fn), path = [];
+  for (let y = 0; y < rows.length; y++) {
+    const line = rows[y];
+    if (line.trim().length === 0) continue;
+    const depth = (line.length - line.trimStart().length) / 2;
+    path.push([depth, y]);
+  }
+  steps(fig, path);
+}
+
+function arcs(fn, fig) {
+  const flat = fn.toString().replace(/\s+/g, ' ');
+  const open = [];
+  for (let i = 0; i < flat.length; i++) {
+    if ('([{'.includes(flat[i])) open.push(i);
+    if (')]}'.includes(flat[i])) arch(fig, open.pop(), i, open.length);
+  }
+  return flat;
+}
+
+function unroll(fig) {
+  for (let i = 0; i < 8; i++) {
+    square(fig, cell(i), (i - 1) * TURN, 'blue');
+    square(fig, cell(i), i * TURN, 'ink');
+  }
+  for (let k = 0; k < 8; k++) {
+    square(fig, cell(8), k * TURN, k === 7 ? 'ink' : 'blue');
+  }
+}
+
+let sunlit = true;
+
+function fork(fig) {
+  if (sunlit) {
+    rings(fig.left, 'ink');
+  } else {
+    hatch(fig.right, 'ink');
+  }
+}
+
+function execute(pre, step, ms) {
+  // the program counter for this sheet
+  const rows = pre.querySelectorAll('.ln');
+  let k = 0;
+  (function tick() {
+    if (k > 0) rows[k - 1].classList.remove('pc');
+    if (k === rows.length) return; // halt
+    rows[k].classList.add('pc'); // ink the current line
+    step(k);
+    k = k + 1;
+    setTimeout(tick, ms);
+  })();
+}
+
+function portrait(cv, t) {
+  const src = portrait.toString();
+  const a = grid(src), b = spiral(src);
+  const g = cv.getContext('2d');
+  g.clearRect(0, 0, cv.width, cv.height);
+  for (let i = 0; i < src.length; i++) {
+    if (!a[i] || src[i] === ' ') continue;
+    place(g, src[i], mix(a[i], b[i], ease(t)));
+  }
+}
+
+/* ============================================================
+   Below: the parts of the plate the studies reference.
+   ============================================================ */
+
+const NS = 'http://www.w3.org/2000/svg';
+const INK = '#14161A', BLUE = '#3656D4', BLUE_DEEP = '#3656D4', FAINT = '#E5E9FB', SOFT = '#6B7077';
+const LH = 21, FS = 12.5;
+const TURN = Math.PI / 16;
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let CH = 7.5, CH11 = 6.6;
+
+const ease = t => 1 - Math.pow(1 - t, 3);
+
+function el(name, attrs, parent) {
+  const n = document.createElementNS(NS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+function markup(codePart) {
+  let h = esc(codePart);
+  h = h.replace(/'[^']*'/g, m => '<span class="st">' + m + '</span>');
+  h = h.replace(/\b(function|const|let|for|while|if|else|return|continue|of|new)\b/g, '<b>$1</b>');
+  return h;
+}
+
+function highlight(code) {
+  return code.split('\n').map(line => {
+    const m = line.match(/^(.*?)(\/\/.*)$/);
+    let h = m ? markup(m[1]) + '<span class="cm">' + esc(m[2]) + '</span>' : markup(line);
+    return '<span class="ln">' + (h || ' ') + '</span>';
+  }).join('');
+}
+
+function typeset(id, text) {
+  document.getElementById(id).innerHTML = highlight(text);
+}
+
+/* ---- study 01 plate ---- */
+let svg1 = null;
+function bar(fig, indent, y, span) {
+  el('rect', {
+    x: (indent * CH).toFixed(1), y: y * LH + 5,
+    width: (span * CH).toFixed(1), height: 9,
+    class: 'beam', 'data-y': y
+  }, fig);
+}
+function buildFig1() {
+  const rows = lines(beams);
+  const w = Math.max(...rows.map(r => r.length)) * CH + 6;
+  const h = rows.length * LH;
+  svg1 = el('svg', { width: Math.ceil(w), height: h, 'aria-label': 'each source line rendered as a beam' });
+  for (let y = 0; y < rows.length; y++) {
+    el('line', { x1: 0, y1: y * LH + 16.5, x2: Math.ceil(w), y2: y * LH + 16.5, class: 'baseline' }, svg1);
+  }
+  document.getElementById('fig1w').appendChild(svg1);
+  beams(beams, svg1);
+  // beam <-> line cross-highlight
+  const pre = document.getElementById('src1');
+  svg1.querySelectorAll('.beam').forEach(b => {
+    const k = +b.getAttribute('data-y');
+    b.addEventListener('pointerenter', () => pre.querySelectorAll('.ln')[k]?.classList.add('pc'));
+    b.addEventListener('pointerleave', () => pre.querySelectorAll('.ln')[k]?.classList.remove('pc'));
+  });
+  if (RM) svg1.querySelectorAll('.beam').forEach(b => b.classList.add('on'));
+}
+function sweep1() {
+  if (RM) return;
+  svg1.querySelectorAll('.beam').forEach(b => b.classList.remove('on'));
+  execute(document.getElementById('src1'), k => {
+    const b = svg1.querySelector('[data-y="' + k + '"]');
+    if (b) b.classList.add('on');
+  }, 110);
+}
+
+/* ---- study 02 plate ---- */
+let svg2 = null, path2 = null;
+function steps(fig, pts) {
+  const x = d => 30 + d * 7 * CH;
+  const y = r => r * LH + 11.5;
+  let d = 'M ' + x(pts[0][0]) + ' ' + y(pts[0][1]);
+  let fill = 'M ' + x(0) + ' ' + y(pts[0][1]) + ' L ' + x(pts[0][0]) + ' ' + y(pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    d += ' V ' + y(pts[i][1]) + ' H ' + x(pts[i][0]);
+    fill += ' V ' + y(pts[i][1]) + ' H ' + x(pts[i][0]);
+  }
+  fill += ' V ' + y(pts[pts.length - 1][1]) + ' H ' + x(0) + ' Z';
+  el('path', { d: fill, fill: FAINT, stroke: 'none', class: 'terr' }, fig);
+  path2 = el('path', { d: d, fill: 'none', stroke: INK, 'stroke-width': 1.8 }, fig);
+}
+function buildFig2() {
+  const rows = lines(profile);
+  const h = rows.length * LH;
+  const w = 30 + 3 * 7 * CH + 64;
+  svg2 = el('svg', { width: Math.ceil(w), height: h + 26, 'aria-label': 'indentation depth of each row as a step profile' });
+  for (let d = 0; d <= 3; d++) {
+    const gx = 30 + d * 7 * CH;
+    el('line', { x1: gx, y1: 14, x2: gx, y2: h + 4, class: 'guide', 'stroke-dasharray': '1 4' }, svg2);
+    const t = el('text', { x: gx - 2, y: 8, class: 'guide-label' }, svg2);
+    t.textContent = d;
+  }
+  const lbl = el('text', { x: 30 + 3 * 7 * CH + 14, y: 8, class: 'guide-label' }, svg2);
+  lbl.textContent = 'DEPTH';
+  document.getElementById('fig2w').appendChild(svg2);
+  profile(profile, svg2);
+  const len = path2.getTotalLength();
+  if (!RM) {
+    path2.style.strokeDasharray = len;
+    path2.style.strokeDashoffset = len;
+    svg2.querySelector('.terr').style.opacity = 0;
+  }
+}
+function draw2() {
+  if (RM || !path2) return;
+  path2.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.22,.61,.21,1)';
+  path2.style.strokeDashoffset = 0;
+  const t = svg2.querySelector('.terr');
+  t.style.transition = 'opacity .9s ease-out .7s';
+  t.style.opacity = 1;
+}
+
+/* ---- study 03 plate ---- */
+let svg3 = null, arcpaths = [];
+function arch(fig, a, b, depth) {
+  const x1 = (a + 0.5) * CH11, x2 = (b + 0.5) * CH11;
+  const h = Math.min(16 + (x2 - x1) * 0.22, 88);
+  const p = el('path', {
+    d: 'M ' + x1.toFixed(1) + ' 104 C ' + x1.toFixed(1) + ' ' + (104 - h).toFixed(1) +
+       ' ' + x2.toFixed(1) + ' ' + (104 - h).toFixed(1) + ' ' + x2.toFixed(1) + ' 104',
+    fill: 'none', stroke: INK, 'stroke-width': Math.max(0.7, 1.5 - depth * 0.2)
+  }, fig);
+  el('line', { x1: x1.toFixed(1), y1: 104, x2: x1.toFixed(1), y2: 110, stroke: BLUE, 'stroke-width': 1 }, fig);
+  el('line', { x1: x2.toFixed(1), y1: 104, x2: x2.toFixed(1), y2: 110, stroke: BLUE, 'stroke-width': 1 }, fig);
+  arcpaths.push(p);
+}
+function buildFig3() {
+  const holder = document.getElementById('fig3w');
+  const probe = arcs(beams, { appendChild: () => {} });
+  // probe pass above only measured length via return; draw for real:
+  const w = Math.ceil(probe.length * CH11) + 12;
+  svg3 = el('svg', { width: w, height: 112, 'aria-label': 'bracket pairs of the flattened source drawn as arcs' });
+  holder.appendChild(svg3);
+  arcpaths = [];
+  const flat = arcs(beams, svg3);
+  const div = document.createElement('div');
+  div.className = 'flat';
+  div.innerHTML = esc(flat).replace(/([(){}[\]])/g, '<b>$1</b>');
+  holder.appendChild(div);
+  if (!RM) arcpaths.forEach(p => {
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    p.style.strokeDashoffset = len;
+  });
+}
+function draw3() {
+  if (RM) return;
+  arcpaths.forEach((p, i) => {
+    p.style.transition = 'stroke-dashoffset .9s cubic-bezier(.22,.61,.21,1) ' + (i * 28) + 'ms';
+    p.style.strokeDashoffset = 0;
+  });
+}
+
+/* ---- study 04 plate ---- */
+let svg4 = null;
+function cell(i) { return 44 + i * 86; }
+function square(fig, cx, a, ink) {
+  const r = 17, pts = [];
+  for (let q = 0; q < 4; q++) {
+    const t = a + q * Math.PI / 2 + Math.PI / 4;
+    pts.push((cx + r * 1.32 * Math.cos(t)).toFixed(1) + ',' + (58 + r * 1.32 * Math.sin(t)).toFixed(1));
+  }
+  const g = fig.querySelector('[data-cell="' + cx + '"]') || el('g', { 'data-cell': cx }, fig);
+  el('polygon', {
+    points: pts.join(' '), fill: 'none',
+    stroke: ink === 'ink' ? INK : BLUE,
+    'stroke-width': ink === 'ink' ? 1.7 : 1
+  }, g);
+}
+function buildFig4() {
+  const w4 = cell(8) + 52;
+  svg4 = el('svg', { viewBox: '0 0 ' + w4 + ' 128', width: '100%', 'aria-label': 'eight iterations of a rotating square, then their superposition' });
+  svg4.style.maxWidth = w4 + 'px';
+  svg4.style.display = 'block';
+  document.getElementById('fig4w').appendChild(svg4);
+  unroll(svg4);
+  for (let i = 0; i <= 8; i++) {
+    const t = el('text', { x: cell(i), y: 118, 'text-anchor': 'middle', class: 'figtext', 'font-size': 13 }, svg4);
+    t.textContent = i < 8 ? 'i=' + i : 'Σ';
+  }
+  if (!RM) svg4.querySelectorAll('[data-cell]').forEach((g, i) => {
+    g.style.opacity = 0;
+    g.style.transition = 'opacity .5s ease-out ' + (i * 100) + 'ms';
+  });
+}
+function draw4() {
+  svg4.querySelectorAll('[data-cell]').forEach(g => { g.style.opacity = 1; });
+}
+
+/* ---- study 05 plate ---- */
+function rings(target, ink) {
+  const g = el('g', { class: ink === 'ink' ? 'inkwork' : '' }, target);
+  for (let k = 0; k < 6; k++) {
+    const inset = 14 + k * 15;
+    el('rect', {
+      x: inset, y: inset * 160 / 220, width: 220 - 2 * inset, height: 160 - 2 * inset * 160 / 220,
+      fill: 'none', stroke: ink === 'ink' ? INK : BLUE, 'stroke-width': ink === 'ink' ? 1.6 : 1
+    }, g);
+  }
+  return g;
+}
+function hatch(target, ink) {
+  const g = el('g', { class: ink === 'ink' ? 'inkwork' : '' }, target);
+  for (let x = -160; x < 230; x += 13) {
+    el('line', {
+      x1: x, y1: 152, x2: x + 144, y2: 8,
+      stroke: ink === 'ink' ? INK : BLUE, 'stroke-width': ink === 'ink' ? 1.4 : 1
+    }, g);
+  }
+  el('rect', { x: 8, y: 8, width: 204, height: 144, fill: 'none', stroke: ink === 'ink' ? INK : BLUE, 'stroke-width': 1 }, g);
+  return g;
+}
+const forkSrcId = 'src5';
+function forkFrame() {
+  const L = document.getElementById('figL'), R = document.getElementById('figR');
+  // clip hatch lines to panel
+  const defs = el('defs', {}, R);
+  const cp = el('clipPath', { id: 'clipR' }, defs);
+  el('rect', { x: 0, y: 0, width: 220, height: 160 }, cp);
+  R.setAttribute('clip-path', 'url(#clipR)');
+  rings(L, 'blue');
+  hatch(R, 'blue');
+  runFork(false);
+}
+function runFork(animate) {
+  const L = document.getElementById('figL'), R = document.getElementById('figR');
+  [L, R].forEach(s => s.querySelectorAll('.inkwork').forEach(n => n.remove()));
+  fork({ left: L, right: R });
+  const w = (sunlit ? L : R).querySelector('.inkwork');
+  if (w && animate && !RM) {
+    w.style.opacity = 0;
+    requestAnimationFrame(() => {
+      w.style.transition = 'opacity .45s ease-out';
+      w.style.opacity = 1;
+    });
+  }
+  // source: unexecuted lines print blue
+  const rows = document.getElementById(forkSrcId).querySelectorAll('.ln');
+  rows.forEach(r => {
+    const t = r.textContent;
+    const isRings = t.includes('rings(');
+    const isHatch = t.includes('hatch(');
+    if (isRings) r.classList.toggle('untaken', !sunlit);
+    if (isHatch) r.classList.toggle('untaken', sunlit);
+    if (t.includes('let sunlit')) { /* value token updated below */ }
+  });
+  const val = document.getElementById('sunval');
+  if (val) val.textContent = String(sunlit);
+  document.getElementById('capL').textContent = sunlit ? 'consequent — inked' : 'consequent — blue';
+  document.getElementById('capR').textContent = sunlit ? 'alternate — blue' : 'alternate — inked';
+}
+
+/* ---- study 06 plate ---- */
+function buildStudy6() {
+  const raw = execute.toString().split('\n');
+  const pre = document.getElementById('src6');
+  const notesBox = document.getElementById('notes6');
+  const found = [];
+  const html = raw.map((line, row) => {
+    const m = line.match(/^(.*?)\s*\/\/\s?(.*)$/);
+    if (m) {
+      found.push({ n: found.length + 1, text: m[2], row: row, chars: m[1].length });
+      return '<span class="ln">' + markup(m[1]) + ' <sup class="mk">' + found.length + '</sup></span>';
+    }
+    return '<span class="ln">' + (markup(line) || ' ') + '</span>';
+  }).join('');
+  pre.innerHTML = html;
+  notesBox.innerHTML = found.map(f =>
+    '<div class="note" data-row="' + f.row + '" data-chars="' + f.chars + '"><span class="n">' + f.n + '</span>' + esc(f.text) + '</div>'
+  ).join('');
+  layoutNotes();
+}
+function layoutNotes() {
+  const wrap = document.getElementById('margins');
+  const pre = document.getElementById('src6');
+  const svg = document.getElementById('leaders6');
+  const notes = wrap.querySelectorAll('.note');
+  if (getComputedStyle(svg).display === 'none') return;
+  svg.innerHTML = '';
+  svg.setAttribute('width', wrap.clientWidth);
+  svg.setAttribute('height', wrap.clientHeight);
+  const preTop = pre.offsetTop + 14; /* pre padding-top */
+  const notesLeft = wrap.querySelector('.notes').offsetLeft;
+  let lastBottom = 0;
+  notes.forEach(note => {
+    const row = +note.dataset.row, chars = +note.dataset.chars;
+    const y = preTop + row * LH;
+    const top = Math.max(y - 2, lastBottom + 6);
+    note.style.top = top + 'px';
+    lastBottom = top + note.offsetHeight;
+    const x1 = pre.offsetLeft + Math.min(chars * CH + 26, pre.clientWidth - 4);
+    el('line', {
+      x1: x1.toFixed(1), y1: y + LH / 2,
+      x2: notesLeft - 12, y2: top + 11
+    }, svg);
+  });
+}
+
+/* ---- study 07 plate ---- */
+let cv7, ctx7, gridPos, spiralPos, boldFlag, W7, H7, tweenId = null;
+function grid(src) {
+  if (gridPos) return gridPos;
+  const chC = CH * 12 / FS;
+  const rows = src.split('\n');
+  const maxc = Math.max(...rows.map(r => r.length));
+  const ox = (W7 - maxc * chC) / 2, oy = (H7 - rows.length * 17) / 2 + 10;
+  const out = [];
+  let col = 0, row = 0;
+  for (let i = 0; i < src.length; i++) {
+    if (src[i] === '\n') { out.push(null); row++; col = 0; continue; }
+    out.push({ x: ox + col * chC, y: oy + row * 17, r: 0 });
+    col++;
+  }
+  gridPos = out;
+  return out;
+}
+function spiral(src) {
+  if (spiralPos) return spiralPos;
+  const chC = CH * 12 / FS;
+  const cx = W7 / 2, cy = H7 / 2;
+  const out = [];
+  let r = 26, th = 0;
+  for (let i = 0; i < src.length; i++) {
+    if (src[i] === '\n') { out.push(null); continue; }
+    out.push({ x: cx + r * Math.cos(th), y: cy + r * Math.sin(th), r: th + Math.PI / 2 });
+    const dth = (chC + 0.6) / r;
+    th += dth;
+    r += 15.5 * dth / (2 * Math.PI);
+  }
+  spiralPos = out;
+  return out;
+}
+function mix(p, q, e) {
+  if (!q) return p;
+  return { x: p.x + (q.x - p.x) * e, y: p.y + (q.y - p.y) * e, r: p.r + (q.r - p.r) * e };
+}
+function place(g, chr, pos) {
+  g.save();
+  g.translate(pos.x, pos.y);
+  g.rotate(pos.r);
+  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '700 12px "JetBrains Mono"' : '12px "JetBrains Mono"';
+  g.fillText(chr, 0, 0);
+  g.restore();
+}
+function buildStudy7() {
+  cv7 = document.getElementById('cv7');
+  const holder = cv7.parentElement;
+  W7 = Math.min(holder.clientWidth, 920);
+  H7 = Math.min(560, Math.max(430, W7 * 0.62));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv7.width = W7 * dpr; cv7.height = H7 * dpr;
+  cv7.style.width = W7 + 'px'; cv7.style.height = H7 + 'px';
+  ctx7 = cv7.getContext('2d');
+  ctx7.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx7.fillStyle = INK;
+  ctx7.textBaseline = 'middle';
+  gridPos = null; spiralPos = null;
+  const t0 = RM ? 1 : 0;
+  setT(t0);
+}
+let t7 = 0, loop7 = null;
+function setT(t) {
+  t7 = t;
+  document.getElementById('tslider').value = Math.round(t * 1000);
+  document.getElementById('tread').textContent = 't = ' + t.toFixed(2);
+  portrait(cv7, t);
+}
+function stopLoop() {
+  if (loop7) cancelAnimationFrame(loop7);
+  loop7 = null;
+  const b = document.getElementById('loopbtn');
+  b.textContent = 'loop';
+  b.setAttribute('aria-pressed', 'false');
+}
+function startLoop() {
+  const period = 9000;
+  const phase = Math.acos(1 - 2 * Math.max(0, Math.min(1, t7))) / (2 * Math.PI) * period;
+  const t0 = performance.now() - phase;
+  const b = document.getElementById('loopbtn');
+  b.textContent = 'halt';
+  b.setAttribute('aria-pressed', 'true');
+  (function step(now) {
+    setT(0.5 - 0.5 * Math.cos((now - t0) / period * 2 * Math.PI));
+    loop7 = requestAnimationFrame(step);
+  })(performance.now());
+}
+function tween7() {
+  if (RM || tweenId || loop7) return;
+  const start = performance.now(), dur = 3200;
+  function frame(now) {
+    let u = Math.min(1, (now - start) / dur);
+    u = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    setT(u);
+    if (u < 1) tweenId = requestAnimationFrame(frame);
+    else tweenId = null;
+  }
+  tweenId = requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   Assembly.
+   ============================================================ */
+
+Promise.all([
+  document.fonts.load('12.5px "JetBrains Mono"'),
+  document.fonts.load('700 12.5px "JetBrains Mono"'),
+  document.fonts.load('16px Radley'),
+  document.fonts.load('italic 16px Radley')
+]).then(() => document.fonts.ready).then(() => {
+  // measure the sheet's units
+  const mc = document.createElement('canvas').getContext('2d');
+  mc.font = FS + 'px "JetBrains Mono"';
+  CH = mc.measureText('0000000000').width / 10;
+  CH11 = CH * 11 / FS;
+
+  // masthead measure: ch ticks on the blue rule
+  const mt = document.getElementById('mticks');
+  for (let x = 0; x <= 160; x += CH) {
+    el('line', { x1: x.toFixed(1), y1: 7, x2: x.toFixed(1), y2: 12, stroke: BLUE, 'stroke-width': 1 }, mt);
+  }
+  document.getElementById('mread').textContent =
+    'MEASURE: 1ch = ' + CH.toFixed(2) + 'px · 1 line = ' + LH + 'px — every figure below is plotted in these units';
+
+  // sources, verbatim from the objects that draw
+  typeset('src1', beams.toString());
+  typeset('src2', profile.toString());
+  typeset('src3', arcs.toString());
+  typeset('src4', unroll.toString());
+  document.getElementById('src5').innerHTML =
+    highlight('let sunlit = true;\n\n' + fork.toString())
+      .replace(/\btrue\b/, '<span class="val" id="sunval" role="button" tabindex="0" title="flip the condition">true</span>');
+
+  buildFig1();
+  buildFig2();
+  buildFig3();
+  buildFig4();
+  forkFrame();
+  buildStudy6();
+  buildStudy7();
+
+  // interactions
+  const flip = () => { sunlit = !sunlit; runFork(true); };
+  document.getElementById('forkbtn').addEventListener('click', flip);
+  document.getElementById('src5').addEventListener('click', e => {
+    if (e.target.id === 'sunval') flip();
+  });
+  document.getElementById('src5').addEventListener('keydown', e => {
+    if (e.target.id === 'sunval' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); }
+  });
+  document.getElementById('tslider').addEventListener('input', e => {
+    if (tweenId) { cancelAnimationFrame(tweenId); tweenId = null; }
+    stopLoop();
+    setT(e.target.value / 1000);
+  });
+  document.getElementById('loopbtn').addEventListener('click', () => {
+    if (loop7) { stopLoop(); return; }
+    if (tweenId) { cancelAnimationFrame(tweenId); tweenId = null; }
+    if (RM) { setT(t7 < 0.5 ? 1 : 0); return; }
+    startLoop();
+  });
+
+  // motion on arrival
+  const fired = new Set();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting || fired.has(en.target.id)) return;
+      fired.add(en.target.id);
+      if (en.target.id === 's1') sweep1();
+      if (en.target.id === 's2') draw2();
+      if (en.target.id === 's3') draw3();
+      if (en.target.id === 's4') draw4();
+      if (en.target.id === 's7') tween7();
+    });
+  }, { threshold: 0.35 });
+  ['s1', 's2', 's3', 's4', 's7'].forEach(id => io.observe(document.getElementById(id)));
+  if (RM) draw4();
+
+  let rsz = null;
+  addEventListener('resize', () => {
+    clearTimeout(rsz);
+    rsz = setTimeout(() => { layoutNotes(); }, 120);
+  });
+});
+</script>

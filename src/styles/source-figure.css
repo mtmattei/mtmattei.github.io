@@ -1,0 +1,202 @@
+/* ============================================================
+   Source / Figure — Studies in Self-Referential Notation.
+   The artifact's own two-ink letterpress CSS, ported verbatim
+   and scoped under `.sf`, with the palette + type retinted to
+   the portfolio tokens (Hybrid): the study's "non-photo blue"
+   is mapped onto --accent (which here already means
+   construction / measurement), Space Mono -> JetBrains Mono,
+   Radley kept as the human-hand serif. Structure and copy are
+   unchanged.
+   ============================================================ */
+
+.sf {
+  /* two functional inks + their washes, on portfolio tokens */
+  --paper: #FFFFFF;
+  --ink: #14161A;             /* execution: what ran, what printed */
+  --soft: #6B7077;
+  --hair: #E2E4E8;
+  --blue: #3656D4;            /* construction: the accent = guides */
+  --blue-deep: #3656D4;       /* construction text that must stay legible */
+  --blue-faint: rgba(54, 86, 212, 0.12);  /* washes behind executed lines */
+  --blue-wash: rgba(54, 86, 212, 0.06);
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --serif: 'Radley', Georgia, serif;
+  --fs: 12.5px;
+  --lh: 21px;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sf * { box-sizing: border-box; margin: 0; padding: 0; }
+.sf ::selection { background: var(--blue-faint); }
+
+/* sits inside the portfolio's padded main column */
+.sf .sheet { max-width: none; margin: 0; padding: 0 0 40px; }
+
+/* ---------- masthead ---------- */
+.sf .mast-meta {
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--soft);
+  border-top: 2px solid var(--ink); border-bottom: 1px solid var(--hair);
+  padding: 9px 0;
+}
+.sf h1 {
+  font-family: var(--mono); font-weight: 700;
+  font-size: clamp(42px, 8.6vw, 94px);
+  line-height: .98; letter-spacing: -.02em;
+  margin-top: clamp(28px, 5vw, 56px);
+  text-wrap: balance;
+}
+.sf h1 .op { color: var(--blue-deep); font-weight: 400; }
+.sf .measure {
+  margin-top: 18px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--soft);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.sf .measure svg { display: block; flex: none; }
+.sf .dek {
+  font-style: italic; font-size: clamp(18px, 2.4vw, 21px); line-height: 1.5;
+  max-width: 34em; margin-top: clamp(22px, 4vw, 40px);
+  text-wrap: balance;
+}
+.sf .abstract { max-width: 62ch; margin-top: 26px; color: var(--ink); }
+.sf .abstract p + p { margin-top: 12px; }
+.sf .legend {
+  margin-top: 26px; display: flex; gap: 34px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+}
+.sf .legend span { display: inline-flex; align-items: center; gap: 9px; }
+.sf .sw { width: 22px; height: 11px; flex: none; display: inline-block; }
+.sf .sw.ink { background: var(--ink); }
+.sf .sw.blue { background: var(--blue); }
+
+/* ---------- studies ---------- */
+.sf .study { margin-top: clamp(72px, 10vw, 116px); }
+.sf .s-head {
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--ink); padding-bottom: 10px;
+}
+.sf .s-no { font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--soft); }
+.sf .s-head h2 {
+  font-family: var(--mono); font-weight: 700; font-size: clamp(19px, 2.6vw, 26px);
+  letter-spacing: -.01em; text-wrap: balance;
+}
+.sf .s-tag { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: .16em; color: var(--blue-deep); text-transform: uppercase; }
+.sf .s-body { margin-top: 22px; }
+.sf .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(22px, 3.5vw, 44px); }
+@media (max-width: 840px) { .sf .cols { grid-template-columns: minmax(0, 1fr); } }
+
+.sf .pane-label {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--soft); border-top: 1px solid var(--hair);
+  padding-top: 7px; height: 22px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.sf pre {
+  font-family: var(--mono); font-size: var(--fs); line-height: var(--lh);
+  padding-top: 14px; overflow-x: auto; color: var(--ink);
+}
+.sf pre b { font-weight: 700; }
+.sf .ln { display: block; min-height: var(--lh); transition: background .2s ease-out, color .25s ease-out; }
+.sf .ln.pc { background: var(--blue-faint); }
+.sf .ln.untaken { color: var(--blue-deep); }
+.sf .st { border-bottom: 2px solid var(--blue); }
+.sf .cm { font-family: var(--serif); font-style: italic; font-size: 1.1em; color: var(--soft); }
+.sf sup.mk { font-family: var(--mono); font-size: 9px; color: var(--blue-deep); font-weight: 700; }
+.sf .figwrap { padding-top: 14px; overflow-x: auto; }
+.sf .fnote { margin-top: 10px; font-family: var(--mono); font-size: 10px; color: var(--soft); letter-spacing: .03em; }
+.sf .caption {
+  font-style: italic; font-size: 15px; color: var(--soft);
+  max-width: 60ch; margin-top: 20px;
+}
+.sf .caption b { font-family: var(--mono); font-style: normal; font-weight: 400; font-size: 12px; color: var(--ink); }
+
+/* figure primitives */
+.sf .beam { fill: var(--blue); transition: fill .3s ease-out; }
+.sf .beam.on { fill: var(--ink); }
+.sf .baseline { stroke: var(--blue-faint); stroke-width: 1; }
+.sf .guide { stroke: var(--blue); stroke-width: 1; }
+.sf .guide-label { font-family: var(--mono); font-size: 9px; fill: var(--blue-deep); }
+.sf .figtext { font-family: var(--mono); font-size: 10px; fill: var(--soft); }
+
+.sf .scrollx { overflow-x: auto; padding-top: 14px; }
+.sf .arcblock { display: inline-block; }
+.sf .flat { font-family: var(--mono); font-size: 11px; line-height: 18px; white-space: pre; color: var(--ink); }
+.sf .flat b { font-weight: 700; }
+
+.sf .fork-fig { display: flex; gap: 22px; padding-top: 14px; flex-wrap: wrap; }
+.sf .fork-panel { flex: 1 1 190px; min-width: 0; }
+.sf .fork-cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; color: var(--soft); margin-top: 8px; text-transform: uppercase; }
+.sf .runbtn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+  color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 2px;
+  padding: 8px 14px; margin-top: 18px; cursor: pointer;
+  transition: background .15s ease-out, color .15s ease-out, transform .05s ease-out;
+}
+.sf .runbtn:hover { background: var(--ink); color: var(--paper); }
+.sf .runbtn:active { transform: translateY(1px); }
+.sf .runbtn:focus-visible, .sf input:focus-visible { outline: 2px solid var(--blue-deep); outline-offset: 2px; }
+.sf .val { font-weight: 700; border-bottom: 2px solid var(--blue); cursor: pointer; }
+
+/* study 6 */
+.sf .margins { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 44px; margin-top: 0; }
+.sf .notes { position: relative; padding-top: 14px; }
+.sf .note {
+  position: absolute; left: 0; right: 0;
+  font-style: italic; font-size: 14.5px; line-height: 1.4; color: var(--ink);
+}
+.sf .note .n { font-family: var(--mono); font-style: normal; font-size: 9px; color: var(--blue-deep); font-weight: 700; margin-right: 6px; }
+.sf .leaders { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.sf .leaders line { stroke: var(--blue); stroke-width: 1; }
+@media (max-width: 860px) {
+  .sf .margins { grid-template-columns: minmax(0, 1fr); }
+  .sf .leaders { display: none; }
+  .sf .notes { padding-top: 4px; }
+  .sf .note { position: static; margin-top: 8px; }
+}
+
+/* thin scrollbars: a long line is long, quietly */
+.sf pre, .sf .scrollx, .sf .figwrap { scrollbar-width: thin; scrollbar-color: var(--hair) transparent; }
+.sf pre::-webkit-scrollbar, .sf .scrollx::-webkit-scrollbar, .sf .figwrap::-webkit-scrollbar { height: 6px; }
+.sf pre::-webkit-scrollbar-thumb, .sf .scrollx::-webkit-scrollbar-thumb, .sf .figwrap::-webkit-scrollbar-thumb { background: var(--hair); }
+.sf pre::-webkit-scrollbar-track, .sf .scrollx::-webkit-scrollbar-track, .sf .figwrap::-webkit-scrollbar-track { background: transparent; }
+
+/* study 7 — reset the portfolio's global .stage before applying the study's */
+.sf .stage { padding: 14px 0 0; border: 0; background: none; min-height: 0; display: block; }
+.sf .stage canvas { display: block; width: 100%; height: auto; margin: 0 auto; }
+.sf .tbar { max-width: 920px; margin-left: auto; margin-right: auto; }
+.sf .tbar {
+  display: flex; align-items: center; gap: 18px; margin-top: 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: var(--soft);
+}
+.sf .tbar .end { text-transform: uppercase; }
+.sf .tbar input[type=range] {
+  flex: 1; appearance: none; -webkit-appearance: none; height: 2px; background: var(--hair); cursor: pointer;
+}
+.sf .tbar input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 13px; height: 13px; background: var(--ink); border: none; border-radius: 0;
+}
+.sf .tbar input[type=range]::-moz-range-thumb { width: 13px; height: 13px; background: var(--ink); border: none; border-radius: 0; }
+.sf .tread { min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.sf .tbar .runbtn { margin-top: 0; padding: 5px 12px; font-size: 10px; letter-spacing: .08em; min-width: 64px; }
+.sf .tbar .runbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* ---------- colophon ---------- */
+.sf .colophon {
+  margin-top: clamp(80px, 11vw, 130px);
+  border-top: 2px solid var(--ink); padding-top: 14px;
+}
+.sf .colophon .row {
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--soft);
+}
+.sf .colophon p { font-style: italic; font-size: 14.5px; color: var(--soft); max-width: 58ch; margin-top: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sf * { transition: none !important; animation: none !important; }
+}

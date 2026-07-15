@@ -355,7 +355,7 @@ h1.title {
 }
 .swatch-accent .chip { width: 40px; height: 40px; border-radius: var(--radius); background: var(--accent); flex: none; }
 
-/* ---- Mark study (colophon) ---- */
+/* ---- Mark study (logo) ---- */
 .mark-study {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
