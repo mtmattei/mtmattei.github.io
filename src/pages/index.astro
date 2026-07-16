@@ -108,7 +108,7 @@ const tokens: [string, string][] = [
    its own toString(), so the printed prose IS this source.
    ============================================================ */
 
-function hero(cv, t, shT) {
+function hero(cv, t) {
   const src = hero.toString();
   const marks = glyphs(src);
   const a = prose(src), b = letterform(src);
@@ -117,9 +117,10 @@ function hero(cv, t, shT) {
   for (let i = 0; i < b.length; i++) {
     const k = marks[i % marks.length];
     const pos = glide(a[k], b[i], t, i);
-    if (shT >= 0 && pos.ink) {          // settled: a slow, quiet shimmer
-      pos.x += Math.sin(shT / 680 + i * 0.7) * 0.7;
-      pos.y += Math.cos(shT / 770 + i * 1.1) * 0.7;
+    if (pos.ink && heroReact > 0.001) {   // once settled, the name pushes away from the cursor
+      const dx = pos.x - mx, dy = pos.y - my, d = Math.hypot(dx, dy) || 1;
+      const push = Math.max(0, 76 - d) / 76 * 16 * heroReact;
+      pos.x += (dx / d) * push; pos.y += (dy / d) * push;
     }
     stamp(g, src[k], pos);
   }
@@ -137,7 +138,8 @@ const hash01 = i => {
 const smooth = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
 
 let heroCv, prosePos = null, letterPos = null, glyphIdx = null, HW = 0, HH = 0;
-let heroT = 0, heroTarget = 1, heroDrag = false, dragX0 = 0, dragT0 = 0, dragMoved = 0, heroRaf = null, heroVis = true;
+let heroT = 0, heroTarget = 1, heroDrag = false, dragX0 = 0, dragT0 = 0, dragMoved = 0, heroRaf = null;
+let mx = 0, my = 0, mOver = false, heroReact = 0;
 
 function glyphs(src) {
   if (glyphIdx) return glyphIdx;
@@ -202,38 +204,41 @@ function stamp(g, chr, pos) {
   g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "JetBrains Mono"' : sz + 'px "JetBrains Mono"';
   g.fillText(chr, pos.x, pos.y);
 }
-function drawHero(t, shT) { hero(heroCv, t, shT); }
-function tick(now) {
+function drawHero(t) { hero(heroCv, t); }
+function tick() {
   heroRaf = null;
-  if (!heroDrag) heroT += (heroTarget - heroT) * 0.14;
-  const atTarget = Math.abs(heroT - heroTarget) < 0.003;
-  if (atTarget && !heroDrag) heroT = heroTarget;
-  const settledName = atTarget && !heroDrag && heroTarget === 1;
-  const shT = (!RM && settledName && heroVis) ? now : -1;
-  drawHero(heroT, shT);
-  if (heroDrag || !atTarget || shT >= 0) heroRaf = requestAnimationFrame(tick);
+  if (!heroDrag) heroT += (heroTarget - heroT) * 0.045;   // slower, more deliberate settle
+  heroReact += ((mOver && !heroDrag ? 1 : 0) - heroReact) * 0.14;
+  const atTarget = !heroDrag && Math.abs(heroT - heroTarget) < 0.0012;
+  if (atTarget) heroT = heroTarget;
+  drawHero(heroT);
+  if (heroDrag || !atTarget || heroReact > 0.002 || mOver) heroRaf = requestAnimationFrame(tick);
 }
 function kick() { if (heroRaf == null) heroRaf = requestAnimationFrame(tick); }
 function wireScrub() {
-  const move = (x) => {
-    if (!heroDrag) return;
-    dragMoved = Math.max(dragMoved, Math.abs(x - dragX0));
-    heroT = Math.max(0, Math.min(1, dragT0 + (x - dragX0) / HW));
-    if (RM) drawHero(heroT, -1);
-  };
+  const rel = (e) => { const r = heroCv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; };
   const end = () => {
     if (!heroDrag) return;
     heroDrag = false;
     if (dragMoved < 5) heroT = 0;   // a tap replays the assemble
     heroTarget = 1;
-    if (RM) { heroT = 1; drawHero(1, -1); } else kick();
+    if (RM) { heroT = 1; drawHero(1); } else kick();
   };
   heroCv.addEventListener('pointerdown', e => {
     heroCv.setPointerCapture(e.pointerId);
     heroDrag = true; dragX0 = e.clientX; dragT0 = heroT; dragMoved = 0;
     if (!RM) kick();
   });
-  heroCv.addEventListener('pointermove', e => move(e.clientX));
+  heroCv.addEventListener('pointermove', e => {
+    rel(e);
+    if (heroDrag) {
+      dragMoved = Math.max(dragMoved, Math.abs(e.clientX - dragX0));
+      heroT = Math.max(0, Math.min(1, dragT0 + (e.clientX - dragX0) / HW));
+      if (RM) drawHero(heroT);
+    } else if (!RM) { mOver = true; kick(); }
+  });
+  heroCv.addEventListener('pointerenter', () => { mOver = true; if (!RM) kick(); });
+  heroCv.addEventListener('pointerleave', () => { mOver = false; if (!RM) kick(); });
   heroCv.addEventListener('pointerup', end);
   heroCv.addEventListener('pointercancel', end);
   heroCv.addEventListener('keydown', e => {
@@ -241,15 +246,8 @@ function wireScrub() {
     else if (e.key === 'ArrowLeft') heroTarget = Math.max(0, heroTarget - 0.2);
     else if (e.key === 'ArrowRight') heroTarget = Math.min(1, heroTarget + 0.2);
     else return;
-    if (RM) { heroT = heroTarget; drawHero(heroT, -1); } else kick();
+    if (RM) { heroT = heroTarget; drawHero(heroT); } else kick();
   });
-}
-function watchVis() {
-  if (!('IntersectionObserver' in window)) return;
-  new IntersectionObserver((ents) => {
-    heroVis = ents[0].isIntersecting;
-    if (heroVis && !RM) kick();
-  }, { threshold: 0.05 }).observe(heroCv);
 }
 let heroWired = false;
 function buildHero() {
@@ -266,12 +264,11 @@ function buildHero() {
   prosePos = null; letterPos = null;
   if (!heroWired) {
     heroWired = true;
-    if (RM) { heroT = 1; drawHero(1, -1); }
-    else { heroT = 0; drawHero(0, -1); setTimeout(() => { heroTarget = 1; kick(); }, 350); }  // source assembles into the name
+    if (RM) { heroT = 1; drawHero(1); }
+    else { heroT = 0; drawHero(0); setTimeout(() => { heroTarget = 1; kick(); }, 500); }  // source slowly assembles into the name
     wireScrub();
-    watchVis();
   } else {
-    drawHero(heroT, -1);
+    drawHero(heroT);
     if (!RM) kick();
   }
 }
@@ -291,7 +288,7 @@ Promise.all([
     rsz = setTimeout(() => {
       const t = heroT;
       buildHero();
-      heroT = t; drawHero(heroT, -1);
+      heroT = t; drawHero(heroT);
       if (!RM) kick();
     }, 160);
   });
