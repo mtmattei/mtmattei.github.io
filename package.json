@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@fontsource/fraunces": "^5.2.9",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/instrument-sans": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/radley": "^5.2.8",
+    "@fontsource/stix-two-text": "^5.2.8",
     "astro": "^7.0.9"
   }
 }

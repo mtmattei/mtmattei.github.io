@@ -171,7 +171,7 @@ function letterform(src) {
   const off = document.createElement('canvas');
   off.width = HW; off.height = HH;
   const og = off.getContext('2d');
-  og.font = '500 ' + S + 'px "JetBrains Mono"';
+  og.font = '500 ' + S + 'px "IBM Plex Mono"';
   og.textAlign = 'center'; og.textBaseline = 'middle';
   og.lineWidth = Math.max(3, S * 0.06);
   og.strokeText('MATT', HW / 2, HH / 2 - S * 0.62);
@@ -201,7 +201,7 @@ function glide(p, q, t, i) {
 function stamp(g, chr, pos) {
   g.fillStyle = pos.ink ? INK : ACCENT;
   const sz = (pos.sz || 8.6).toFixed(1);
-  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "JetBrains Mono"' : sz + 'px "JetBrains Mono"';
+  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "IBM Plex Mono"' : sz + 'px "IBM Plex Mono"';
   g.fillText(chr, pos.x, pos.y);
 }
 function drawHero(t) { hero(heroCv, t); }
@@ -274,11 +274,11 @@ function buildHero() {
 }
 
 Promise.all([
-  document.fonts.load('12px "JetBrains Mono"'),
-  document.fonts.load('500 12px "JetBrains Mono"')
+  document.fonts.load('12px "IBM Plex Mono"'),
+  document.fonts.load('500 12px "IBM Plex Mono"')
 ]).then(() => document.fonts.ready).then(() => {
   const mc = document.createElement('canvas').getContext('2d');
-  mc.font = '12px "JetBrains Mono"';
+  mc.font = '12px "IBM Plex Mono"';
   CH = mc.measureText('0000000000').width / 10;
   buildHero();
 

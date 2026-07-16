@@ -19,7 +19,7 @@
   --blue-deep: #3656D4;       /* construction text that must stay legible */
   --blue-faint: rgba(54, 86, 212, 0.12);  /* washes behind executed lines */
   --blue-wash: rgba(54, 86, 212, 0.06);
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
   --serif: 'Radley', Georgia, serif;
   --fs: 12.5px;
   --lh: 21px;

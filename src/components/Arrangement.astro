@@ -2,7 +2,7 @@
 // Exploded isometric "general arrangement" of the portfolio: four stacked
 // members (Code, Design, Writing, Skills), each a link to its category.
 // A slider lifts the stack from assembled to exploded. Instrument-themed
-// (JetBrains Mono, ink, single blue accent) — adapted from a joinery drawing.
+// (IBM Plex Mono, ink, single blue accent) — adapted from a joinery drawing.
 ---
 <figure class="ga" aria-labelledby="ga-title">
   <figcaption class="ga-head">
@@ -224,7 +224,7 @@
     var lg = el("g", { "class": "lbl lblg", style: "--dl:" + (0.16 * i) + "s" }, la);
     var lead = el("polyline", { points: "", fill: "none", stroke: MUTED, "stroke-width": 1, "class": "lead" }, lg);
     var dot = el("circle", { cx: L.attach[0] + 6, cy: L.attach[1], r: 2, fill: MUTED }, lg);
-    var mono = "'JetBrains Mono', monospace";
+    var mono = "'IBM Plex Mono', monospace";
     var t1 = el("text", { x: LX + 12, y: slotY - 16, "font-family": mono, "font-size": 12, fill: ACCENT, "letter-spacing": "1" }, lg);
     t1.textContent = "no.0" + (CATEGORIES.length - i);
     var t2 = el("text", { x: LX + 12, y: slotY + 4, "font-family": mono, "font-size": 17, fill: MUTED, "letter-spacing": "2", "class": "lname" }, lg);
@@ -253,8 +253,8 @@
   var extBot = el("line", { stroke: LINE2, "stroke-width": 1, "stroke-dasharray": "3 3" }, dimG);
   var tickT = el("path", { d: "", stroke: MUTED, "stroke-width": 1, fill: "none" }, dimG);
   var tickB = el("path", { d: "", stroke: MUTED, "stroke-width": 1, fill: "none" }, dimG);
-  var dimTxt = el("text", { x: DXL - 12, y: 0, "font-family": "'JetBrains Mono',monospace", "font-size": 12, fill: ACCENT, "text-anchor": "end", "letter-spacing": "1" }, dimG);
-  var dimTxt2 = el("text", { x: DXL - 12, y: 0, "font-family": "'JetBrains Mono',monospace", "font-size": 10, fill: MUTED, "text-anchor": "end" }, dimG);
+  var dimTxt = el("text", { x: DXL - 12, y: 0, "font-family": "'IBM Plex Mono',monospace", "font-size": 12, fill: ACCENT, "text-anchor": "end", "letter-spacing": "1" }, dimG);
+  var dimTxt2 = el("text", { x: DXL - 12, y: 0, "font-family": "'IBM Plex Mono',monospace", "font-size": 10, fill: MUTED, "text-anchor": "end" }, dimG);
   dimTxt2.textContent = "overall";
 
   /* ---- explosion control ---- */

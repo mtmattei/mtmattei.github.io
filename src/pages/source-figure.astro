@@ -1,5 +1,4 @@
 ---
-import '@fontsource/jetbrains-mono/700.css';
 import '@fontsource/radley/400.css';
 import '@fontsource/radley/400-italic.css';
 import '../styles/source-figure.css';
@@ -188,7 +187,7 @@ const tokens: [string, string][] = [
     <footer class="colophon">
       <div class="row">
         <span>Source / Figure — Sheet no. 1</span>
-        <span>Set in JetBrains Mono &amp; Radley, inlined</span>
+        <span>Set in IBM Plex Mono &amp; Radley, inlined</span>
         <span>Plotted in ch × 21px</span>
       </div>
       <p>One theme only: this is a printed sheet, and non-photo blue does not survive inversion. Every figure above was drawn at runtime by the function shown beside it. View source — the page you are reading is the program that drew it.</p>
@@ -634,7 +633,7 @@ function place(g, chr, pos) {
   g.save();
   g.translate(pos.x, pos.y);
   g.rotate(pos.r);
-  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '700 12px "JetBrains Mono"' : '12px "JetBrains Mono"';
+  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '700 12px "IBM Plex Mono"' : '12px "IBM Plex Mono"';
   g.fillText(chr, 0, 0);
   g.restore();
 }
@@ -698,14 +697,14 @@ function tween7() {
    ============================================================ */
 
 Promise.all([
-  document.fonts.load('12.5px "JetBrains Mono"'),
-  document.fonts.load('700 12.5px "JetBrains Mono"'),
+  document.fonts.load('12.5px "IBM Plex Mono"'),
+  document.fonts.load('700 12.5px "IBM Plex Mono"'),
   document.fonts.load('16px Radley'),
   document.fonts.load('italic 16px Radley')
 ]).then(() => document.fonts.ready).then(() => {
   // measure the sheet's units
   const mc = document.createElement('canvas').getContext('2d');
-  mc.font = FS + 'px "JetBrains Mono"';
+  mc.font = FS + 'px "IBM Plex Mono"';
   CH = mc.measureText('0000000000').width / 10;
   CH11 = CH * 11 / FS;
 
