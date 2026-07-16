@@ -9,18 +9,20 @@ const tokens: [string, string][] = [
 ];
 ---
 <Shell title="Index" crumb="index" tokens={tokens}>
-  <div class="page-head" style="margin-bottom:var(--s4)">
-    <h1 class="title">Matt Mattei.</h1>
-  </div>
   <div class="hero-idx">
-    <p class="lede">
-      Developer and designer. I build cross-platform interfaces with
-      Uno Platform and XAML, and the instruments around them: shaders, agents,
-      and type, often with AI in the loop. Everything here is placed by the
-      code that describes it.
-    </p>
+    <div class="bio">
+      <p class="lede">
+        I'm exploring the intersection of design and development, but mostly because I love
+        making things.
+      </p>
+      <p class="lede" style="margin-top:var(--s4)">
+        This is my public notebook. A place for ideas, experiments, sketches, software, and
+        lessons learned along the way. Some become projects. Some become articles. Some simply
+        remain ideas.
+      </p>
+    </div>
     <div class="hero-fig">
-      <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATTHEW assembling out of the characters of its own source; click to replay"></canvas>
+      <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATT MATTEI assembling out of the characters of its own source; click to replay"></canvas>
     </div>
   </div>
 
@@ -98,14 +100,15 @@ function prose(src) {
 }
 function letterform(src) {
   if (letterPos) return letterPos;
-  const S = Math.min((HW * 0.86) / 4.25, HH * 0.5);
+  const S = Math.min((HW * 0.92) / 3.8, HH * 0.4);
   const off = document.createElement('canvas');
   off.width = HW; off.height = HH;
   const og = off.getContext('2d');
   og.font = '500 ' + S + 'px "JetBrains Mono"';
   og.textAlign = 'center'; og.textBaseline = 'middle';
-  og.lineWidth = Math.max(4, S * 0.055);
-  og.strokeText('MATTHEW', HW / 2, HH / 2);
+  og.lineWidth = Math.max(3, S * 0.06);
+  og.strokeText('MATT', HW / 2, HH / 2 - S * 0.62);
+  og.strokeText('MATTEI', HW / 2, HH / 2 + S * 0.62);
   const data = og.getImageData(0, 0, HW, HH).data;
   let step = 4, pts = [];
   do {
