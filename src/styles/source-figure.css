@@ -11,10 +11,10 @@
 
 .sf {
   /* two functional inks + their washes, on portfolio tokens */
-  --paper: #FFFFFF;
-  --ink: #14161A;             /* execution: what ran, what printed */
-  --soft: #6B7077;
-  --hair: #E2E4E8;
+  --paper: #F6F2EE;          /* warm off-white, matching the site ground */
+  --ink: #1A1815;            /* execution: what ran, what printed */
+  --soft: #6A635A;
+  --hair: #E4DDD3;
   --blue: #3656D4;            /* construction: the accent = guides */
   --blue-deep: #3656D4;       /* construction text that must stay legible */
   --blue-faint: rgba(54, 86, 212, 0.12);  /* washes behind executed lines */

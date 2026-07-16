@@ -1,12 +1,12 @@
 :root {
-  /* Surface */
-  --paper:   #FFFFFF;
-  --gray-1:  #F6F7F8;   /* panel tint */
-  --gray-2:  #EDEEF1;   /* fills */
-  --line:    #E2E4E8;   /* hairline border */
-  --line-2:  #C9CCD2;   /* stronger rule */
-  --ink:     #14161A;   /* near-black ink */
-  --muted:   #6B7077;   /* supporting text / labels */
+  /* Surface — warm off-white ground and a warm neutral ramp */
+  --paper:   #F6F2EE;   /* warm off-white */
+  --gray-1:  #F0EAE3;   /* panel tint */
+  --gray-2:  #E7E0D7;   /* fills */
+  --line:    #E4DDD3;   /* hairline border */
+  --line-2:  #D0C7BB;   /* stronger rule */
+  --ink:     #1A1815;   /* warm near-black ink (matches the mark) */
+  --muted:   #6A635A;   /* supporting text / labels */
 
   /* One functional accent — state + measurement only */
   --accent:  #3656D4;
