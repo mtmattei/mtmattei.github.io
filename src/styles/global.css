@@ -305,9 +305,10 @@ h1.title {
   background: var(--paper);
   text-decoration: none;
   display: block;
-  transition: border-color .15s;
+  transition: border-color .15s, scale .1s;
 }
 .card:hover { border-color: var(--line-2); }
+.card:active { scale: 0.99; }
 .card .kicker { display: flex; justify-content: space-between; margin-bottom: var(--s3); }
 .card .kicker .no { color: var(--muted); text-transform: none; }
 .card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
