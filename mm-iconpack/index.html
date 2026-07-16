@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.M — Icon Pack Contact Sheet</title>
+<!-- the pack, installed on its own preview page -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#1C1B17">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F6F1;--ink:#1C1B17;--ink-60:#5D5B53;--ink-38:#A3A097;
+  --rule:#DBD9D0;--rule-soft:#E7E5DD;--reg:#B3372B;
+  --serif:"STIX Two Text",Georgia,serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;font-feature-settings:"onum" 1}
+::selection{background:var(--ink);color:var(--paper)}
+
+.reg-mark{position:fixed;width:18px;height:18px;pointer-events:none;z-index:50}
+.reg-mark::before,.reg-mark::after{content:"";position:absolute;background:var(--reg)}
+.reg-mark::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-.5px)}
+.reg-mark::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-.5px)}
+.reg-tl{top:14px;left:14px}.reg-tr{top:14px;right:14px}.reg-bl{bottom:14px;left:14px}.reg-br{bottom:14px;right:14px}
+
+.doc{max-width:60rem;margin:0 auto;padding:5.5rem 2rem 6rem}
+.masthead{border-bottom:1px solid var(--ink);padding-bottom:2rem;margin-bottom:3rem}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-60);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:2.2rem}
+.eyebrow .doc-no{color:var(--reg)}
+h1{font-weight:500;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.06;letter-spacing:-.015em}
+h1 em{font-style:italic;font-weight:400}
+.abstract{margin-top:1.6rem;max-width:56ch;color:var(--ink-60)}
+.abstract .lead-word{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);margin-right:.9em}
+
+.sec-head{display:flex;align-items:baseline;gap:1.1rem;margin:2.8rem 0 1.4rem}
+.sec-no{font-family:var(--mono);font-size:.78rem;color:var(--ink-38)}
+h2{font-weight:600;font-size:1.3rem;letter-spacing:-.01em}
+
+/* live tabs preview */
+.tabs{display:flex;gap:0;border:1px solid var(--ink);max-width:34rem;margin-top:1.2rem;overflow:hidden}
+.tab{display:flex;align-items:center;gap:.55rem;padding:.55rem .9rem;border-right:1px solid var(--rule);
+  font-family:var(--mono);font-size:.72rem;color:var(--ink-60);background:var(--rule-soft);white-space:nowrap}
+.tab.active{background:var(--paper);color:var(--ink)}
+.tab:last-child{border-right:none;flex:1;background:var(--paper);color:var(--ink-38)}
+.tab img{width:16px;height:16px;display:block}
+
+/* grid of specimens */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:1rem;margin-top:1.4rem}
+.cell{border:1px solid var(--ink)}
+.cell .frame{aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:1rem;
+  background:var(--paper);
+  background-image:linear-gradient(45deg,var(--rule-soft) 25%,transparent 25%,transparent 75%,var(--rule-soft) 75%),
+                   linear-gradient(45deg,var(--rule-soft) 25%,transparent 25%,transparent 75%,var(--rule-soft) 75%);
+  background-size:16px 16px;background-position:0 0,8px 8px}
+.cell .frame img{max-width:100%;max-height:100%;display:block}
+.cell.opaque .frame{background:none}
+.cell .cap{border-top:1px solid var(--rule);padding:.5rem .7rem;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);display:flex;justify-content:space-between;gap:.4rem}
+.cell .cap b{color:var(--ink);font-weight:500}
+
+/* actual-size strip */
+.actual{display:flex;align-items:flex-end;gap:2rem;flex-wrap:wrap;border:1px solid var(--ink);
+  padding:1.6rem;margin-top:1.4rem;background:var(--paper)}
+.actual .a-item{display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.actual .a-item img{display:block;image-rendering:auto}
+.actual .a-label{font-family:var(--mono);font-size:.58rem;color:var(--ink-38);letter-spacing:.1em}
+
+/* og preview */
+.og{border:1px solid var(--ink);margin-top:1.4rem}
+.og img{display:block;width:100%;height:auto}
+.og .cap{border-top:1px solid var(--rule);padding:.55rem .9rem;font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60)}
+
+/* code */
+.code{border:1px solid var(--ink);background:#fff;margin-top:1.2rem;overflow:auto}
+.code pre{padding:1.2rem 1.4rem;font-family:var(--mono);font-size:.74rem;line-height:1.7;color:var(--ink)}
+.code .c-head{border-bottom:1px solid var(--rule);padding:.5rem .9rem;font-family:var(--mono);
+  font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-38)}
+.tag{color:var(--ink-38)}.attr{color:var(--reg)}
+
+.colophon{padding-top:2.4rem;margin-top:2rem;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-38);
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.colophon .reg-word{color:var(--reg)}
+@media(max-width:700px){.reg-mark{display:none}}
+</style>
+</head>
+<body>
+<span class="reg-mark reg-tl"></span><span class="reg-mark reg-tr"></span>
+<span class="reg-mark reg-bl"></span><span class="reg-mark reg-br"></span>
+
+<div class="doc">
+  <header class="masthead">
+    <div class="eyebrow">
+      <span>Icon Pack · <span class="doc-no">Contact Sheet</span></span>
+      <span>13 files</span>
+      <span>Rev. 2026.07</span>
+    </div>
+    <h1>M.M — <em>icon pack</em></h1>
+    <p class="abstract">
+      <span class="lead-word">Note</span>
+      Every mark below is rendered from a single equation. This page has the
+      pack installed — the tab is showing you the 16&nbsp;px favicon right now.
+    </p>
+  </header>
+
+  <div class="sec-head"><span class="sec-no">§ A</span><h2>In a browser tab</h2></div>
+  <div class="tabs">
+    <div class="tab active"><img src="favicon-16x16.png" alt=""> M.M — Portfolio</div>
+    <div class="tab"><img src="favicon-16x16.png" alt=""> Uno Platform</div>
+    <div class="tab">+</div>
+  </div>
+
+  <div class="sec-head"><span class="sec-no">§ B</span><h2>Specimen grid</h2></div>
+  <div class="grid">
+    <div class="cell"><div class="frame"><img src="favicon.svg" width="96" alt="favicon svg"></div><div class="cap"><b>SVG</b><span>vector</span></div></div>
+    <div class="cell"><div class="frame"><img src="favicon-48x48.png" width="96" alt="48px"></div><div class="cap"><b>48</b><span>double</span></div></div>
+    <div class="cell"><div class="frame"><img src="favicon-96x96.png" width="96" alt="96px"></div><div class="cap"><b>96</b><span>double</span></div></div>
+    <div class="cell opaque"><div class="frame"><img src="apple-touch-icon.png" width="120" alt="apple"></div><div class="cap"><b>Apple</b><span>180</span></div></div>
+    <div class="cell opaque"><div class="frame"><img src="android-chrome-192x192.png" width="120" alt="android"></div><div class="cap"><b>Android</b><span>192</span></div></div>
+    <div class="cell opaque"><div class="frame"><img src="maskable-512x512.png" width="120" alt="maskable"></div><div class="cap"><b>Maskable</b><span>safe-zone</span></div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-no">§ C</span><h2>Actual size — favicons</h2></div>
+  <div class="actual">
+    <div class="a-item"><img src="favicon-16x16.png" width="16" height="16" alt=""><span class="a-label">16</span></div>
+    <div class="a-item"><img src="favicon-32x32.png" width="32" height="32" alt=""><span class="a-label">32</span></div>
+    <div class="a-item"><img src="favicon-48x48.png" width="48" height="48" alt=""><span class="a-label">48</span></div>
+    <div class="a-item"><img src="favicon-96x96.png" width="96" height="96" alt=""><span class="a-label">96</span></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-no">§ D</span><h2>Social card · 1200 × 630</h2></div>
+  <div class="og"><img src="og-card.png" alt="Open Graph card"><div class="cap">og-card.png — Open Graph / Twitter summary_large_image</div></div>
+
+  <div class="sec-head"><span class="sec-no">§ E</span><h2>Install</h2></div>
+  <div class="code">
+    <div class="c-head">paste into &lt;head&gt;</div>
+    <pre><span class="tag">&lt;link</span> <span class="attr">rel</span>="icon" <span class="attr">href</span>="/favicon.ico" <span class="attr">sizes</span>="any"<span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>="icon" <span class="attr">href</span>="/favicon.svg" <span class="attr">type</span>="image/svg+xml"<span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>="icon" <span class="attr">href</span>="/favicon-32x32.png" <span class="attr">type</span>="image/png" <span class="attr">sizes</span>="32x32"<span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>="icon" <span class="attr">href</span>="/favicon-16x16.png" <span class="attr">type</span>="image/png" <span class="attr">sizes</span>="16x16"<span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>="apple-touch-icon" <span class="attr">href</span>="/apple-touch-icon.png"<span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>="manifest" <span class="attr">href</span>="/site.webmanifest"<span class="tag">&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">name</span>="theme-color" <span class="attr">content</span>="#1C1B17"<span class="tag">&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>="og:image" <span class="attr">content</span>="/og-card.png"<span class="tag">&gt;</span></pre>
+  </div>
+
+  <footer class="colophon">
+    <span>M.M · Icon Pack · Specimen № 3</span>
+    <span>One equation · two initials</span>
+    <span><span class="reg-word">⊕</span> Montréal</span>
+  </footer>
+</div>
+</body>
+</html>

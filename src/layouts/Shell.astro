@@ -57,7 +57,7 @@ const NAV: { kicker: string; items?: NavItem[]; subs?: NavSub[] }[] = [
     ],
   },
   {
-    kicker: 'Return',
+    kicker: 'About',
     items: [
       { label: 'Program', href: '/program/' },
       { label: 'Contact', href: '/contact/' },
@@ -94,10 +94,18 @@ const crumbs = trail.map((t) => t.toLowerCase());
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <meta name="generator" content={Astro.generator} />
-  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=3" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png?v=3" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <meta property="og:title" content={`${title} · Matt Mattei`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+  <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32x32.png?v=4" type="image/png" sizes="32x32" />
+  <link rel="icon" href="/favicon-16x16.png?v=4" type="image/png" sizes="16x16" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#1C1B17" />
   <title>{title} · Matt Mattei</title>
 </head>
 <body>
@@ -134,7 +142,7 @@ const crumbs = trail.map((t) => t.toLowerCase());
   <!-- Sidebar nav -->
   <nav class="nav" id="nav" aria-label="Sections">
     {NAV.map((group) => (
-      <div class="nav-group">
+      <div class:list={['nav-group', { 'nav-group-quiet': group.kicker === 'About' }]}>
         <button class="kicker fold" type="button" aria-expanded="true" data-fold={group.kicker}>
           <span class="caret" aria-hidden="true"></span>{group.kicker}
         </button>
