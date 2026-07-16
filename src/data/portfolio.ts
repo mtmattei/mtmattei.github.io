@@ -84,12 +84,15 @@ export type Skill = {
   numbers?: [string, string][];
   sections: SkillSection[];
   question: string;
+  /* an inline animated figure keyed by name (e.g. the EaseSmooth curve) */
+  demo?: 'easing';
 };
 
 export const SKILLS: Skill[] = [
   {
     slug: 'xaml-design-polish',
     name: 'xaml-design-polish',
+    demo: 'easing',
     kicker: 'Skill · the feel layer',
     tagline:
       'The point is to write motion as numbers instead of adjectives. You cannot build "smooth," but you can build a KeySpline of 0.22,1 0.36,1 that settles over 280ms.',

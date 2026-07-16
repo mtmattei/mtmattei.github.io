@@ -1,6 +1,7 @@
 ---
 import Shell from '../../layouts/Shell.astro';
 import { SKILLS } from '../../data/portfolio';
+import EasingDemo from '../../components/EasingDemo.astro';
 
 export function getStaticPaths() {
   return SKILLS.map((skill) => ({ params: { slug: skill.slug }, props: { skill } }));
@@ -29,6 +30,8 @@ const { skill } = Astro.props;
   </div>
 
   <p class="tagline">{skill.tagline}</p>
+
+  {skill.demo === 'easing' && <EasingDemo />}
 
   {skill.numbers && (
     <>

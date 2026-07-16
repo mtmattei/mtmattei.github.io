@@ -1,0 +1,166 @@
+---
+// Animated figure for xaml-design-polish: the EaseSmooth curve
+// (cubic-bezier 0.22,1 0.36,1 — the XAML KeySpline) settling over 280ms.
+// The ink tile rides that easing; the linear tile marches for contrast.
+// Plot geometry: origin (28,122), width 110, height 110 → t left→right, value bottom→top.
+---
+<figure class="ez">
+  <figcaption class="kicker">Figure · you cannot build "smooth," you build a curve</figcaption>
+
+  <div class="ez-body">
+    <svg class="ez-plot" viewBox="0 0 160 140" role="img"
+         aria-label="the easing curve cubic-bezier 0.22,1 0.36,1 plotted against the linear diagonal; a marker traces it as the tiles below travel">
+      <!-- axes -->
+      <line class="ez-axis" x1="28" y1="12" x2="28" y2="122" />
+      <line class="ez-axis" x1="28" y1="122" x2="138" y2="122" />
+      <!-- linear reference -->
+      <path class="ez-linear" d="M 28 122 L 138 12" />
+      <!-- construction handles + control points (the two KeySpline numbers) -->
+      <line class="ez-handle" x1="28" y1="122" x2="52.2" y2="12" />
+      <line class="ez-handle" x1="138" y1="12" x2="67.6" y2="12" />
+      <circle class="ez-cp" cx="52.2" cy="12" r="2.1" />
+      <circle class="ez-cp" cx="67.6" cy="12" r="2.1" />
+      <!-- the curve -->
+      <path class="ez-curve" d="M 28 122 C 52.2 12 67.6 12 138 12" pathLength="1" />
+      <!-- traveling marker -->
+      <circle class="ez-marker" id="ezMarker" cx="28" cy="122" r="3" />
+      <!-- labels -->
+      <text class="ez-lbl" x="24" y="15" text-anchor="end">1</text>
+      <text class="ez-lbl" x="24" y="124" text-anchor="end">0</text>
+      <text class="ez-lbl" x="136" y="133">t</text>
+    </svg>
+
+    <div class="ez-rails">
+      <div class="ez-rail">
+        <span class="ez-tag">EaseSmooth · cubic-bezier(.22,1 .36,1)</span>
+        <div class="ez-track"><span class="ez-target"></span><span class="ez-tile ink" id="ezTileA"></span></div>
+      </div>
+      <div class="ez-rail">
+        <span class="ez-tag">linear · for contrast</span>
+        <div class="ez-track"><span class="ez-target"></span><span class="ez-tile lin" id="ezTileB"></span></div>
+      </div>
+      <div class="ez-foot">
+        <span class="mono">XAML: KeySpline 0.22,1 0.36,1 · Duration 280ms</span>
+        <button class="ez-replay" id="ezReplay" type="button">replay ↻</button>
+      </div>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .ez {
+    margin: var(--s4) 0 var(--s8);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray-1);
+    padding: var(--s4) var(--s6) var(--s6);
+  }
+  .ez > .kicker { display: block; margin-bottom: var(--s4); }
+  .ez-body { display: flex; gap: var(--s8); align-items: center; }
+  @media (max-width: 620px) { .ez-body { flex-direction: column; align-items: stretch; gap: var(--s6); } }
+
+  .ez-plot { width: 176px; height: auto; flex: none; }
+  .ez-axis { stroke: var(--muted); stroke-width: 1; }
+  .ez-linear { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .ez-handle { stroke: var(--accent); stroke-width: 1; }
+  .ez-cp { fill: var(--accent); }
+  .ez-curve { stroke: var(--ink); stroke-width: 2; fill: none; }
+  .ez-marker { fill: var(--ink); }
+  .ez-lbl { font-family: var(--mono); font-size: 8px; fill: var(--muted); }
+
+  .ez-rails { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s4); }
+  .ez-rail { display: flex; flex-direction: column; gap: 8px; }
+  .ez-tag { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); }
+  .ez-track { position: relative; height: 20px; }
+  .ez-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+  .ez-tile { position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 2px; will-change: transform; }
+  .ez-tile.ink { background: var(--ink); }
+  .ez-tile.lin { background: transparent; border: 1px solid var(--accent); }
+  .ez-target { position: absolute; right: 0; top: 0; width: 20px; height: 20px; border: 1px dashed var(--line-2); border-radius: 2px; }
+
+  .ez-foot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); margin-top: 4px; flex-wrap: wrap; }
+  .ez-foot .mono { font-size: 11px; }
+  .ez-replay { font-family: var(--mono); font-size: 11px; color: var(--muted); background: none; border: 0; cursor: pointer; padding: 2px 0; transition: color .15s; }
+  .ez-replay:hover { color: var(--ink); }
+  .ez-replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+</style>
+
+<script>
+  const marker = document.getElementById('ezMarker');
+  const tileA = document.getElementById('ezTileA');
+  const tileB = document.getElementById('ezTileB');
+  const replay = document.getElementById('ezReplay');
+  const fig = document.querySelector('.ez');
+
+  if (marker && tileA && tileB && fig) {
+    const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DUR = 280;
+    const OX = 28, OY = 122, W = 110, H = 110;
+
+    // cubic-bezier easing solver (maps linear time x -> eased value y)
+    function cubicBezier(x1, y1, x2, y2) {
+      const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+      const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      const sx = (t) => ((ax * t + bx) * t + cx) * t;
+      const sy = (t) => ((ay * t + by) * t + cy) * t;
+      const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+      const solve = (x) => {
+        let t = x;
+        for (let i = 0; i < 8; i++) {
+          const e = sx(t) - x;
+          if (Math.abs(e) < 1e-4) return t;
+          const d = dx(t);
+          if (Math.abs(d) < 1e-6) break;
+          t -= e / d;
+        }
+        let lo = 0, hi = 1; t = x;
+        for (let i = 0; i < 20; i++) {
+          const e = sx(t);
+          if (Math.abs(e - x) < 1e-4) break;
+          if (x > e) lo = t; else hi = t;
+          t = (lo + hi) / 2;
+        }
+        return t;
+      };
+      return (x) => sy(solve(x));
+    }
+    const ease = cubicBezier(0.22, 1, 0.36, 1);
+    const dist = (tile) => tile.parentElement.clientWidth - tile.offsetWidth;
+
+    function frame(p) {
+      const e = ease(p);
+      marker.setAttribute('cx', (OX + p * W).toFixed(2));
+      marker.setAttribute('cy', (OY - e * H).toFixed(2));
+      tileA.style.transform = 'translateX(' + (e * dist(tileA)).toFixed(2) + 'px)';
+      tileB.style.transform = 'translateX(' + (p * dist(tileB)).toFixed(2) + 'px)';
+    }
+
+    let raf = null, timer = null, live = false;
+    const stop = () => { cancelAnimationFrame(raf); clearTimeout(timer); raf = timer = null; };
+    function play() {
+      stop();
+      if (RM) { frame(1); return; }
+      const t0 = performance.now();
+      (function step(now) {
+        const p = Math.min((now - t0) / DUR, 1);
+        frame(p);
+        if (p < 1) raf = requestAnimationFrame(step);
+        else timer = setTimeout(() => { frame(0); timer = setTimeout(play, 520); }, 1200);
+      })(performance.now());
+    }
+
+    frame(RM ? 1 : 0);
+    replay && replay.addEventListener('click', play);
+
+    // only loop while the figure is on screen
+    if (!RM && 'IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        const vis = entries[0].isIntersecting;
+        if (vis && !live) { live = true; timer = setTimeout(play, 500); }
+        else if (!vis && live) { live = false; stop(); frame(0); }
+      }, { threshold: 0.4 }).observe(fig);
+    } else if (!RM) {
+      timer = setTimeout(play, 700);
+    }
+  }
+</script>
