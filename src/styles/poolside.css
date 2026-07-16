@@ -219,7 +219,7 @@ body.revealed .mat { background: var(--gray-1); border-color: var(--line); }
 .plaque { display: inline-block; margin-top: 30px; padding: 12px 26px;
   border: 1px solid var(--line); background: var(--paper); line-height: 1.65; }
 .plaque .artist { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); font-weight: 500; }
-.plaque .artist span { color: var(--line-2); font-weight: 400; text-transform: none; letter-spacing: .06em; }
+.plaque .artist span { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: .06em; }
 .plaque .work { font-family: 'Fraunces', serif; font-style: italic; font-size: 17px; }
 .plaque .work .yr { font-style: normal; font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: .08em; }
 .plaque .medium { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }

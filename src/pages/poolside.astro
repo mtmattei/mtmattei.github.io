@@ -501,13 +501,33 @@ float caustic(float2 suv) {
     figSurfaces.push({ cv, draw });
   });
 
-  if (!reduce) {
-    (function raf(now) {
-      if (drawSw && swgl.offsetParent) drawSw(swU, now / 1000);
-      for (const s of figSurfaces) if (s.cv.offsetParent) s.draw(swU, now / 1000);
-      requestAnimationFrame(raf);
-    })(0);
-  } else if (drawSw) drawSw(swU, 3);
+  // draw only surfaces on screen; the loop parks itself when none are visible
+  const surfaces = [];
+  if (drawSw) surfaces.push({ cv: swgl, draw: drawSw });
+  for (const s of figSurfaces) surfaces.push(s);
+  const visible = new Set();
+  let rafId = null;
+  function renderLoop(now) {
+    rafId = null;
+    let any = false;
+    for (const s of surfaces) {
+      if (visible.has(s.cv) && s.cv.offsetParent) { s.draw(swU, now / 1000); any = true; }
+    }
+    if (any) rafId = requestAnimationFrame(renderLoop);
+  }
+  const kickLoop = () => { if (rafId == null) rafId = requestAnimationFrame(renderLoop); };
+  if (!reduce && 'IntersectionObserver' in window) {
+    const vio = new IntersectionObserver((entries) => {
+      for (const e of entries) { if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target); }
+      if (visible.size) kickLoop();
+    }, { threshold: 0.01 });
+    surfaces.forEach((s) => vio.observe(s.cv));
+  } else if (!reduce) {
+    surfaces.forEach((s) => visible.add(s.cv));
+    kickLoop();
+  } else {
+    for (const s of surfaces) if (s.cv.offsetParent) s.draw(swU, 3);
+  }
 
   const basin = document.getElementById('basin');
   let basinCycle = null;
@@ -697,7 +717,7 @@ float caustic(float2 suv) {
     overflow: hidden;  /* the deck is larger than the frame, so the layers bleed off the edges */
   }
   .pl-deck {
-    position: relative; width: 420px; height: 420px;
+    position: relative; width: min(420px, 78vw); height: min(420px, 78vw);
     transform-style: preserve-3d;
     transform: rotateX(54deg) rotateZ(-32deg);
   }
@@ -733,7 +753,7 @@ float caustic(float2 suv) {
   }
   .pl-gauge input[type=range]::-moz-range-thumb { width: 9px; height: 16px; border-radius: 1px; background: var(--paper); border: 1px solid var(--ink); }
   .pl-ticks { display: flex; justify-content: space-between; margin-top: 5px; }
-  .pl-ticks span { font-family: var(--mono); font-size: 9px; color: var(--line-2); letter-spacing: .06em; }
+  .pl-ticks span { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: .06em; }
 
   .pl-legend { list-style: none; margin: 0; padding: 0 0 0 var(--s6); }
   .pl-row { padding: var(--s3) 0; border-top: var(--bw) solid var(--line); transition: background .15s; }
