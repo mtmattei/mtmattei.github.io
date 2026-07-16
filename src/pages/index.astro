@@ -108,21 +108,30 @@ const tokens: [string, string][] = [
    its own toString(), so the printed prose IS this source.
    ============================================================ */
 
-function hero(cv, t, shT) {
+function hero(cv, t) {
   const src = hero.toString();
   const marks = glyphs(src);
   const a = prose(src), b = letterform(src);
   const g = cv.getContext('2d');
   g.clearRect(0, 0, cv.width, cv.height);
-  for (let i = 0; i < b.length; i++) {
-    const k = marks[i % marks.length];
-    const pos = glide(a[k], b[i], t, i);
-    if (shT >= 0 && pos.ink) {          // settled: a slow, quiet shimmer
-      pos.x += Math.sin(shT / 680 + i * 0.7) * 0.7;
-      pos.y += Math.cos(shT / 770 + i * 1.1) * 0.7;
+  const nameA = smooth((t - 0.78) / 0.22);   // near the end the source resolves into the clean name
+  if (nameA < 1) {
+    g.globalAlpha = 1 - nameA;
+    for (let i = 0; i < b.length; i++) {
+      const k = marks[i % marks.length];
+      stamp(g, src[k], glide(a[k], b[i], t, i));
     }
-    stamp(g, src[k], pos);
   }
+  if (nameA > 0) {
+    g.globalAlpha = nameA;
+    const S = Math.min((HW * 0.92) / 3.8, HH * 0.4);
+    g.fillStyle = INK; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '500 ' + S + 'px "JetBrains Mono"';
+    g.fillText('MATT', HW / 2, HH / 2 - S * 0.62);
+    g.fillText('MATTEI', HW / 2, HH / 2 + S * 0.62);
+    g.textAlign = 'start';
+  }
+  g.globalAlpha = 1;
 }
 
 const INK = '#EFEAE2', ACCENT = '#8AA0EA';
@@ -137,7 +146,7 @@ const hash01 = i => {
 const smooth = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
 
 let heroCv, prosePos = null, letterPos = null, glyphIdx = null, HW = 0, HH = 0;
-let heroT = 0, heroTarget = 1, heroDrag = false, dragX0 = 0, dragT0 = 0, dragMoved = 0, heroRaf = null, heroVis = true;
+let heroT = 0, heroTarget = 1, heroDrag = false, dragX0 = 0, dragT0 = 0, dragMoved = 0, heroRaf = null;
 
 function glyphs(src) {
   if (glyphIdx) return glyphIdx;
@@ -202,16 +211,14 @@ function stamp(g, chr, pos) {
   g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "JetBrains Mono"' : sz + 'px "JetBrains Mono"';
   g.fillText(chr, pos.x, pos.y);
 }
-function drawHero(t, shT) { hero(heroCv, t, shT); }
-function tick(now) {
+function drawHero(t) { hero(heroCv, t); }
+function tick() {
   heroRaf = null;
   if (!heroDrag) heroT += (heroTarget - heroT) * 0.14;
-  const atTarget = Math.abs(heroT - heroTarget) < 0.003;
+  const atTarget = Math.abs(heroT - heroTarget) < 0.0015;
   if (atTarget && !heroDrag) heroT = heroTarget;
-  const settledName = atTarget && !heroDrag && heroTarget === 1;
-  const shT = (!RM && settledName && heroVis) ? now : -1;
-  drawHero(heroT, shT);
-  if (heroDrag || !atTarget || shT >= 0) heroRaf = requestAnimationFrame(tick);
+  drawHero(heroT);
+  if (heroDrag || !atTarget) heroRaf = requestAnimationFrame(tick);
 }
 function kick() { if (heroRaf == null) heroRaf = requestAnimationFrame(tick); }
 function wireScrub() {
@@ -219,14 +226,14 @@ function wireScrub() {
     if (!heroDrag) return;
     dragMoved = Math.max(dragMoved, Math.abs(x - dragX0));
     heroT = Math.max(0, Math.min(1, dragT0 + (x - dragX0) / HW));
-    if (RM) drawHero(heroT, -1);
+    if (RM) drawHero(heroT);
   };
   const end = () => {
     if (!heroDrag) return;
     heroDrag = false;
     if (dragMoved < 5) heroT = 0;   // a tap replays the assemble
     heroTarget = 1;
-    if (RM) { heroT = 1; drawHero(1, -1); } else kick();
+    if (RM) { heroT = 1; drawHero(1); } else kick();
   };
   heroCv.addEventListener('pointerdown', e => {
     heroCv.setPointerCapture(e.pointerId);
@@ -241,15 +248,8 @@ function wireScrub() {
     else if (e.key === 'ArrowLeft') heroTarget = Math.max(0, heroTarget - 0.2);
     else if (e.key === 'ArrowRight') heroTarget = Math.min(1, heroTarget + 0.2);
     else return;
-    if (RM) { heroT = heroTarget; drawHero(heroT, -1); } else kick();
+    if (RM) { heroT = heroTarget; drawHero(heroT); } else kick();
   });
-}
-function watchVis() {
-  if (!('IntersectionObserver' in window)) return;
-  new IntersectionObserver((ents) => {
-    heroVis = ents[0].isIntersecting;
-    if (heroVis && !RM) kick();
-  }, { threshold: 0.05 }).observe(heroCv);
 }
 let heroWired = false;
 function buildHero() {
@@ -266,12 +266,11 @@ function buildHero() {
   prosePos = null; letterPos = null;
   if (!heroWired) {
     heroWired = true;
-    if (RM) { heroT = 1; drawHero(1, -1); }
-    else { heroT = 0; drawHero(0, -1); setTimeout(() => { heroTarget = 1; kick(); }, 350); }  // source assembles into the name
+    if (RM) { heroT = 1; drawHero(1); }
+    else { heroT = 0; drawHero(0); setTimeout(() => { heroTarget = 1; kick(); }, 350); }  // source assembles into the name
     wireScrub();
-    watchVis();
   } else {
-    drawHero(heroT, -1);
+    drawHero(heroT);
     if (!RM) kick();
   }
 }
@@ -291,7 +290,7 @@ Promise.all([
     rsz = setTimeout(() => {
       const t = heroT;
       buildHero();
-      heroT = t; drawHero(heroT, -1);
+      heroT = t; drawHero(heroT);
       if (!RM) kick();
     }, 160);
   });
