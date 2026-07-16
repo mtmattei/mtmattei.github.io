@@ -1,4 +1,6 @@
 ---
+import '@fontsource/fraunces/300.css';
+import '@fontsource/fraunces/400.css';
 import Shell from '../layouts/Shell.astro';
 
 const tokens: [string, string][] = [
@@ -10,27 +12,30 @@ const tokens: [string, string][] = [
 ---
 <Shell title="Index" crumb="index" tokens={tokens}
   description="Matt Mattei's public notebook: ideas, experiments, sketches, software, and lessons at the intersection of design and development.">
-  <h1 class="sr-only">Matt Mattei</h1>
-  <div class="hero-idx">
-    <div class="bio">
-      <p class="lede">
-        I'm exploring the intersection of design and development, but mostly because I love
-        making things.
-      </p>
-      <p class="lede" style="margin-top:var(--s4)">
-        This is my public notebook. A place for ideas, experiments, sketches, software, and
-        lessons learned along the way. Some become projects. Some become articles. Some simply
-        remain ideas.
-      </p>
+  <section class="hero">
+    <p class="hero-eyebrow">A public notebook</p>
+    <h1 class="hero-display">The source is the figure.</h1>
+    <p class="hero-sub">Everything here is placed by the code that describes it.</p>
+
+    <figure class="hero-plate">
+      <div class="hero-frame">
+        <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATT MATTEI assembling out of the characters of its own source; click to replay"></canvas>
+      </div>
+      <figcaption class="hero-plaque">
+        <span>hero() · the name, drawn by its own source</span>
+        <span class="mono">toString()</span>
+      </figcaption>
+    </figure>
+
+    <div class="hero-body">
+      <p>I'm exploring the intersection of design and development, but mostly because I love making things. This is my public notebook: ideas, experiments, sketches, software, and lessons learned along the way. Some become projects. Some become articles. Some simply remain ideas.</p>
+      <a class="hero-scroll" href="#index">Explore the notebook <span aria-hidden="true">↓</span></a>
     </div>
-    <div class="hero-fig">
-      <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATT MATTEI assembling out of the characters of its own source; click to replay"></canvas>
-    </div>
-  </div>
+  </section>
 
   <hr class="rule" />
 
-  <span class="kicker" style="display:block;margin-bottom:var(--s3)">Index</span>
+  <span class="kicker" id="index" style="display:block;margin-bottom:var(--s3)">Index</span>
   <div class="grid">
     <a class="card" href="/poolside/"><span class="kicker">Code · exhibit<span class="no">no.01</span></span><h3>Poolside</h3><p>Water, read like weather. The real interface, exploded, back to the SkiaSharp shader it grew from.</p></a>
     <a class="card" href="/texts/"><span class="kicker">Writing<span class="no">no.02</span></span><h3>Texts</h3><p>Essays in galley: real excerpts at reading measure.</p></a>
@@ -42,6 +47,46 @@ const tokens: [string, string][] = [
   <hr class="rule" />
   <p class="mono">Toggle GRID to see the baseline and column. Toggle INSPECT to read the tokens of the active view.</p>
 </Shell>
+
+<style>
+  .hero { text-align: center; max-width: 760px; margin: 0 auto; padding: clamp(20px, 6vw, 80px) 0 var(--s8); }
+  .hero > * { animation: heroRise .7s cubic-bezier(.22, .61, .21, 1) both; }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 var(--s6); animation-delay: .04s;
+  }
+  .hero-display {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 300;
+    font-size: clamp(38px, 6.2vw, 68px); line-height: 1.04; letter-spacing: -0.02em;
+    color: var(--ink); margin: 0 0 var(--s4); text-wrap: balance; animation-delay: .12s;
+  }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 19px); line-height: 1.5; color: var(--muted);
+    max-width: 34ch; margin: 0 auto clamp(30px, 5vw, 52px); text-wrap: balance; animation-delay: .2s;
+  }
+  .hero-plate { margin: 0 0 clamp(26px, 5vw, 44px); animation-delay: .3s; }
+  .hero-frame {
+    border: var(--bw) solid var(--line-2); border-radius: var(--radius);
+    background: color-mix(in srgb, var(--paper) 45%, #fff);
+    padding: clamp(20px, 4vw, 44px); max-width: 620px; margin: 0 auto;
+  }
+  .hero-frame canvas { display: block; margin: 0 auto; max-width: 100%; cursor: pointer; }
+  .hero-plaque {
+    display: flex; justify-content: center; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+    margin-top: var(--s4); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--muted);
+  }
+  .hero-body { max-width: 56ch; margin: 0 auto; animation-delay: .42s; }
+  .hero-body p { font-size: 16px; line-height: 1.6; color: var(--muted); margin: 0 0 var(--s6); text-wrap: pretty; }
+  .hero-scroll {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .04em; color: var(--ink);
+    text-decoration: none; border-bottom: var(--bw) solid var(--line-2); padding-bottom: 3px;
+    transition: border-color .15s, gap .15s;
+  }
+  .hero-scroll:hover { border-color: var(--accent); gap: 12px; }
+  @keyframes heroRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .hero > * { animation: none; } }
+</style>
 
 <script is:inline>
 /* ============================================================
@@ -177,9 +222,9 @@ function loopHero() {
 let heroWired = false;
 function buildHero() {
   heroCv = document.getElementById('herocv');
-  const holder = heroCv.parentElement; // hero-fig
-  HW = Math.min(340, Math.max(250, holder.clientWidth));
-  HH = 170;
+  const holder = heroCv.parentElement; // hero-frame
+  HW = Math.min(520, Math.max(280, holder.clientWidth));
+  HH = Math.round(HW * 0.52);
   const dpr = Math.min(devicePixelRatio || 1, 2);
   heroCv.width = HW * dpr; heroCv.height = HH * dpr;
   heroCv.style.width = HW + 'px'; heroCv.style.height = HH + 'px';
