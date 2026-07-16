@@ -135,7 +135,9 @@ const crumbs = trail.map((t) => t.toLowerCase());
   <nav class="nav" id="nav" aria-label="Sections">
     {NAV.map((group) => (
       <div class="nav-group">
-        <span class="kicker">{group.kicker}</span>
+        <button class="kicker fold" type="button" aria-expanded="true" data-fold={group.kicker}>
+          <span class="caret" aria-hidden="true"></span>{group.kicker}
+        </button>
         {group.items && (
           <div class:list={['nav-items', { 'has-active': group.items.some((i) => isActive(i.href)) }]}>
             {group.items.map((item) => (
@@ -149,13 +151,26 @@ const crumbs = trail.map((t) => t.toLowerCase());
           <div class:list={['nav-nest', { 'has-active': group.subs.some((s) => s.items.some(itemActive)) }]}>
             {group.subs.map((sub) => (
               <div class="nav-sub">
-                <span class="kicker">{sub.kicker}</span>
+                <button class="kicker fold" type="button" aria-expanded="true" data-fold={sub.kicker}>
+                  <span class="caret" aria-hidden="true"></span>{sub.kicker}
+                </button>
                 <div class:list={['nav-items', { 'has-active': sub.items.some(itemActive) }]}>
                   {sub.items.map((item) => (
                     <Fragment>
-                      <a class:list={['nav-item', { 'is-active': isActive(item.href), 'has-child-active': !isActive(item.href) && itemActive(item) }]} href={item.href}>
-                        <span class="tick"></span>{item.label}
-                      </a>
+                      {item.children ? (
+                        <div class="nav-parent">
+                          <button class="fold fold-item" type="button" aria-expanded="true" data-fold={item.label} aria-label={`Toggle ${item.label}`}>
+                            <span class="caret" aria-hidden="true"></span>
+                          </button>
+                          <a class:list={['nav-item', { 'is-active': isActive(item.href), 'has-child-active': !isActive(item.href) && itemActive(item) }]} href={item.href}>
+                            <span class="tick"></span>{item.label}
+                          </a>
+                        </div>
+                      ) : (
+                        <a class:list={['nav-item', { 'is-active': isActive(item.href) }]} href={item.href}>
+                          <span class="tick"></span>{item.label}
+                        </a>
+                      )}
                       {item.children && (
                         <div class:list={['nav-children', { 'has-active': item.children.some((c) => isActive(c.href)) }]}>
                           {item.children.map((c) => (
@@ -239,6 +254,41 @@ const crumbs = trail.map((t) => t.toLowerCase());
 
   if (sessionStorage.getItem('mm.grid') === '1') setGrid(true);
   if (sessionStorage.getItem('mm.inspect') === '1') setInsp(true);
+
+  // IDE-style folding: carets collapse categories; folds persist across pages.
+  const FOLD_KEY = 'mm.folds';
+  const readFolds = () => {
+    try { return new Set(JSON.parse(localStorage.getItem(FOLD_KEY) || '[]')); } catch (e) { return new Set(); }
+  };
+  const folds = readFolds();
+  const foldTarget = (btn) =>
+    btn.classList.contains('fold-item')
+      ? (btn.closest('.nav-parent') || {}).nextElementSibling
+      : btn.parentElement;
+  function applyFold(btn, folded) {
+    const t = foldTarget(btn);
+    btn.setAttribute('aria-expanded', String(!folded));
+    if (t && t.classList) t.classList.toggle('folded', folded);
+  }
+  nav.querySelectorAll('.fold').forEach((btn) => {
+    const key = btn.getAttribute('data-fold');
+    if (folds.has(key)) applyFold(btn, true);
+    btn.addEventListener('click', () => {
+      const folded = btn.getAttribute('aria-expanded') === 'true';
+      applyFold(btn, folded);
+      if (folded) folds.add(key); else folds.delete(key);
+      try { localStorage.setItem(FOLD_KEY, JSON.stringify([...folds])); } catch (e) {}
+    });
+  });
+  // keep the current page visible: transiently expand its collapsed ancestors
+  const active = nav.querySelector('.nav-item.is-active');
+  if (active) {
+    const kids = active.closest('.nav-children');
+    const parentCaret = kids && kids.previousElementSibling && kids.previousElementSibling.querySelector('.fold-item');
+    const subCaret = (active.closest('.nav-sub') || {}).querySelector && active.closest('.nav-sub').querySelector(':scope > .kicker.fold');
+    const grpCaret = (active.closest('.nav-group') || {}).querySelector && active.closest('.nav-group').querySelector(':scope > .kicker.fold');
+    [parentCaret, subCaret, grpCaret].forEach((b) => { if (b) applyFold(b, false); });
+  }
 </script>
 </body>
 </html>
