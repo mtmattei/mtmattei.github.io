@@ -249,7 +249,7 @@ const PROJECTS: Proj[] = [
     ],
   },
   {
-    slug: 'unoannotation', name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP',
+    slug: 'unoannotation', name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP', hidden: true,
     deep: '#10231A', accent: '#5FC98F', ink: '#EAF5EE',
     iters: [
       { v: 'V0.1', title: 'Blind agent', cap: 'An AI agent building UI it cannot see. Every fix was a guess relayed through screenshots.', rows: ['no eyes', 'guesswork'] },
@@ -288,7 +288,7 @@ const PROJECTS: Proj[] = [
     ],
   },
   {
-    slug: 'design-ledger', name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', href: 'https://github.com/mtmattei/design-ledger', linkLabel: 'OPEN REPO',
+    slug: 'design-ledger', name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', hidden: true, href: 'https://github.com/mtmattei/design-ledger', linkLabel: 'OPEN REPO',
     deep: '#26221B', accent: '#E7DECF', ink: '#F4EFE8',
     iters: [
       { v: 'V0.1', title: 'First entry', cap: 'One decision written down: what was chosen, why, and what it cost. The format followed later.', rows: ['1 entry', 'chose / why / cost'] },
@@ -553,7 +553,6 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
       <a class="lnav-i" href="/#/p/poolside"><span class="ltick"></span>Poolside</a>
       <a class="lnav-i" href="/texts/"><span class="ltick"></span>Texts</a>
       <a class="lnav-i" href="/#/p/xaml-uno"><span class="ltick"></span>XAML / Uno</a>
-      <a class="lnav-i" href="/ledger/"><span class="ltick"></span>Ledger</a>
     </div>
     <div class="lnav-g lnav-quiet">
       <span class="lnav-k">About</span>
