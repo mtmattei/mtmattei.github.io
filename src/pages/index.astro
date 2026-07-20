@@ -105,13 +105,17 @@ const projects: Project[] = [
             {projects.map((p, i) => (
               <span class:list={['lp-art', { on: i === 0 }]} data-art={p.slug}><Plate slug={p.slug} /></span>
             ))}
+            <span class="lp-vignette" aria-hidden="true"></span>
+            <span class="lp-mullion a" aria-hidden="true"></span>
+            <span class="lp-mullion b" aria-hidden="true"></span>
+            <span class="lp-sheen" aria-hidden="true"></span>
           </span>
           <span class="lp-open mono" aria-hidden="true">Open <i>↗</i></span>
         </a>
       </div>
 
       <!-- the mount: posts on a wall shelf, lit from the upper left -->
-      <svg class="lp-rig" viewBox="0 0 1060 78" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+      <svg class="lp-rig" viewBox="0 0 1060 88" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
         <defs>
           <linearGradient id="postG" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#CDC3B3" />
@@ -137,33 +141,43 @@ const projects: Project[] = [
           <filter id="blurL" x="-20%" y="-80%" width="140%" height="300%"><feGaussianBlur stdDeviation="7" /></filter>
         </defs>
 
-        <rect x="60" y="-16" width="940" height="26" fill="#1A1815" opacity="0.16" filter="url(#blurL)" />
+        <!-- ambient shadow the display body throws onto the wall -->
+        <rect x="70" y="-18" width="950" height="30" fill="#1A1815" opacity="0.17" filter="url(#blurL)" />
 
-        <!-- the cross rail the frame sits on -->
-        <rect x="170" y="2" width="720" height="7" fill="url(#topG)" />
-        <rect x="170" y="8.4" width="720" height="1" fill="#A99D88" opacity="0.5" />
-
+        <!-- two slim posts, set inward from the edges, shadowed to the right -->
         <g>
-          <rect x="196" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
-          <rect x="536" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
-          <rect x="876" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
-          <rect x="190" y="-8" width="22" height="42" fill="url(#postG)" />
-          <rect x="530" y="-8" width="22" height="42" fill="url(#postG)" />
-          <rect x="870" y="-8" width="22" height="42" fill="url(#postG)" />
-          <ellipse cx="201" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
-          <ellipse cx="541" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
-          <ellipse cx="881" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
+          <rect x="308" y="-6" width="26" height="42" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
+          <rect x="768" y="-6" width="26" height="42" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
+          <rect x="300" y="-10" width="24" height="44" fill="url(#postG)" />
+          <rect x="760" y="-10" width="24" height="44" fill="url(#postG)" />
+          <ellipse cx="312" cy="34" rx="24" ry="3.5" fill="#1A1815" opacity="0.42" filter="url(#blurS)" />
+          <ellipse cx="772" cy="34" rx="24" ry="3.5" fill="#1A1815" opacity="0.42" filter="url(#blurS)" />
         </g>
 
-        <rect x="24" y="56" width="1012" height="18" fill="url(#castG)" filter="url(#blurL)" />
+        <!-- broad blurred shadow under the whole base -->
+        <rect x="30" y="62" width="1010" height="22" fill="url(#castG)" filter="url(#blurL)" />
 
-        <rect x="6" y="34" width="1048" height="9" fill="url(#topG)" />
-        <rect x="6" y="42.4" width="1048" height="1.1" fill="#A99D88" opacity="0.55" />
-        <rect x="6" y="43.5" width="1048" height="12.5" fill="url(#frontG)" rx="1" />
-        <rect x="6" y="34" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
-        <!-- centre bracket under the shelf -->
-        <rect x="506" y="56" width="48" height="8" fill="url(#frontG)" />
-        <rect x="506" y="56" width="48" height="0.9" fill="#FFFFFF" opacity="0.7" />
+        <!-- 1 · thin top ledge directly beneath the display -->
+        <rect x="150" y="28" width="760" height="6" fill="url(#topG)" />
+        <rect x="150" y="28" width="760" height="0.8" fill="#FFFFFF" opacity="0.85" />
+        <rect x="150" y="33.4" width="760" height="0.9" fill="#A99D88" opacity="0.45" />
+
+        <!-- 2 · the long shelf beam -->
+        <rect x="6" y="36" width="1048" height="9" fill="url(#topG)" />
+        <rect x="6" y="36" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
+        <rect x="6" y="44.4" width="1048" height="1.1" fill="#A99D88" opacity="0.55" />
+        <rect x="6" y="45.5" width="1048" height="13" fill="url(#frontG)" />
+
+        <!-- 3 · narrow lower lip, inset from the beam -->
+        <rect x="26" y="58.5" width="1008" height="5" fill="url(#frontG)" />
+        <rect x="26" y="58.5" width="1008" height="0.8" fill="#FFFFFF" opacity="0.55" />
+        <rect x="26" y="63" width="1008" height="0.9" fill="#1A1815" opacity="0.18" />
+
+        <!-- 4 · folded-metal brace at the centre, small supports either side -->
+        <path d="M498 63.5 H562 L554 76 H506 Z" fill="url(#frontG)" />
+        <path d="M498 63.5 H562 L560 66 H500 Z" fill="#FFFFFF" opacity="0.5" />
+        <rect x="212" y="63.5" width="34" height="6" fill="url(#frontG)" />
+        <rect x="814" y="63.5" width="34" height="6" fill="url(#frontG)" />
       </svg>
 
       <p class="lp-scrollhint mono">Scroll<br />to explore<span class="lp-arrowdown" aria-hidden="true"></span></p>
@@ -279,16 +293,24 @@ const projects: Project[] = [
 
   /* the plate: white frame, thin dark keyline, generous radius */
   .lp-hold { position: relative; }
+  /* A moulded ivory enclosure: structural frame, bevelled edges, the screen
+     recessed a few millimetres behind the front face. */
   .lp-billboard {
     display: block; position: relative;
-    background: linear-gradient(168deg, #FFFEFC 0%, #F4EFE8 62%, #E7DFD3 100%);
-    border-radius: clamp(22px, 4.6%, 48px);
-    padding: clamp(6px, 0.9%, 12px);
+    background: linear-gradient(163deg, #FFFEFB 0%, #F7F2EB 44%, #EAE2D6 76%, #DCD2C3 100%);
+    border-radius: clamp(24px, 5%, 56px);
+    padding: clamp(9px, 1.7%, 24px);
+    padding-bottom: clamp(12px, 2.2%, 30px);       /* the lower edge reads heavier */
     text-decoration: none;
     box-shadow:
-      0 0 0 1px rgba(26, 24, 21, .10),
-      0 2px 2px rgba(26, 24, 21, .05),
-      0 34px 54px -34px rgba(26, 24, 21, .55);
+      inset 0 2px 0 rgba(255, 255, 255, .95),      /* top bevel */
+      inset 2px 0 0 rgba(255, 255, 255, .55),      /* left bevel */
+      inset -2px 0 0 rgba(26, 24, 21, .07),        /* right edge turns away */
+      inset 0 -3px 0 rgba(26, 24, 21, .10),        /* grounded lower edge */
+      0 0 0 1px rgba(26, 24, 21, .13),
+      0 2px 3px -1px rgba(26, 24, 21, .10),        /* ambient around the frame */
+      0 26px 36px -26px rgba(26, 24, 21, .5),      /* body shadow */
+      16px 44px 72px -42px rgba(26, 24, 21, .65);  /* thrown down and right */
     transform-origin: 50% 50%;
     z-index: 2;
     will-change: transform;
@@ -296,11 +318,35 @@ const projects: Project[] = [
   .lp-screen {
     display: block; position: relative;
     aspect-ratio: 2.16 / 1;
-    border-radius: clamp(18px, 4%, 42px);
+    border-radius: clamp(16px, 3.6%, 42px);
     overflow: hidden;
     background: var(--ink);
-    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .5);
+    /* dark separation line, then the recess into the enclosure */
+    box-shadow:
+      inset 0 0 0 1px rgba(10, 9, 8, .92),
+      inset 0 3px 7px rgba(0, 0, 0, .55),
+      inset 0 -1px 3px rgba(0, 0, 0, .4);
   }
+  /* the display is darker at its perimeter, and lightly reflective */
+  .lp-vignette {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(118% 96% at 50% 42%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, .38) 100%);
+  }
+  .lp-sheen {
+    position: absolute; inset: 0; pointer-events: none; z-index: 4;
+    background: linear-gradient(116deg,
+      rgba(255, 255, 255, .10) 0%, rgba(255, 255, 255, .035) 16%,
+      rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, 0) 100%);
+  }
+  /* two structural divisions: modular panel joints, deliberately off-grid */
+  .lp-mullion {
+    position: absolute; top: 0; bottom: 0; z-index: 3; pointer-events: none;
+    width: clamp(4px, 0.85%, 11px);
+    background: linear-gradient(90deg, #0B0A09 0%, #171512 55%, #050504 100%);
+    box-shadow: -1px 0 2px rgba(0, 0, 0, .5), 1px 0 2px rgba(0, 0, 0, .5);
+  }
+  .lp-mullion.a { left: 30.5%; }
+  .lp-mullion.b { left: 66.5%; }
   .lp-art {
     position: absolute; inset: 0;
     opacity: 0; transform: scale(1.02);
