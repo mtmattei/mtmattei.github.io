@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Braille Transition</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --bg: #0a0a0c;
+    --glow: #22d3ee;
+    --glow-dim: #22d3ee44;
+    --glow-bright: #67e8f9;
+    --text: #e4e4e7;
+    --muted: #52525b;
+    --amber: #f59e0b;
+    --amber-dim: #f59e0b33;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem;
+  }
+
+  /* ── Braille Canvas ── */
+  .braille-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #27272a;
+    border-radius: 2px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0a0a0c 0%, #0f0f14 100%);
+  }
+
+  .braille-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 211, 238, 0.015) 2px,
+      rgba(34, 211, 238, 0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .braille-grid {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(8px, 1.4vw, 14px);
+    line-height: 1.15;
+    letter-spacing: 0.05em;
+    white-space: pre;
+    color: var(--glow);
+    text-shadow: 0 0 8px var(--glow-dim), 0 0 2px var(--glow-dim);
+    z-index: 1;
+    transition: opacity 0.1s;
+    user-select: none;
+  }
+
+  .content-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+
+  .content-layer.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .content-layer h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.5rem, 4vw, 3.5rem);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .content-layer p {
+    font-size: clamp(0.6rem, 1vw, 0.8rem);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+  }
+
+  .page-a h2 { color: var(--glow-bright); }
+  .page-b h2 { color: var(--amber); }
+  .page-b .braille-grid {
+    color: var(--amber);
+    text-shadow: 0 0 8px var(--amber-dim), 0 0 2px var(--amber-dim);
+  }
+
+  /* ── Controls ── */
+  .controls {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid #27272a;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+
+  .btn:hover {
+    border-color: var(--glow);
+    color: var(--glow);
+    box-shadow: 0 0 12px var(--glow-dim);
+  }
+
+  .btn.active {
+    border-color: var(--glow);
+    color: var(--glow);
+    background: rgba(34, 211, 238, 0.06);
+  }
+
+  .label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+
+  .title-bar {
+    font-size: 0.55rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.25rem;
+  }
+
+  .title-bar span:last-child {
+    color: var(--glow);
+    font-size: 0.5rem;
+  }
+
+  .mode-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .mode-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #1e1e22;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+
+  .mode-btn:hover { color: var(--text); border-color: #3f3f46; }
+  .mode-btn.active {
+    color: var(--glow);
+    border-color: var(--glow);
+    background: rgba(34, 211, 238, 0.04);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title-bar">
+    <span>Braille Transition Engine</span>
+    <span id="fps">--</span>
+  </div>
+
+  <div class="braille-stage" id="stage">
+    <div class="braille-grid" id="grid"></div>
+    <div class="content-layer page-a" id="pageA">
+      <p>Scene One</p>
+      <h2>Dissolve</h2>
+    </div>
+    <div class="content-layer page-b" id="pageB">
+      <p>Scene Two</p>
+      <h2>Emerge</h2>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="label">Transition</span>
+    <button class="btn" onclick="runTransition()">Trigger</button>
+    <span class="label" style="margin-left:0.5rem">Mode</span>
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="dissolve">Dissolve</button>
+      <button class="mode-btn" data-mode="wipe">Wipe</button>
+      <button class="mode-btn" data-mode="rain">Rain</button>
+      <button class="mode-btn" data-mode="spiral">Spiral</button>
+      <button class="mode-btn" data-mode="shatter">Shatter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Braille Unicode Block ──
+// U+2800 to U+28FF — each char is a 2×4 dot matrix (8 bits = 256 glyphs)
+// Dot positions: [0,3] [1,4] [2,5] [6,7] mapped to bits
+const BRAILLE_BASE = 0x2800;
+const BRAILLE_DOTS = [0x01,0x02,0x04,0x40,0x08,0x10,0x20,0x80]; // 8 dots
+const EMPTY = String.fromCharCode(BRAILLE_BASE);
+
+// Grid dimensions
+const COLS = 64;
+const ROWS = 24;
+
+let grid = document.getElementById('grid');
+let cells = new Float32Array(COLS * ROWS); // 0..1 fill progress
+let targets = new Float32Array(COLS * ROWS);
+let delays = new Float32Array(COLS * ROWS);
+let mode = 'dissolve';
+let transitioning = false;
+let forward = true; // true = page A→B, false = B→A
+let startTime = 0;
+const DURATION = 1800; // ms
+
+// ── Braille char from fill level (0..1) ──
+function brailleFromFill(fill) {
+  if (fill <= 0) return EMPTY;
+  const dotsOn = Math.round(fill * 8);
+  // Progressive dot activation order (top-to-bottom, left-to-right)
+  const order = [0, 1, 2, 6, 3, 4, 5, 7];
+  let code = 0;
+  for (let i = 0; i < dotsOn && i < 8; i++) {
+    code |= BRAILLE_DOTS[order[i]];
+  }
+  return String.fromCharCode(BRAILLE_BASE + code);
+}
+
+// ── Transition delay maps ──
+function computeDelays() {
+  const cx = COLS / 2, cy = ROWS / 2;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const idx = y * COLS + x;
+      switch (mode) {
+        case 'dissolve':
+          // Random dissolve with slight center bias
+          const distN = Math.hypot(x - cx, y - cy) / Math.hypot(cx, cy);
+          delays[idx] = Math.random() * 0.6 + distN * 0.4;
+          break;
+        case 'wipe':
+          // Left-to-right with slight wave
+          delays[idx] = (x / COLS) * 0.85 + Math.sin(y * 0.5) * 0.08;
+          break;
+        case 'rain':
+          // Columns fall at staggered times
+          delays[idx] = (y / ROWS) * 0.5 + Math.random() * 0.3 + Math.sin(x * 0.8) * 0.15;
+          break;
+        case 'spiral':
+          // Spiral from center
+          const angle = Math.atan2(y - cy, x - cx);
+          const dist = Math.hypot(x - cx, y - cy) / Math.hypot(cx, cy);
+          delays[idx] = (angle / Math.PI + 1) * 0.3 + dist * 0.4;
+          break;
+        case 'shatter':
+          // Blocky shatter — grouped into random tiles
+          const bx = Math.floor(x / 6);
+          const by = Math.floor(y / 4);
+          const seed = Math.sin(bx * 127.1 + by * 311.7) * 43758.5453;
+          delays[idx] = (seed - Math.floor(seed)) * 0.8 + Math.random() * 0.15;
+          break;
+      }
+    }
+  }
+  // Normalize to 0..1
+  let minD = Infinity, maxD = -Infinity;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i] < minD) minD = delays[i];
+    if (delays[i] > maxD) maxD = delays[i];
+  }
+  const range = maxD - minD || 1;
+  for (let i = 0; i < delays.length; i++) {
+    delays[i] = (delays[i] - minD) / range;
+  }
+}
+
+// ── Easing ──
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+// ── Render ──
+function render() {
+  let str = '';
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      str += brailleFromFill(cells[y * COLS + x]);
+    }
+    if (y < ROWS - 1) str += '\n';
+  }
+  grid.textContent = str;
+}
+
+// ── Idle shimmer ──
+let idlePhase = 0;
+function idleTick(time) {
+  if (transitioning) return;
+  idlePhase += 0.008;
+  const cx = COLS / 2, cy = ROWS / 2;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const dist = Math.hypot(x - cx, y - cy);
+      const wave = Math.sin(dist * 0.25 - idlePhase * 2) * 0.5 + 0.5;
+      const wave2 = Math.sin(x * 0.12 + y * 0.08 + idlePhase * 1.3) * 0.5 + 0.5;
+      const base = forward ? 0 : 1;
+      const shimmer = base === 0
+        ? wave * wave2 * 0.25
+        : 1.0 - wave * wave2 * 0.25;
+      cells[y * COLS + x] = shimmer;
+    }
+  }
+  render();
+}
+
+// ── Transition animation ──
+function transitionTick(time) {
+  if (!transitioning) return;
+  const elapsed = time - startTime;
+  const rawProgress = Math.min(elapsed / DURATION, 1);
+
+  for (let i = 0; i < cells.length; i++) {
+    // Each cell has a delay window
+    const cellStart = delays[i] * 0.6; // stagger window
+    const cellEnd = cellStart + 0.4;
+    let localT = (rawProgress - cellStart) / (cellEnd - cellStart);
+    localT = Math.max(0, Math.min(1, localT));
+    localT = easeInOutCubic(localT);
+
+    if (forward) {
+      cells[i] = localT; // 0 → 1
+    } else {
+      cells[i] = 1 - localT; // 1 → 0
+    }
+  }
+
+  render();
+
+  // Page content crossfade
+  const contentT = easeInOutCubic(Math.max(0, Math.min(1, (rawProgress - 0.3) / 0.4)));
+  const pageA = document.getElementById('pageA');
+  const pageB = document.getElementById('pageB');
+  if (forward) {
+    pageA.style.opacity = 1 - contentT;
+    pageA.classList.toggle('visible', contentT < 0.95);
+    pageB.style.opacity = contentT;
+    pageB.classList.toggle('visible', contentT > 0.05);
+  } else {
+    pageB.style.opacity = 1 - contentT;
+    pageB.classList.toggle('visible', contentT < 0.95);
+    pageA.style.opacity = contentT;
+    pageA.classList.toggle('visible', contentT > 0.05);
+  }
+
+  // Color crossfade on the grid
+  if (forward) {
+    const r = Math.round(34 + (245 - 34) * contentT);
+    const g = Math.round(211 + (158 - 211) * contentT);
+    const b = Math.round(238 + (11 - 238) * contentT);
+    grid.style.color = `rgb(${r},${g},${b})`;
+    grid.style.textShadow = `0 0 8px rgba(${r},${g},${b},0.25), 0 0 2px rgba(${r},${g},${b},0.25)`;
+  } else {
+    const r = Math.round(245 + (34 - 245) * contentT);
+    const g = Math.round(158 + (211 - 158) * contentT);
+    const b = Math.round(11 + (238 - 11) * contentT);
+    grid.style.color = `rgb(${r},${g},${b})`;
+    grid.style.textShadow = `0 0 8px rgba(${r},${g},${b},0.25), 0 0 2px rgba(${r},${g},${b},0.25)`;
+  }
+
+  if (rawProgress >= 1) {
+    transitioning = false;
+    forward = !forward;
+  }
+}
+
+// ── Main loop ──
+let lastFpsTime = 0, frameCount = 0;
+function loop(time) {
+  requestAnimationFrame(loop);
+
+  // FPS counter
+  frameCount++;
+  if (time - lastFpsTime >= 1000) {
+    document.getElementById('fps').textContent = frameCount + ' fps';
+    frameCount = 0;
+    lastFpsTime = time;
+  }
+
+  if (transitioning) {
+    transitionTick(time);
+  } else {
+    idleTick(time);
+  }
+}
+
+// ── Trigger ──
+function runTransition() {
+  if (transitioning) return;
+  computeDelays();
+  transitioning = true;
+  startTime = performance.now();
+
+  // Set initial content state
+  const pageA = document.getElementById('pageA');
+  const pageB = document.getElementById('pageB');
+  if (forward) {
+    pageA.classList.add('visible');
+    pageA.style.opacity = 1;
+    pageB.style.opacity = 0;
+  } else {
+    pageB.classList.add('visible');
+    pageB.style.opacity = 1;
+    pageA.style.opacity = 0;
+  }
+}
+
+// ── Mode buttons ──
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.mode;
+  });
+});
+
+// ── Init ──
+cells.fill(0);
+document.getElementById('pageA').classList.add('visible');
+document.getElementById('pageA').style.opacity = 1;
+computeDelays();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>

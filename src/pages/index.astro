@@ -26,7 +26,7 @@ type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: strin
    note = a prose panel; app = the running interface; parts = a card grid;
    stack = the exploded shader deck with its legend (from /poolside/) */
 type Extra = {
-  kind: 'note' | 'app' | 'parts' | 'stack' | 'exploded' | 'code' | 'study' | 'list';
+  kind: 'note' | 'app' | 'parts' | 'stack' | 'exploded' | 'code' | 'study' | 'list' | 'frame';
   label: string;
   title?: string;
   body?: string;
@@ -41,6 +41,8 @@ type Extra = {
   capHtml?: string;
   /* list panels (skills): the install command */
   cmd?: string;
+  /* frame panels (labs): the embedded prototype's URL */
+  src?: string;
 };
 type Proj = {
   slug: string;
@@ -65,6 +67,47 @@ type Proj = {
   lede?: string;
   facts?: string[];
 };
+
+/* deterministic still frames for the lab posters, using each lab's own
+   formulas (braille fill glyphs; the glyph grid's symbol row) */
+const B_BASE = 0x2800;
+const B_DOTS = [0x01, 0x02, 0x04, 0x40, 0x08, 0x10, 0x20, 0x80];
+const B_ORDER = [0, 1, 2, 6, 3, 4, 5, 7];
+function bChar(fill: number): string {
+  if (fill <= 0) return String.fromCharCode(B_BASE);
+  const on = Math.round(fill * 8);
+  let code = 0;
+  for (let i = 0; i < on && i < 8; i++) code |= B_DOTS[B_ORDER[i]];
+  return String.fromCharCode(B_BASE + code);
+}
+function brailleFrame(cols: number, rows: number, phase: number, amp: number): string {
+  const cx = cols / 2, cy = rows / 2;
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const dist = Math.hypot(x - cx, y - cy);
+      const wave = Math.sin(dist * 0.25 - phase * 2) * 0.5 + 0.5;
+      const wave2 = Math.sin(x * 0.12 + y * 0.08 + phase * 1.3) * 0.5 + 0.5;
+      out += bChar(wave * wave2 * amp);
+    }
+    if (y < rows - 1) out += '\n';
+  }
+  return out;
+}
+const POSTER_BRAILLE = brailleFrame(38, 11, 2.0, 0.9);
+const GG_SYMBOLS = ['<', '/', '>', '<', '/', '>', '{', '}', ';', '='];
+function glyphFrame(cols: number, rows: number): string {
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const seed = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+      out += GG_SYMBOLS[Math.floor((seed - Math.floor(seed)) * GG_SYMBOLS.length)] + ' ';
+    }
+    if (y < rows - 1) out += '\n';
+  }
+  return out;
+}
+const POSTER_GLYPH = glyphFrame(19, 8);
 
 /* the three skill sheets, one world panel each, from the SKILLS data */
 const SKILL_EXTRAS: Extra[] = SKILLS.map((s) => ({
@@ -252,6 +295,72 @@ const PROJECTS: Proj[] = [
       { v: 'V1.0', title: 'Public', cap: 'Open sourced. The decisions behind the work, auditable by anyone who cares to check.', rows: ['open source', 'github'] },
     ],
   },
+  {
+    /* lab: the braille transition engine, the prototype itself embedded */
+    slug: 'braille-transition', name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800',
+    href: '/braille-transition/index.html', linkLabel: 'OPEN FULL SCREEN',
+    deep: '#101018', accent: '#22D3EE', ink: '#E4E4E7', base: '#0A0A0C',
+    meta: '5 MODES · 256 GLYPHS',
+    lede: 'A page-transition engine drawn entirely in the Braille Unicode block: U+2800–U+28FF, each glyph a 2×4 dot matrix — eight bits, 256 states. Five choreographies stagger per-cell delays while the content crossfades through the dot field.',
+    facts: [
+      'U+2800–U+28FF · 8 dots · 256 glyphs',
+      '64 × 24 cell grid · one textContent per frame',
+      'dissolve · wipe · rain · spiral · shatter',
+      'JetBrains Mono · Instrument Serif',
+    ],
+    iters: [],
+    pre: [
+      {
+        kind: 'frame', label: 'ENGINE', title: 'The engine, running',
+        body: 'Pick a mode and trigger the transition: each cell fills dot by dot through its own delay window, eased cubic, while the scene crossfades and the field shifts cyan to amber.',
+        src: '/braille-transition/index.html',
+      },
+    ],
+    post: [
+      {
+        kind: 'parts', label: 'NOTES', title: 'How it works',
+        items: [
+          { no: '01', title: 'Eight bits per glyph', body: 'U+2800 offset by an 8-bit dot mask: eight dots, 256 characters. A 0..1 fill level rounds to dots-on through a fixed activation order, top to bottom.', read: 'brailleFromFill(fill)' },
+          { no: '02', title: 'Delay maps', body: 'Each mode is a per-cell delay field: random with center bias, a sine-waved wipe, staggered rain, angle-plus-distance spiral, hashed tiles for shatter. Normalized 0..1, eased cubic.', read: 'computeDelays() · easeInOutCubic' },
+          { no: '03', title: 'One string per frame', body: 'The whole grid renders as a single textContent write per frame: 64 × 24 glyphs joined with newlines. The FPS counter in the corner keeps it honest.', read: 'render() · textContent' },
+          { no: '04', title: 'Idle shimmer', body: 'Between transitions two interference waves ripple the field at low amplitude, so the surface never reads as static.', read: 'idleTick() · sin × sin' },
+        ],
+      },
+    ],
+  },
+  {
+    /* lab: the magnetic glyph grid, the prototype itself embedded */
+    slug: 'glyph-grid', name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD',
+    href: '/glyph-grid/index.html', linkLabel: 'OPEN FULL SCREEN',
+    deep: '#181216', accent: '#FF6B57', ink: '#C9C9CF', base: '#101013',
+    meta: 'FIELD 170 · ORBIT 42',
+    lede: 'Glyphs inside the field pull off the grid, gather into a slow orbit, and realign their characters to the field’s direction. Click for a shockwave. Everything springs home when you leave.',
+    facts: [
+      '< / > { } ; = · Martian Mono · 26px grid',
+      'field radius 170 · orbit ring 42',
+      'swirl 0.55 · damp 0.86 · kick 0.35',
+      'shockwave impulse 9.5',
+    ],
+    iters: [],
+    pre: [
+      {
+        kind: 'frame', label: 'ENGINE', title: 'The field, live',
+        body: 'Move the pointer through the grid: nearby glyphs wake in coral, orbit, and read the field — sides point outward, poles become braces. Click anywhere for a shockwave.',
+        src: '/glyph-grid/index.html',
+      },
+    ],
+    post: [
+      {
+        kind: 'parts', label: 'NOTES', title: 'How it works',
+        items: [
+          { no: '01', title: 'Field at the home position', body: 'Field strength samples at each glyph’s grid home, not its live position — stable, with no feedback loops. Inside the radius a ring-pull gathers glyphs toward a 42px orbit.', read: 'FIELD_R 170 · ORBIT_R 42' },
+          { no: '02', title: 'Realign to the field', body: 'Waking glyphs rotate toward the tangent and swap characters to read the field: sides read outward, poles read as braces.', read: 'fieldChar(angle)' },
+          { no: '03', title: 'The cheap path', body: 'A glyph at rest snaps to its home, skips physics, and draws with a single fillText — most of the grid, most of the time.', read: 'atRest · early continue' },
+          { no: '04', title: 'Springs everywhere', body: 'Velocity damping 0.86, spring home 0.045, pointer velocity flings at 0.35, and clicks push a 9.5 impulse through the field.', read: 'DAMP · K_HOME · KICK · SHOCK' },
+        ],
+      },
+    ],
+  },
 ];
 
 /* client copy of the data — palette, copy, and route per project */
@@ -259,8 +368,10 @@ const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, 
   slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
-/* landing card positions, from the mockup measurements */
-const CARD_X = [304, 492, 680, 868, 1056];
+/* landing card positions: seven slots between the strip labels */
+const CARD_X = [270, 408, 546, 684, 822, 960, 1098];
+const CARD_W = 128;
+const CARD_H = 69;
 ---
 <Bare
   title="Index"
@@ -342,6 +453,10 @@ const CARD_X = [304, 492, 680, 868, 1056];
                   </span>
                 </span>
               </span>
+            ) : p.slug === 'braille-transition' ? (
+              <span class="bb-braille"><pre class="braille-live" data-cols="56" data-rows="20" aria-hidden="true"></pre></span>
+            ) : p.slug === 'glyph-grid' ? (
+              <span class="bb-glyph"><pre class="glyph-still big" aria-hidden="true">{glyphFrame(34, 15)}</pre></span>
             ) : (
               <Plate slug={p.slug} />
             )}
@@ -376,7 +491,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
       <a
         class:list={['pcard', { selected: i === 0 }]}
         href={`#/p/${p.slug}`} data-slug={p.slug}
-        style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
+        style={`left:${CARD_X[i]}px; top:772px; width:${CARD_W}px; height:${CARD_H}px;`}
         aria-label={p.name}
       >{p.slug === 'poolside' ? (
         /* the app's own IsoBasin (construction from /poolside/), shader on top */
@@ -388,6 +503,10 @@ const CARD_X = [304, 492, 680, 868, 1056];
             <span class="b-surf"><Plate slug="poolside" /><canvas data-fig="water" aria-hidden="true"></canvas></span>
           </span>
         </span>
+      ) : p.slug === 'braille-transition' ? (
+        <span class="card-braille"><pre class="braille-live" data-cols="26" data-rows="9" aria-hidden="true"></pre></span>
+      ) : p.slug === 'glyph-grid' ? (
+        <span class="card-glyph"><pre class="glyph-still" aria-hidden="true">{POSTER_GLYPH}</pre></span>
       ) : (
         <Plate slug={p.slug} />
       )}</a>
@@ -453,6 +572,14 @@ const CARD_X = [304, 492, 680, 868, 1056];
 {PROJECTS.map((p) => (
   <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
+
+<!-- lab posters: still frames in each lab's own medium -->
+<template id="plate-braille-transition">
+  <span class="braille-poster"><pre>{POSTER_BRAILLE}</pre></span>
+</template>
+<template id="plate-glyph-grid">
+  <span class="glyph-poster"><pre>{POSTER_GLYPH}</pre></span>
+</template>
 
 <!-- the key SkSL passages, highlighted server-side as on /poolside/ -->
 <template id="psrc">
@@ -808,8 +935,8 @@ a.viewall:hover { opacity: .65; }
 .basin-mini {
   position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
   /* the projected diamond sits low in its box; lift and shrink to clear
-     the card's edges (95px tall) */
-  transform: translateY(-25px) scale(.5) rotateX(55deg) rotateZ(45deg);
+     the card's edges (69px tall) */
+  transform: translateY(-38px) scale(.36) rotateX(55deg) rotateZ(45deg);
 }
 .b-wall {
   position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
@@ -832,6 +959,30 @@ a.viewall:hover { opacity: .65; }
     0 2px 3px rgba(95,85,72,.16),
     0 5px 9px -4px rgba(95,85,72,.42);
 }
+
+/* ---- lab art: each lab shown in its own medium ---- */
+.card-braille, .bb-braille, .braille-poster {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #0A0A0C 0%, #0F0F14 100%); overflow: hidden;
+}
+.card-braille pre, .bb-braille pre, .braille-poster pre {
+  margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
+  line-height: 1.15; letter-spacing: .05em;
+  color: #22D3EE; text-shadow: 0 0 8px rgba(34,211,238,.27), 0 0 2px rgba(34,211,238,.27);
+}
+.card-braille pre { font-size: 4.6px; }
+.bb-braille pre { font-size: 16px; }
+.braille-poster pre { font-size: 6.5px; }
+.card-glyph, .bb-glyph, .glyph-poster {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: #101013; overflow: hidden;
+}
+.card-glyph pre, .bb-glyph pre, .glyph-poster pre {
+  margin: 0; white-space: pre; font-family: var(--mono), monospace; color: #45454D;
+}
+.card-glyph pre { font-size: 5.5px; line-height: 1.6; letter-spacing: .2em; }
+.bb-glyph pre { font-size: 19px; line-height: 1.9; letter-spacing: .5em; color: #3A3A42; }
+.glyph-poster pre { font-size: 9px; line-height: 1.7; letter-spacing: .18em; }
 
 /* ---- signature mark ---- */
 .sig-mark { position: absolute; left: 753px; top: 938px; color: var(--ink); opacity: .8; }
@@ -1078,6 +1229,15 @@ a.viewall:hover { opacity: .65; }
 .dlist-row b { display: block; font-size: 13.5px; font-weight: 600; }
 .dlist-row p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.45; opacity: .7; }
 
+/* the labs, embedded live */
+.dembed { width: 1280px; padding: 60px 0 0 60px; }
+.dembed .dh { font-size: 56px; }
+.dembed .dcap { max-width: 760px; }
+.dembed-frame {
+  display: block; margin-top: 20px; width: 1160px; height: 640px;
+  border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0A0A0C;
+}
+
 .dparts { width: 1140px; padding: 140px 0 0 60px; }
 .dparts .dh { font-size: 56px; }
 .dparts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 1000px; margin-top: 28px; }
@@ -1275,23 +1435,56 @@ document.querySelectorAll('.pcard canvas[data-fig]').forEach(function (cv) {
   cv.width = 328; cv.height = 328;
   cardFigs.push(draw);
 });
+// the braille lab's idle shimmer, running on its card and billboard art
+// (formula and constants from /braille-transition/)
+var BR_BASE = 0x2800;
+var BR_DOTS = [0x01, 0x02, 0x04, 0x40, 0x08, 0x10, 0x20, 0x80];
+var BR_ORDER = [0, 1, 2, 6, 3, 4, 5, 7];
+function brChar(fill) {
+  if (fill <= 0) return String.fromCharCode(BR_BASE);
+  var on = Math.round(fill * 8), code = 0;
+  for (var i = 0; i < on && i < 8; i++) code |= BR_DOTS[BR_ORDER[i]];
+  return String.fromCharCode(BR_BASE + code);
+}
+var brailleEls = Array.prototype.slice.call(document.querySelectorAll('.braille-live'));
+var brPhase = 0;
+function brailleTick() {
+  brPhase += 0.008;
+  brailleEls.forEach(function (elp) {
+    var cols = +elp.dataset.cols, rows = +elp.dataset.rows;
+    var cx = cols / 2, cy = rows / 2, out = '';
+    var amp = cols < 40 ? 0.9 : 0.45;   // the card reads denser than the billboard
+    for (var y = 0; y < rows; y++) {
+      for (var x = 0; x < cols; x++) {
+        var dist = Math.hypot(x - cx, y - cy);
+        var wave = Math.sin(dist * 0.25 - brPhase * 2) * 0.5 + 0.5;
+        var wave2 = Math.sin(x * 0.12 + y * 0.08 + brPhase * 1.3) * 0.5 + 0.5;
+        out += brChar(wave * wave2 * amp);
+      }
+      if (y < rows - 1) out += '\n';
+    }
+    elp.textContent = out;
+  });
+}
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0);
+  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0 || brailleEls.length > 0);
 }
 function bbTick(now) {
   bbRaf = null;
   if (!bbActive()) return;                            // parks; bbWake() restarts it
   if (bbOn()) bbDraw(now / 1000);
   cardFigs.forEach(function (d) { d(now / 1000); });
+  brailleTick();
   bbRaf = requestAnimationFrame(bbTick);
 }
 function bbWake() {
-  if (!bbDraw && !cardFigs.length) return;
+  if (!bbDraw && !cardFigs.length && !brailleEls.length) return;
   if (reduceMotion) {                                 // a still frame, no loop
     if (bbOn()) bbDraw(3);
     cardFigs.forEach(function (d) { d(3); });
+    brailleTick();
     return;
   }
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);
@@ -1561,6 +1754,15 @@ function extraHtml(p, x) {
       '<div class="dlist-grid">' + (x.items || []).map(function (it) {
         return '<div class="dlist-row"><span class="dlist-tag">' + esc(it.no) + '</span><span><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p></span></div>';
       }).join('') + '</div></div>';
+  }
+  if (x.kind === 'frame') {
+    // the prototype itself, embedded live
+    return '<div class="dpanel dembed">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<p class="dcap">' + esc(x.body || '') + '</p>' +
+      '<iframe class="dembed-frame" src="' + esc(x.src || '') + '" title="' + esc(p.name) + ' — live prototype" loading="lazy"></iframe>' +
+      '</div>';
   }
   if (x.kind === 'exploded') {
     // the exhibit's exploded view: the four features out of the shell,

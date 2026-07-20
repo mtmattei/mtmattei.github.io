@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyph Grid — magnetic field</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap');
+
+  :root {
+    --bg: #101013;
+    --ink-dim: #2b2b31;
+    --ink-mid: #45454d;
+    --coral: #ff6b57;
+    --text: #c9c9cf;
+    --text-bright: #ececf1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); overflow: hidden; }
+
+  body {
+    font-family: 'Martian Mono', ui-monospace, monospace;
+    color: var(--text);
+  }
+
+  #grid { position: fixed; inset: 0; z-index: 0; }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 clamp(24px, 8vw, 120px);
+    max-width: 860px;
+    pointer-events: none;
+  }
+  .content button { pointer-events: auto; }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--coral);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(34px, 5.2vw, 58px);
+    line-height: 1.12;
+    color: var(--text-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 22px;
+    text-wrap: balance;
+  }
+  h1 em { font-style: italic; color: var(--coral); }
+
+  .sub {
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--ink-mid);
+    max-width: 46ch;
+    margin-bottom: 32px;
+  }
+
+  .cta {
+    display: inline-block;
+    width: fit-content;
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-bright);
+    background: transparent;
+    border: 1px solid var(--ink-mid);
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: border-color 140ms, color 140ms;
+  }
+  .cta:hover { border-color: var(--coral); color: var(--coral); }
+  .cta:focus-visible { outline: 1px solid var(--coral); outline-offset: 3px; }
+
+  .foot {
+    position: fixed;
+    bottom: 20px; left: clamp(24px, 8vw, 120px);
+    z-index: 1;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--ink-dim);
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="grid" aria-hidden="true"></canvas>
+
+<div class="content">
+  <div class="eyebrow">Background test — magnetic mode</div>
+  <h1>The grid <em>bends</em> around the pointer.</h1>
+  <p class="sub">
+    Glyphs inside the field pull off the grid, gather into a slow orbit, and
+    realign their characters to the field's direction. Click for a shockwave.
+    Everything springs home when you leave.
+  </p>
+  <button class="cta">Placeholder action</button>
+</div>
+
+<div class="foot">GLYPH GRID / magnetic mode · &lt; / &gt; { } ; =</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('grid');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const BG = '#101013';
+  const DIM = [43, 43, 49];
+  const CORAL = [255, 107, 87];
+
+  const SYMBOLS = ['<','/','>','<','/','>','{','}',';','='];
+  const SPACING = 26;
+  const FONT_SIZE = 12;
+
+  // ---- field tuning ----
+  const FIELD_R   = 170;   // outer field radius
+  const ORBIT_R   = 42;    // glyphs gather toward this ring around the pointer
+  const K_FIELD   = 0.055; // pull toward the orbit ring
+  const K_SWIRL   = 0.55;  // tangential drift (slow orbit)
+  const K_HOME    = 0.045; // spring back to grid position
+  const DAMP      = 0.86;  // velocity damping
+  const KICK      = 0.35;  // how much pointer velocity flings glyphs
+  const SHOCK     = 9.5;   // click impulse
+
+  let W = 0, H = 0;
+  let cells = [];
+  const mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, vx: 0, vy: 0 };
+
+  function build() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const cols = Math.ceil(W / SPACING) + 1;
+    const rows = Math.ceil(H / SPACING) + 1;
+    cells = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const hx = c * SPACING + SPACING / 2;
+        const hy = r * SPACING + SPACING / 2;
+        const char = SYMBOLS[(Math.random() * SYMBOLS.length) | 0];
+        cells.push({
+          hx, hy,                 // home (grid) position
+          x: hx, y: hy,           // live position
+          vx: 0, vy: 0,
+          rot: 0,                 // live rotation
+          baseChar: char,         // what it returns to
+          char,                   // what it shows now
+          phase: Math.random() * Math.PI * 2,
+          wake: 0,
+          swapAt: performance.now() + 4000 + Math.random() * 20000,
+        });
+      }
+    }
+  }
+
+  // characters realign to the field: sides read outward, poles read as braces
+  function fieldChar(angle) {
+    const a = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    if (a < Math.PI * 0.25 || a >= Math.PI * 1.75) return '>';  // right
+    if (a < Math.PI * 0.75)  return '}';                        // below
+    if (a < Math.PI * 1.25)  return '<';                        // left
+    return '{';                                                 // above
+  }
+
+  const dimStr = `rgb(${DIM.join(',')})`;
+
+  function frame(now) {
+    // eased pointer + its velocity (velocity flings glyphs on fast moves)
+    const px = mouse.x, py = mouse.y;
+    mouse.x += (mouse.tx - mouse.x) * 0.2;
+    mouse.y += (mouse.ty - mouse.y) * 0.2;
+    mouse.vx = mouse.x - px;
+    mouse.vy = mouse.y - py;
+
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = `400 ${FONT_SIZE}px 'Martian Mono', ui-monospace, monospace`;
+
+    for (const cell of cells) {
+      if (now > cell.swapAt) {
+        cell.baseChar = SYMBOLS[(Math.random() * SYMBOLS.length) | 0];
+        if (cell.wake < 0.1) cell.char = cell.baseChar;
+        cell.swapAt = now + 6000 + Math.random() * 24000;
+      }
+
+      // field strength sampled at the home position (stable, no feedback loops)
+      const dhx = cell.hx - mouse.x;
+      const dhy = cell.hy - mouse.y;
+      const d = Math.hypot(dhx, dhy);
+      const inField = !reduceMotion && d < FIELD_R;
+
+      const atRest = !inField
+        && Math.abs(cell.x - cell.hx) < 0.06 && Math.abs(cell.y - cell.hy) < 0.06
+        && Math.abs(cell.vx) < 0.01 && Math.abs(cell.vy) < 0.01
+        && cell.wake < 0.02;
+
+      if (atRest) {
+        // cheap path: most of the grid, most of the time
+        cell.x = cell.hx; cell.y = cell.hy;
+        cell.rot = 0;
+        cell.char = cell.baseChar;
+        ctx.fillStyle = dimStr;
+        ctx.globalAlpha = 0.55 + (reduceMotion ? 0 : Math.sin(now / 1600 + cell.phase) * 0.05);
+        ctx.fillText(cell.char, cell.x, cell.y);
+        continue;
+      }
+
+      // ---- physics ----
+      let targetWake = 0;
+      if (inField) {
+        const t = 1 - d / FIELD_R;            // 0 at edge, 1 at pointer
+        targetWake = t;
+        const nd = d || 1;
+        const nx = dhx / nd, ny = dhy / nd;   // radial unit (pointer -> glyph)
+
+        // pull toward the orbit ring: outside pulls in, inside pushes out
+        const ringPull = (d - ORBIT_R) * K_FIELD * t;
+        cell.vx -= nx * ringPull;
+        cell.vy -= ny * ringPull;
+
+        // tangential drift: a slow orbit around the pointer
+        cell.vx += -ny * K_SWIRL * t * t;
+        cell.vy +=  nx * K_SWIRL * t * t;
+
+        // fast pointer movement flings nearby glyphs
+        cell.vx += mouse.vx * KICK * t * t;
+        cell.vy += mouse.vy * KICK * t * t;
+
+        // realign: rotate toward the tangent, character reads the field
+        const tangent = Math.atan2(nx, -ny);  // perpendicular to radial
+        const tilt = Math.atan2(Math.sin(tangent), Math.cos(tangent));
+        cell.rot += (Math.max(-0.7, Math.min(0.7, tilt)) * t - cell.rot) * 0.15;
+        if (t > 0.35) cell.char = fieldChar(Math.atan2(dhy, dhx));
+      } else {
+        cell.rot *= 0.85;
+        if (cell.wake < 0.1) cell.char = cell.baseChar;
+      }
+
+      // spring home + damping (always on once a cell is moving)
+      cell.vx += (cell.hx - cell.x) * K_HOME;
+      cell.vy += (cell.hy - cell.y) * K_HOME;
+      cell.vx *= DAMP;
+      cell.vy *= DAMP;
+      cell.x += cell.vx;
+      cell.y += cell.vy;
+
+      cell.wake += (targetWake - cell.wake) * (targetWake > cell.wake ? 0.25 : 0.05);
+
+      // ---- draw ----
+      const w = cell.wake;
+      const shimmer = reduceMotion ? 0 : Math.sin(now / 1600 + cell.phase) * 0.05;
+      const rr = Math.round(DIM[0] + (CORAL[0] - DIM[0]) * w);
+      const gg = Math.round(DIM[1] + (CORAL[1] - DIM[1]) * w);
+      const bb = Math.round(DIM[2] + (CORAL[2] - DIM[2]) * w);
+      ctx.fillStyle = w < 0.02 ? dimStr : `rgb(${rr},${gg},${bb})`;
+      ctx.globalAlpha = 0.55 + w * 0.45 + shimmer;
+
+      if (Math.abs(cell.rot) > 0.02 || w > 0.1) {
+        ctx.save();
+        ctx.translate(cell.x, cell.y);
+        ctx.rotate(cell.rot);
+        ctx.scale(1 + w * 0.2, 1 + w * 0.2);
+        ctx.fillText(cell.char, 0, 0);
+        ctx.restore();
+      } else {
+        ctx.fillText(cell.char, cell.x, cell.y);
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+
+  function shockwave(x, y) {
+    if (reduceMotion) return;
+    for (const cell of cells) {
+      const dx = cell.x - x, dy = cell.y - y;
+      const d = Math.hypot(dx, dy);
+      if (d < FIELD_R * 1.6 && d > 0.5) {
+        const f = (1 - d / (FIELD_R * 1.6)) * SHOCK;
+        cell.vx += (dx / d) * f;
+        cell.vy += (dy / d) * f;
+        cell.wake = Math.max(cell.wake, 1 - d / (FIELD_R * 1.6));
+      }
+    }
+  }
+
+  window.addEventListener('pointermove', e => { mouse.tx = e.clientX; mouse.ty = e.clientY; });
+  window.addEventListener('pointerleave', () => { mouse.tx = mouse.ty = -9999; });
+  window.addEventListener('pointerdown', e => shockwave(e.clientX, e.clientY));
+  window.addEventListener('resize', build);
+
+  const start = () => { build(); requestAnimationFrame(frame); };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+})();
+</script>
+</body>
+</html>
