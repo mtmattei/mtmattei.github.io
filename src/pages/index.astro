@@ -51,6 +51,12 @@ const PROJECTS: Proj[] = [
     deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
     question: 'How quiet can a chemistry report be and still be trusted?',
     pre: [
+      /* the finished product leads; the making-of follows */
+      {
+        kind: 'app', label: 'APP', title: 'The home screen, running',
+        body: 'The surface is an SKCanvasElement inside a folding basin control; chemistry binds to an MVUX IState of PoolSnapshot; the one-sentence insight comes from a DI-registered IWaterAnalyzer. Fraunces carries the readings, Instrument Sans the actions.',
+        rows: ['uno platform', 'net10.0', 'desktop + android', 'mvux'],
+      },
       {
         kind: 'note', label: 'ORIGIN', title: 'It started as a shader, not an app.',
         body: 'The first build was Refraction Pixels, an Uno Platform desktop sample written to test SkiaSharp 4.148’s runtime SkSL through SKCanvasElement. Watching the caustics run, the question changed from “can the canvas do this” to “what product deserves this water.” That answer is Poolside.',
@@ -64,11 +70,6 @@ const PROJECTS: Proj[] = [
       { v: 'V1.0', title: 'Water', cap: 'Depth tint, caustics scaled by clarity, specular from the noise gradient, and sparkle on the filament cores. The app runs exactly this.', rows: ['composite', 'own inks'], fig: 'water' },
     ],
     post: [
-      {
-        kind: 'app', label: 'APP', title: 'The home screen, running',
-        body: 'The surface is an SKCanvasElement inside a folding basin control; chemistry binds to an MVUX IState of PoolSnapshot; the one-sentence insight comes from a DI-registered IWaterAnalyzer. Fraunces carries the readings, Instrument Sans the actions.',
-        rows: ['uno platform', 'net10.0', 'desktop + android', 'mvux'],
-      },
       {
         kind: 'note', label: 'ONE PASS', title: 'Four stages, one pass.',
         body: 'In the app the stages are not four passes: they are one half4 main(float2 fragCoord) SkSL program, compiled once into an SKRuntimeEffect and drawn by a single SKCanvasElement. field, warp, and caustic are helper functions feeding the composite, so the whole stack resolves per pixel in a single pass. The builder is cached once, uniforms are snapshotted to plain fields, and the render loop rides CompositionTarget.Rendering.',
@@ -251,7 +252,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
         href={`#/p/${p.slug}`} data-slug={p.slug}
         style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
         aria-label={p.name}
-      ><Plate slug={p.slug === 'poolside' ? 'poolside-app' : p.slug} /></a>
+      ><Plate slug={p.slug === 'poolside' ? 'poolside-iso' : p.slug} /></a>
     ))}
 
     <span class="sig-mark"><Logo height={30} /></span>
@@ -444,8 +445,6 @@ a.viewall:hover { opacity: .65; }
   box-shadow: inset 0 0 0 1px rgba(10,9,8,.92);
   transition-property: transform; transition-duration: .2s; transition-timing-function: ease-out;
 }
-.tv:hover .screen { transform: scale(1.01); }
-.tv:active .screen { transform: scale(.995); }
 .tv .art {
   position: absolute; inset: 0;
   opacity: 0; transform: scale(1.02);
