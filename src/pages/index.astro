@@ -115,69 +115,86 @@ const projects: Project[] = [
       </div>
 
       <!-- the mount: posts on a wall shelf, lit from the upper left -->
-      <svg class="lp-rig" viewBox="0 0 1060 88" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+      <!-- The mount, drawn to the reference's measured profile: the underside
+           of the display falls straight into shadow (darkest ~50% of the wall
+           value, recovering over ~14% of the screen height), then the shelf. -->
+      <svg class="lp-rig" viewBox="0 0 1060 152" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
         <defs>
           <linearGradient id="postG" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#CDC3B3" />
-            <stop offset="0.22" stop-color="#FFFEFB" />
-            <stop offset="0.62" stop-color="#F1EBE2" />
-            <stop offset="1" stop-color="#C6BBA8" />
+            <stop offset="0" stop-color="#C7BCAB" />
+            <stop offset="0.28" stop-color="#FAF6F0" />
+            <stop offset="0.68" stop-color="#EBE4DA" />
+            <stop offset="1" stop-color="#BEB2A0" />
           </linearGradient>
           <linearGradient id="topG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#FFFFFD" />
-            <stop offset="0.55" stop-color="#F8F4EE" />
-            <stop offset="1" stop-color="#EDE6DC" />
+            <stop offset="0" stop-color="#FFFDFA" />
+            <stop offset="0.6" stop-color="#F6F1EA" />
+            <stop offset="1" stop-color="#E9E2D8" />
           </linearGradient>
           <linearGradient id="frontG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#F9F5EF" />
-            <stop offset="0.62" stop-color="#E4DCCF" />
-            <stop offset="1" stop-color="#C3B8A5" />
+            <stop offset="0" stop-color="#F2ECE4" />
+            <stop offset="0.55" stop-color="#DED5C8" />
+            <stop offset="1" stop-color="#BCB1A0" />
           </linearGradient>
-          <linearGradient id="castG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#1A1815" stop-opacity="0.45" />
+          <linearGradient id="ledgeG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#D5CEC6" />
+            <stop offset="1" stop-color="#C3BBB2" />
+          </linearGradient>
+          <!-- the underside shadow, heavier toward the right -->
+          <linearGradient id="underG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1A1815" stop-opacity="0.39" />
+            <stop offset="0.45" stop-color="#1A1815" stop-opacity="0.26" />
             <stop offset="1" stop-color="#1A1815" stop-opacity="0" />
           </linearGradient>
-          <filter id="blurS" x="-30%" y="-60%" width="160%" height="240%"><feGaussianBlur stdDeviation="2.4" /></filter>
+          <linearGradient id="underX" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0" />
+            <stop offset="0.07" stop-color="#FFFFFF" stop-opacity="0.5" />
+            <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.82" />
+            <stop offset="0.93" stop-color="#FFFFFF" stop-opacity="1" />
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+          </linearGradient>
+          <mask id="underM">
+            <rect x="0" y="-6" width="1060" height="104" fill="url(#underX)" />
+          </mask>
+          <linearGradient id="castG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1A1815" stop-opacity="0.4" />
+            <stop offset="1" stop-color="#1A1815" stop-opacity="0" />
+          </linearGradient>
+          <filter id="blurS" x="-30%" y="-60%" width="160%" height="240%"><feGaussianBlur stdDeviation="2" /></filter>
+          <filter id="blurM" x="-20%" y="-60%" width="140%" height="240%"><feGaussianBlur stdDeviation="6" /></filter>
           <filter id="blurL" x="-20%" y="-80%" width="140%" height="300%"><feGaussianBlur stdDeviation="7" /></filter>
         </defs>
 
-        <!-- ambient shadow the display body throws onto the wall -->
-        <rect x="70" y="-18" width="950" height="30" fill="#1A1815" opacity="0.17" filter="url(#blurL)" />
+        <!-- 1 · the underside, in shadow from the display's own edge -->
+        <rect x="26" y="-6" width="1008" height="96" fill="url(#underG)" mask="url(#underM)" filter="url(#blurM)" />
 
-        <!-- two slim posts, set inward from the edges, shadowed to the right -->
-        <g>
-          <rect x="308" y="-6" width="26" height="42" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
-          <rect x="768" y="-6" width="26" height="42" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
-          <rect x="300" y="-10" width="24" height="44" fill="url(#postG)" />
-          <rect x="760" y="-10" width="24" height="44" fill="url(#postG)" />
-          <ellipse cx="312" cy="34" rx="24" ry="3.5" fill="#1A1815" opacity="0.42" filter="url(#blurS)" />
-          <ellipse cx="772" cy="34" rx="24" ry="3.5" fill="#1A1815" opacity="0.42" filter="url(#blurS)" />
-        </g>
+        <!-- 2 · two slim posts at 22% and 74.5% of the screen -->
+        <rect x="250" y="-10" width="12" height="98" fill="url(#postG)" />
+        <rect x="775" y="-10" width="12" height="98" fill="url(#postG)" />
+        <rect x="262" y="-6" width="9" height="94" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
+        <rect x="787" y="-6" width="9" height="94" fill="#1A1815" opacity="0.3" filter="url(#blurS)" />
 
-        <!-- broad blurred shadow under the whole base -->
-        <rect x="30" y="62" width="1010" height="22" fill="url(#castG)" filter="url(#blurL)" />
+        <!-- 3 · a mid-tone ledge the posts land on -->
+        <rect x="176" y="88" width="708" height="6" fill="url(#ledgeG)" />
 
-        <!-- 1 · thin top ledge directly beneath the display -->
-        <rect x="150" y="28" width="760" height="6" fill="url(#topG)" />
-        <rect x="150" y="28" width="760" height="0.8" fill="#FFFFFF" opacity="0.85" />
-        <rect x="150" y="33.4" width="760" height="0.9" fill="#A99D88" opacity="0.45" />
+        <!-- 4 · the shelf: lit top face, hard break, front edge into shadow -->
+        <rect x="6" y="94" width="1048" height="10" fill="url(#topG)" />
+        <rect x="6" y="94" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
+        <rect x="6" y="103.4" width="1048" height="1.1" fill="#9C907A" opacity="0.6" />
+        <rect x="6" y="104.5" width="1048" height="13" fill="url(#frontG)" />
 
-        <!-- 2 · the long shelf beam -->
-        <rect x="6" y="36" width="1048" height="9" fill="url(#topG)" />
-        <rect x="6" y="36" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
-        <rect x="6" y="44.4" width="1048" height="1.1" fill="#A99D88" opacity="0.55" />
-        <rect x="6" y="45.5" width="1048" height="13" fill="url(#frontG)" />
+        <!-- 5 · narrow lower lip, inset -->
+        <rect x="28" y="117.5" width="1004" height="5" fill="url(#frontG)" />
+        <rect x="28" y="117.5" width="1004" height="0.8" fill="#FFFFFF" opacity="0.5" />
 
-        <!-- 3 · narrow lower lip, inset from the beam -->
-        <rect x="26" y="58.5" width="1008" height="5" fill="url(#frontG)" />
-        <rect x="26" y="58.5" width="1008" height="0.8" fill="#FFFFFF" opacity="0.55" />
-        <rect x="26" y="63" width="1008" height="0.9" fill="#1A1815" opacity="0.18" />
+        <!-- 6 · folded-metal brace at the centre, small supports either side -->
+        <path d="M498 122.5 H562 L554 134 H506 Z" fill="url(#frontG)" />
+        <path d="M498 122.5 H562 L560 125 H500 Z" fill="#FFFFFF" opacity="0.45" />
+        <rect x="228" y="122.5" width="30" height="5.5" fill="url(#frontG)" />
+        <rect x="802" y="122.5" width="30" height="5.5" fill="url(#frontG)" />
 
-        <!-- 4 · folded-metal brace at the centre, small supports either side -->
-        <path d="M498 63.5 H562 L554 76 H506 Z" fill="url(#frontG)" />
-        <path d="M498 63.5 H562 L560 66 H500 Z" fill="#FFFFFF" opacity="0.5" />
-        <rect x="212" y="63.5" width="34" height="6" fill="url(#frontG)" />
-        <rect x="814" y="63.5" width="34" height="6" fill="url(#frontG)" />
+        <!-- 7 · the shelf's own shadow on the wall -->
+        <rect x="34" y="122" width="1000" height="26" fill="url(#castG)" filter="url(#blurL)" />
       </svg>
 
       <p class="lp-scrollhint mono">Scroll<br />to explore<span class="lp-arrowdown" aria-hidden="true"></span></p>
@@ -297,35 +314,35 @@ const projects: Project[] = [
      recessed a few millimetres behind the front face. */
   .lp-billboard {
     display: block; position: relative;
-    background: linear-gradient(163deg, #FFFEFB 0%, #F7F2EB 44%, #EAE2D6 76%, #DCD2C3 100%);
-    border-radius: clamp(24px, 5%, 56px);
-    padding: clamp(9px, 1.7%, 24px);
-    padding-bottom: clamp(12px, 2.2%, 30px);       /* the lower edge reads heavier */
+    /* Sampled off the reference: the rim is ~0.55% of the screen width and
+       sits a shade DARKER than the wall (#EEE8E3) — #E4DED7 top and sides,
+       lifting to #EDE8E2 along the lit lower edge. The object reads as
+       separate from the wall through shadow, not through a bright bezel. */
+    background: linear-gradient(180deg, #E1DBD4 0%, #E6E0D9 42%, #EDE8E2 88%, #E4DED6 100%);
+    border-radius: clamp(16px, 3.8%, 44px);
+    padding: clamp(3px, 0.55%, 8px);
+    padding-bottom: clamp(4px, 0.8%, 11px);        /* the lower edge reads heavier */
     text-decoration: none;
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, .95),      /* top bevel */
-      inset 2px 0 0 rgba(255, 255, 255, .55),      /* left bevel */
-      inset -2px 0 0 rgba(26, 24, 21, .07),        /* right edge turns away */
-      inset 0 -3px 0 rgba(26, 24, 21, .10),        /* grounded lower edge */
-      0 0 0 1px rgba(26, 24, 21, .13),
-      0 2px 3px -1px rgba(26, 24, 21, .10),        /* ambient around the frame */
-      0 26px 36px -26px rgba(26, 24, 21, .5),      /* body shadow */
-      16px 44px 72px -42px rgba(26, 24, 21, .65);  /* thrown down and right */
+      inset 0 1px 0 rgba(255, 255, 255, .5),
+      inset 0 -1px 0 rgba(255, 255, 255, .35),
+      0 1px 2px rgba(26, 24, 21, .08),             /* ambient around the frame */
+      0 22px 30px -22px rgba(26, 24, 21, .55),     /* body shadow, tight */
+      22px 40px 60px -38px rgba(26, 24, 21, .7);   /* thrown down and to the right */
     transform-origin: 50% 50%;
     z-index: 2;
     will-change: transform;
   }
   .lp-screen {
     display: block; position: relative;
-    aspect-ratio: 2.16 / 1;
-    border-radius: clamp(16px, 3.6%, 42px);
+    aspect-ratio: 2.127 / 1;                       /* 938 × 441 on the reference */
+    border-radius: clamp(14px, 3.2%, 38px);
     overflow: hidden;
     background: var(--ink);
     /* dark separation line, then the recess into the enclosure */
     box-shadow:
       inset 0 0 0 1px rgba(10, 9, 8, .92),
-      inset 0 3px 7px rgba(0, 0, 0, .55),
-      inset 0 -1px 3px rgba(0, 0, 0, .4);
+      inset 0 2px 5px rgba(0, 0, 0, .5);
   }
   /* the display is darker at its perimeter, and lightly reflective */
   .lp-vignette {
@@ -341,12 +358,13 @@ const projects: Project[] = [
   /* two structural divisions: modular panel joints, deliberately off-grid */
   .lp-mullion {
     position: absolute; top: 0; bottom: 0; z-index: 3; pointer-events: none;
-    width: clamp(4px, 0.85%, 11px);
+    width: clamp(4px, 0.96%, 12px);                /* 9px of 938 */
     background: linear-gradient(90deg, #0B0A09 0%, #171512 55%, #050504 100%);
     box-shadow: -1px 0 2px rgba(0, 0, 0, .5), 1px 0 2px rgba(0, 0, 0, .5);
   }
-  .lp-mullion.a { left: 30.5%; }
-  .lp-mullion.b { left: 66.5%; }
+  /* measured off the reference: 11.6% and 75% — architectural, not a grid */
+  .lp-mullion.a { left: 11.6%; }
+  .lp-mullion.b { left: 75%; }
   .lp-art {
     position: absolute; inset: 0;
     opacity: 0; transform: scale(1.02);
