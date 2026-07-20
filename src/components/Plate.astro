@@ -1,0 +1,92 @@
+---
+/* Plate — the artwork for a project, drawn rather than photographed.
+   One 216 × 100 drawing per slug, used at billboard size and at thumb size. */
+interface Props { slug: string; }
+const { slug } = Astro.props;
+---
+<svg class="plate" viewBox="0 0 216 100" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+  {slug === 'poolside' && (
+    <g>
+      <defs>
+        <linearGradient id="pl-water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0E4C63" /><stop offset="0.55" stop-color="#12718C" /><stop offset="1" stop-color="#1FA0A8" />
+        </linearGradient>
+      </defs>
+      <rect width="216" height="100" fill="url(#pl-water)" />
+      {Array.from({ length: 13 }, (_, i) => (
+        <path
+          d={`M0 ${10 + i * 7} Q 36 ${4 + i * 7} 72 ${11 + i * 7} T 144 ${10 + i * 7} T 216 ${12 + i * 7}`}
+          fill="none" stroke="#EAF7F6" stroke-opacity={0.1 + (i % 4) * 0.07} stroke-width={i % 3 === 0 ? 1.2 : 0.6}
+        />
+      ))}
+      {Array.from({ length: 7 }, (_, i) => (
+        <ellipse cx={18 + i * 31} cy={30 + (i % 3) * 22} rx={14 - (i % 3) * 4} ry={4 - (i % 3)} fill="none" stroke="#F6FEFD" stroke-opacity="0.22" stroke-width="0.8" />
+      ))}
+    </g>
+  )}
+
+  {slug === 'source-figure' && (
+    <g>
+      <rect width="216" height="100" fill="#14161A" />
+      {Array.from({ length: 9 }, (_, r) =>
+        Array.from({ length: 32 }, (_, c) => {
+          const inMark = c > 8 && c < 24 && (Math.abs(c - 16) + r * 0.9) % 5 < 2.2;
+          return (
+            <text
+              x={8 + c * 6.4} y={16 + r * 9.5}
+              font-family="IBM Plex Mono, monospace" font-size="7"
+              fill={inMark ? '#F6F2EE' : '#3656D4'} fill-opacity={inMark ? 0.95 : 0.34}
+            >{'{}()[]=+-*/<>;.'.charAt((r * 7 + c * 3) % 15)}</text>
+          );
+        })
+      )}
+    </g>
+  )}
+
+  {slug === 'xaml-uno' && (
+    <g>
+      <rect width="216" height="100" fill="#1A1815" />
+      {Array.from({ length: 11 }, (_, i) => (
+        <line x1={0} y1={i * 10} x2={216} y2={i * 10} stroke="#F6F2EE" stroke-opacity="0.07" stroke-width="0.6" />
+      ))}
+      {Array.from({ length: 22 }, (_, i) => (
+        <line x1={i * 10} y1={0} x2={i * 10} y2={100} stroke="#F6F2EE" stroke-opacity="0.07" stroke-width="0.6" />
+      ))}
+      <path d="M10 88 C 58 88 66 14 206 12" fill="none" stroke="#3656D4" stroke-width="2.4" />
+      <path d="M10 88 C 58 88 66 14 206 12" fill="none" stroke="#F6F2EE" stroke-width="0.8" stroke-dasharray="3 4" />
+      <circle cx="10" cy="88" r="3" fill="#F6F2EE" /><circle cx="206" cy="12" r="3" fill="#F6F2EE" />
+      <text x="16" y="26" font-family="IBM Plex Mono, monospace" font-size="7" fill="#F6F2EE" fill-opacity="0.6">.22, 1, .36, 1</text>
+    </g>
+  )}
+
+  {slug === 'ledger' && (
+    <g>
+      <rect width="216" height="100" fill="#F0EAE3" />
+      {Array.from({ length: 10 }, (_, i) => (
+        <g>
+          <line x1={16} y1={12 + i * 9} x2={200} y2={12 + i * 9} stroke="#1A1815" stroke-opacity="0.16" stroke-width="0.7" />
+          <rect x={16} y={8.5 + i * 9} width={((i * 37) % 120) + 22} height="2.4" fill="#1A1815" fill-opacity={i % 3 === 0 ? 0.72 : 0.3} />
+          {i % 3 === 1 && <rect x={170} y={8.5 + i * 9} width="16" height="2.4" fill="#3656D4" />}
+        </g>
+      ))}
+      <line x1={148} y1={6} x2={148} y2={98} stroke="#1A1815" stroke-opacity="0.2" stroke-width="0.7" />
+    </g>
+  )}
+
+  {slug === 'program' && (
+    <g>
+      <rect width="216" height="100" fill="#14161A" />
+      {Array.from({ length: 10 }, (_, i) => (
+        <g>
+          <text x="8" y={13 + i * 9} font-family="IBM Plex Mono, monospace" font-size="6" fill="#F6F2EE" fill-opacity="0.28">{String(i + 1).padStart(2, '0')}</text>
+          <rect x={22 + (i % 3) * 8} y={8 + i * 9} width={((i * 53) % 96) + 30} height="2.6" fill="#F6F2EE" fill-opacity={i % 4 === 0 ? 0.55 : 0.22} />
+          {i % 4 === 2 && <rect x={22 + (i % 3) * 8 + (((i * 53) % 96) + 36)} y={8 + i * 9} width="26" height="2.6" fill="#3656D4" />}
+        </g>
+      ))}
+    </g>
+  )}
+</svg>
+
+<style>
+  .plate { display: block; width: 100%; height: 100%; }
+</style>

@@ -1,16 +1,19 @@
 ---
 import Shell from '../layouts/Shell.astro';
+import Plate from '../components/Plate.astro';
 
 const tokens: [string, string][] = [
   ['concept', 'source → figure'],
-  ['hero', 'billboard · empty plate'],
-  ['index.rows', '5'],
+  ['hero', 'billboard · 5 plates'],
+  ['scroll', 'morph → fullscreen'],
   ['accent.use', 'state · selection'],
 ];
 
 type Project = {
   no: string;
+  slug: string;
   title: string;
+  short: string;
   tags: string;
   href: string;
   blurb: string;
@@ -22,7 +25,9 @@ type Project = {
 const projects: Project[] = [
   {
     no: '01',
+    slug: 'poolside',
     title: 'Poolside — Water, read like weather',
+    short: 'Poolside',
     tags: 'Code / SkiaSharp',
     href: '/poolside/',
     blurb:
@@ -33,7 +38,9 @@ const projects: Project[] = [
   },
   {
     no: '02',
+    slug: 'source-figure',
     title: 'Source / Figure — The drawing method',
+    short: 'Source / Figure',
     tags: 'Design / System',
     href: '/source-figure/',
     blurb:
@@ -44,7 +51,9 @@ const projects: Project[] = [
   },
   {
     no: '03',
+    slug: 'xaml-uno',
     title: 'XAML / Uno — The feel system',
+    short: 'XAML / Uno',
     tags: 'Skills / Motion',
     href: '/xaml-uno/',
     blurb:
@@ -55,7 +64,9 @@ const projects: Project[] = [
   },
   {
     no: '04',
+    slug: 'ledger',
     title: 'Ledger — Design DNA, append-only',
+    short: 'Ledger',
     tags: 'Skills / OSS',
     href: '/ledger/',
     blurb:
@@ -66,7 +77,9 @@ const projects: Project[] = [
   },
   {
     no: '05',
+    slug: 'program',
     title: 'Program — The portfolio as it runs',
+    short: 'Program',
     tags: 'Return / Meta',
     href: '/program/',
     blurb:
@@ -80,14 +93,23 @@ const projects: Project[] = [
 <Shell title="Index" crumb="index" tokens={tokens} wide
   description="Matt Mattei's public notebook: ideas, experiments, sketches, software, and lessons at the intersection of design and development.">
 
-  <!-- ============ Hero: headline left, billboard right ============ -->
-  <section class="lp-hero">
+  <!-- ============ Hero: the billboard, one plate at a time ============ -->
+  <section class="lp-track" id="lpTrack">
+  <div class="lp-hero">
     <div class="lp-stage">
-      <!-- the billboard: an empty plate, mounted -->
-      <div class="lp-billboard" aria-hidden="true">
-        <div class="lp-screen"></div>
+      <!-- the placeholder holds the layout while the plate morphs -->
+      <div class="lp-hold" id="lpHold">
+        <a class="lp-billboard" id="lpBoard" href={projects[0].href} aria-label={`Open ${projects[0].short}`}>
+          <span class="lp-screen" transition:name="stage">
+            {projects.map((p, i) => (
+              <span class:list={['lp-art', { on: i === 0 }]} data-art={p.slug}><Plate slug={p.slug} /></span>
+            ))}
+          </span>
+          <span class="lp-open mono" aria-hidden="true">Open <i>↗</i></span>
+        </a>
       </div>
-      <!-- the mount: three posts on a wall shelf, lit from the upper left -->
+
+      <!-- the mount: posts on a wall shelf, lit from the upper left -->
       <svg class="lp-rig" viewBox="0 0 1060 78" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
         <defs>
           <linearGradient id="postG" x1="0" y1="0" x2="1" y2="0">
@@ -110,18 +132,16 @@ const projects: Project[] = [
             <stop offset="0" stop-color="#1A1815" stop-opacity="0.45" />
             <stop offset="1" stop-color="#1A1815" stop-opacity="0" />
           </linearGradient>
-          <filter id="blurS" x="-30%" y="-60%" width="160%" height="240%">
-            <feGaussianBlur stdDeviation="2.4" />
-          </filter>
-          <filter id="blurL" x="-20%" y="-80%" width="140%" height="300%">
-            <feGaussianBlur stdDeviation="7" />
-          </filter>
+          <filter id="blurS" x="-30%" y="-60%" width="160%" height="240%"><feGaussianBlur stdDeviation="2.4" /></filter>
+          <filter id="blurL" x="-20%" y="-80%" width="140%" height="300%"><feGaussianBlur stdDeviation="7" /></filter>
         </defs>
 
-        <!-- ambient occlusion: the billboard's underside on the wall -->
         <rect x="60" y="-16" width="940" height="26" fill="#1A1815" opacity="0.16" filter="url(#blurL)" />
 
-        <!-- posts: wall shadow, then the post, then its contact shadow -->
+        <!-- the cross rail the frame sits on -->
+        <rect x="170" y="2" width="720" height="7" fill="url(#topG)" />
+        <rect x="170" y="8.4" width="720" height="1" fill="#A99D88" opacity="0.5" />
+
         <g>
           <rect x="196" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
           <rect x="536" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
@@ -134,31 +154,59 @@ const projects: Project[] = [
           <ellipse cx="881" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
         </g>
 
-        <!-- the shelf's cast shadow on the wall below -->
         <rect x="24" y="56" width="1012" height="18" fill="url(#castG)" filter="url(#blurL)" />
 
-        <!-- shelf: lit top face, hard break, front edge falling into shadow -->
         <rect x="6" y="34" width="1048" height="9" fill="url(#topG)" />
         <rect x="6" y="42.4" width="1048" height="1.1" fill="#A99D88" opacity="0.55" />
         <rect x="6" y="43.5" width="1048" height="12.5" fill="url(#frontG)" rx="1" />
         <rect x="6" y="34" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
-        <rect x="6" y="55" width="1048" height="1" fill="#1A1815" opacity="0.14" />
+        <!-- centre bracket under the shelf -->
+        <rect x="506" y="56" width="48" height="8" fill="url(#frontG)" />
+        <rect x="506" y="56" width="48" height="0.9" fill="#FFFFFF" opacity="0.7" />
       </svg>
+
+      <p class="lp-scrollhint mono">Scroll<br />to explore<span class="lp-arrowdown" aria-hidden="true"></span></p>
     </div>
 
     <div class="lp-drive">
-      <span class="mono lp-drive-label">Drag or use<br />arrows</span>
+      <span class="mono lp-drive-label">Swipe<br />to change</span>
       <div class="lp-arrows">
-        <button class="lp-arrow" id="lpPrev" aria-label="Previous project">←</button>
-        <button class="lp-arrow" id="lpNext" aria-label="Next project">→</button>
+        <button class="lp-arrow" id="lpPrev" aria-label="Previous project">‹</button>
+        <span class="lp-arrowsep" aria-hidden="true"></span>
+        <button class="lp-arrow" id="lpNext" aria-label="Next project">›</button>
       </div>
     </div>
+  </div>
+  <!-- the scroll distance the morph runs over; a real box, since sticky
+       containment measures the parent's content height, not its padding -->
+  <div class="lp-travel" aria-hidden="true"></div>
   </section>
+
+  <!-- ============ Featured work: the plates as thumbs ============ -->
+  <div class="lp-strip">
+    <span class="lp-striplabel mono">Featured work</span>
+    <div class="lp-thumbs" role="tablist" aria-label="Featured work">
+      {projects.map((p, i) => (
+        <button
+          class:list={['lp-thumb', { on: i === 0 }]}
+          type="button" role="tab" data-thumb={p.slug}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          aria-label={p.short}
+        >
+          <Plate slug={p.slug} />
+          <span class="lp-thumbname mono">{p.short}</span>
+        </button>
+      ))}
+    </div>
+    <a class="lp-viewall mono" href="#lp-index">View all work <i aria-hidden="true">↗</i></a>
+  </div>
+
+  <p class="lp-quote">“Every figure on this site is drawn by the code that describes it.”</p>
 
   <!-- ============ Index: numbered rows, one open ============ -->
   <div class="lp-index" id="lp-index">
     {projects.map((p, i) => (
-      <article class:list={['lp-row', { open: i === 1 }]} data-row={p.no}>
+      <article class:list={['lp-row', { open: i === 1 }]} data-row={p.slug}>
         <button class="lp-rowhead" type="button" aria-expanded={i === 1 ? 'true' : 'false'}>
           <span class="lp-no">{p.no}</span>
           <span class="lp-title">{p.title}</span>
@@ -167,7 +215,7 @@ const projects: Project[] = [
         </button>
         <div class="lp-panel">
           <div class="lp-panel-in">
-            <div class="lp-thumb"></div>
+            <span class="lp-thumbart"><Plate slug={p.slug} /></span>
             <p class="lp-blurb">{p.blurb}</p>
             <dl class="lp-meta">
               <div>
@@ -183,7 +231,7 @@ const projects: Project[] = [
                 <dd>{p.year}</dd>
               </div>
             </dl>
-            <a class="lp-open mono" href={p.href}>Open <i aria-hidden="true">→</i></a>
+            <a class="lp-openlink mono" href={p.href}>Open <i aria-hidden="true">→</i></a>
           </div>
         </div>
       </article>
@@ -194,54 +242,151 @@ const projects: Project[] = [
 </Shell>
 
 <style>
-  /* ---- Hero ------------------------------------------------------ */
+  /* ---- Hero ------------------------------------------------------
+     The track adds the scroll distance the morph runs over; the hero
+     sticks while the plate grows, then releases and scrolls away. */
+  .lp-travel { height: 78vh; }
   .lp-hero {
+    position: sticky; top: var(--s4); z-index: 20;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 108px;
     gap: var(--s8);
     align-items: center;
-    padding: clamp(8px, 2vw, 28px) 0 clamp(32px, 5vw, 64px);
+    padding: clamp(8px, 2vw, 28px) 0 clamp(24px, 4vw, 48px);
   }
+  .lp-stage { position: relative; animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .1s; }
 
-  /* the billboard: bezel + empty plate, mounted on a shelf */
-  .lp-stage { animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .1s; }
-  /* screen 2.16:1; thin bezel, generous radius — as on the reference */
+  /* the plate: white frame, thin dark keyline, generous radius */
+  .lp-hold { position: relative; }
   .lp-billboard {
-    position: relative;
-    background: var(--ink);
+    display: block; position: relative;
+    background: linear-gradient(168deg, #FFFEFC 0%, #F4EFE8 62%, #E7DFD3 100%);
     border-radius: clamp(22px, 4.6%, 48px);
-    padding: clamp(4px, 0.55%, 7px);
+    padding: clamp(6px, 0.9%, 12px);
+    text-decoration: none;
     box-shadow:
-      0 1px 1px rgba(26, 24, 21, .05),
-      0 30px 50px -34px rgba(26, 24, 21, .6);
+      0 0 0 1px rgba(26, 24, 21, .10),
+      0 2px 2px rgba(26, 24, 21, .05),
+      0 34px 54px -34px rgba(26, 24, 21, .55);
+    transform-origin: 50% 50%;
+    z-index: 2;
+    will-change: transform;
   }
   .lp-screen {
+    display: block; position: relative;
     aspect-ratio: 2.16 / 1;
     border-radius: clamp(18px, 4%, 42px);
-    background: linear-gradient(152deg, var(--gray-2) 0%, var(--line) 55%, #D8CFC2 100%);
-    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .10);
+    overflow: hidden;
+    background: var(--ink);
+    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .5);
   }
+  .lp-art {
+    position: absolute; inset: 0;
+    opacity: 0; transform: scale(1.02);
+    transition: opacity .32s cubic-bezier(.22, 1, .36, 1), transform .32s cubic-bezier(.22, 1, .36, 1);
+  }
+  .lp-art.on { opacity: 1; transform: none; }
+  /* the open affordance appears once the plate has taken the screen */
+  .lp-open {
+    position: absolute; left: 50%; bottom: 11%; translate: -50% 0;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(246, 242, 238, .92); color: var(--ink);
+    text-transform: uppercase; letter-spacing: .12em; font-size: 11px;
+    opacity: 0; transition: opacity .2s ease;
+  }
+  .lp-open i { font-style: normal; }
+  .lp-hold.full .lp-open { opacity: 1; }
 
-  /* ---- Hardware: drawn as SVG so the edges and shadows survive scaling ---- */
-  .lp-rig { display: block; width: 106%; margin: -4px 0 0 -3%; height: auto; }
+  .lp-rig { display: block; width: 106%; margin: -4px 0 0 -3%; height: auto; position: relative; z-index: 1; }
+  /* --p is the morph progress, written by the scroll handler */
+  /* the entrance animation owns .lp-drive's own opacity (fill: both), so the
+     morph fade goes on its children instead */
+  .lp-rig, .lp-scrollhint, .lp-drive > * { opacity: clamp(0, calc(1 - var(--p, 0) * 2.2), 1); }
+
+  .lp-scrollhint {
+    margin: var(--s4) 0 0;
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.5;
+  }
+  .lp-arrowdown {
+    display: block; width: 1px; height: 26px; margin-top: 8px;
+    background: linear-gradient(var(--line-2), var(--muted));
+    position: relative;
+  }
+  .lp-arrowdown::after {
+    content: ""; position: absolute; left: -3px; bottom: 0;
+    border-left: 3.5px solid transparent; border-right: 3.5px solid transparent;
+    border-top: 5px solid var(--muted);
+  }
 
   .lp-drive {
     display: flex; flex-direction: column; gap: var(--s4);
     animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .18s;
   }
   .lp-drive-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.5; }
-  .lp-arrows { display: flex; gap: var(--s2); }
-  .lp-arrow {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: var(--bw) solid var(--line-2); background: var(--paper);
-    color: var(--ink); font-size: 15px; line-height: 1; cursor: pointer;
-    display: grid; place-items: center;
-    transition: border-color .15s, background .15s, scale .1s;
+  /* one pill, two halves — as on the reference */
+  .lp-arrows {
+    display: inline-flex; align-items: center; align-self: flex-start;
+    border: var(--bw) solid var(--line-2); border-radius: 999px;
+    background: var(--paper);
+    box-shadow: 0 10px 18px -14px rgba(26, 24, 21, .6);
   }
-  .lp-arrow:hover { border-color: var(--ink); background: var(--gray-1); }
+  .lp-arrowsep { width: 1px; height: 20px; background: var(--line); }
+  .lp-arrow {
+    width: 38px; height: 44px; border: 0; background: none; cursor: pointer;
+    color: var(--ink); font-size: 17px; line-height: 1;
+    display: grid; place-items: center;
+    border-radius: 999px;
+    transition: color .15s, background .15s, scale .1s;
+  }
+  .lp-arrow:hover { background: var(--gray-1); }
   .lp-arrow:active { scale: 0.96; }
 
   @keyframes lpRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ---- Featured strip -------------------------------------------- */
+  .lp-strip {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center; gap: var(--s4);
+    padding: clamp(18px, 3vw, 34px) 0 var(--s6);
+  }
+  .lp-striplabel, .lp-viewall {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
+  }
+  .lp-striplabel::after, .lp-viewall::before {
+    content: ""; width: clamp(20px, 4vw, 64px); height: 1px; background: var(--line-2);
+  }
+  .lp-viewall { color: var(--accent); text-decoration: none; }
+  .lp-viewall::before { background: var(--accent); opacity: .4; }
+  .lp-viewall i { font-style: normal; transition: transform .15s cubic-bezier(.22, 1, .36, 1); }
+  .lp-viewall:hover i { transform: translate(2px, -2px); }
+
+  .lp-thumbs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s3); }
+  .lp-thumb {
+    position: relative; padding: 0; border: 0; background: var(--ink); cursor: pointer;
+    aspect-ratio: 2.16 / 1; border-radius: 7px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(26, 24, 21, .12), 0 10px 18px -14px rgba(26, 24, 21, .7);
+    transition: box-shadow .15s, translate .15s cubic-bezier(.22, 1, .36, 1), scale .1s;
+  }
+  .lp-thumb:hover { translate: 0 -2px; }
+  .lp-thumb:active { scale: 0.98; }
+  .lp-thumb.on {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px var(--accent-soft), 0 12px 20px -14px rgba(26, 24, 21, .8);
+  }
+  .lp-thumbname {
+    position: absolute; left: 7px; bottom: 5px; z-index: 1;
+    font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--paper); opacity: 0; transition: opacity .15s;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+  }
+  .lp-thumb:hover .lp-thumbname, .lp-thumb.on .lp-thumbname { opacity: .9; }
+
+  .lp-quote {
+    margin: 0 0 clamp(24px, 4vw, 44px);
+    text-align: center; font-style: italic; font-size: 15px; color: var(--muted);
+    text-wrap: balance;
+  }
 
   /* ---- Index rows ------------------------------------------------ */
   .lp-index { border-top: var(--bw) solid var(--line-2); }
@@ -285,7 +430,6 @@ const projects: Project[] = [
   .lp-row.open .lp-view i { transform: rotate(-45deg); }
   .lp-row.open .lp-no { border-left-color: transparent; }
 
-  /* height reveal without animating layout on the children */
   .lp-panel {
     display: grid; grid-template-rows: 0fr;
     transition: grid-template-rows .28s cubic-bezier(.22, 1, .36, 1);
@@ -301,33 +445,35 @@ const projects: Project[] = [
     opacity: 0; transition: opacity .2s ease .04s;
   }
   .lp-row.open .lp-panel-in { opacity: 1; padding-bottom: 22px; }
-  .lp-thumb {
-    aspect-ratio: 16 / 10; border-radius: 3px;
-    background: var(--ink);
-    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .3);
+  .lp-thumbart {
+    display: block; aspect-ratio: 2.16 / 1; border-radius: 3px; overflow: hidden;
+    background: var(--ink); box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .3);
   }
   .lp-blurb { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); text-wrap: pretty; }
   .lp-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin: 0; }
   .lp-meta dt { margin-bottom: 6px; }
   .lp-meta dd { margin: 0 0 3px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-  .lp-open {
+  .lp-openlink {
     justify-self: end; text-transform: uppercase; letter-spacing: .1em; font-size: 11px;
     color: var(--accent); text-decoration: none; display: inline-flex; gap: 8px; align-items: center;
   }
-  .lp-open i { font-style: normal; transition: transform .15s cubic-bezier(.22, 1, .36, 1); }
-  .lp-open:hover i { transform: translateX(3px); }
+  .lp-openlink i { font-style: normal; transition: transform .15s cubic-bezier(.22, 1, .36, 1); }
+  .lp-openlink:hover i { transform: translateX(3px); }
 
   .lp-mark { margin: var(--s8) 0 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.5; }
 
   /* ---- Responsive ------------------------------------------------ */
   @media (max-width: 1080px) {
     .lp-panel-in { grid-template-columns: 200px minmax(0, 1fr); padding-left: 0; }
-    .lp-meta, .lp-open { grid-column: 1 / -1; }
-    .lp-open { justify-self: start; }
+    .lp-meta, .lp-openlink { grid-column: 1 / -1; }
+    .lp-openlink { justify-self: start; }
   }
   @media (max-width: 820px) {
     .lp-hero { grid-template-columns: 1fr; gap: var(--s6); }
     .lp-drive { flex-direction: row; align-items: center; justify-content: flex-end; }
+    .lp-scrollhint { display: none; }
+    .lp-strip { grid-template-columns: 1fr; }
+    .lp-thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .lp-rowhead { grid-template-columns: 62px minmax(0, 1fr); row-gap: 6px; }
     .lp-no { padding: 0 var(--s3); font-size: 20px; }
     .lp-tags, .lp-view { grid-column: 2; justify-content: flex-start; }
@@ -338,41 +484,114 @@ const projects: Project[] = [
   }
 </style>
 
-<script is:inline>
-  // One row open at a time; the arrows step through the index.
-  (function () {
-    const rows = Array.from(document.querySelectorAll('.lp-row'));
-    if (!rows.length) return;
-    let active = rows.findIndex((r) => r.classList.contains('open'));
+<script>
+  /* ============================================================
+     The billboard is the viewer. Thumbs and arrows change the plate;
+     scrolling morphs the plate to fullscreen; clicking it carries the
+     same element into the project page (view transition).
+     ============================================================ */
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function open(i) {
-      active = (i + rows.length) % rows.length;
-      rows.forEach((r, n) => {
-        const on = n === active;
-        r.classList.toggle('open', on);
-        r.querySelector('.lp-rowhead').setAttribute('aria-expanded', String(on));
+  function wire() {
+    const board = document.getElementById('lpBoard') as HTMLAnchorElement | null;
+    const hold = document.getElementById('lpHold');
+    const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('.lp-thumb'));
+    const arts = Array.from(document.querySelectorAll<HTMLElement>('.lp-art'));
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('.lp-row'));
+    const scroller = document.querySelector<HTMLElement>('.main');
+    if (!board || !hold || !thumbs.length || !scroller) return;
+    if (board.dataset.wired) return;      // ClientRouter may fire page-load after parse
+    board.dataset.wired = '1';
+
+    const hrefs = rows.map((r) => r.querySelector<HTMLAnchorElement>('.lp-openlink')!.href);
+    const names = thumbs.map((t) => t.getAttribute('aria-label') || '');
+    let active = 0;
+
+    /* ---- plate selection ---- */
+    function select(i: number) {
+      active = (i + thumbs.length) % thumbs.length;
+      thumbs.forEach((t, n) => {
+        t.classList.toggle('on', n === active);
+        t.setAttribute('aria-selected', String(n === active));
       });
+      arts.forEach((a, n) => a.classList.toggle('on', n === active));
+      board.href = hrefs[active];
+      board.setAttribute('aria-label', `Open ${names[active]}`);
     }
 
-    rows.forEach((r, i) => {
-      r.querySelector('.lp-rowhead').addEventListener('click', () => {
-        if (i === active) {
-          r.classList.remove('open');
-          r.querySelector('.lp-rowhead').setAttribute('aria-expanded', 'false');
-          active = -1;
-        } else open(i);
-      });
+    thumbs.forEach((t, i) => t.addEventListener('click', () => select(i)));
+    document.getElementById('lpPrev')!.addEventListener('click', () => select(active - 1));
+    document.getElementById('lpNext')!.addEventListener('click', () => select(active + 1));
+
+    /* horizontal drag on the plate swipes between projects */
+    let dragX: number | null = null;
+    board.addEventListener('pointerdown', (e) => { dragX = e.clientX; });
+    board.addEventListener('pointerup', (e) => {
+      if (dragX === null) return;
+      const dx = e.clientX - dragX;
+      dragX = null;
+      if (Math.abs(dx) > 40) { e.preventDefault(); select(active + (dx < 0 ? 1 : -1)); }
     });
 
-    document.getElementById('lpPrev').addEventListener('click', () => open(active - 1));
-    document.getElementById('lpNext').addEventListener('click', () => open(active + 1));
+    /* ---- scroll morph: the plate grows to cover the viewport ----
+       Transform only (translate + uniform scale), so the morph stays on
+       the compositor and the plate keeps its 2.16:1 proportion. */
+    const track = document.getElementById('lpTrack')!;
+    const hero = document.querySelector<HTMLElement>('.lp-hero')!;
+    let raf = 0;
+    function frame() {
+      raf = 0;
+      const travel = Math.max(240, innerHeight * 0.62);   // distance the growth runs over
+      const start = track.offsetTop;
+      const p = RM ? 0 : Math.min(1, Math.max(0, (scroller!.scrollTop - start) / travel));
+      const r = hold!.getBoundingClientRect();
+      if (!r.width) return;
+      /* the plate fills the reading area, not the window: the shell keeps its rails */
+      const vp = scroller!.getBoundingClientRect();
+      const base = { w: hold!.offsetWidth, h: hold!.offsetHeight, left: r.left, top: r.top };
+      const cover = Math.max(vp.width / base.w, vp.height / base.h);
+      const s = 1 + (cover - 1) * p;
+      const dx = (vp.left + vp.width / 2 - (base.left + base.w / 2)) * p;
+      const dy = (vp.top + vp.height / 2 - (base.top + base.h / 2)) * p;
+      board!.style.transform = p < 0.001
+        ? ''
+        : `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${s.toFixed(4)})`;
+      /* percentage radius shrinks as the plate grows, so the corner
+         reads the same size on screen instead of ballooning with scale */
+      board!.style.borderRadius = p < 0.001 ? '' : `${(4.6 - 3.4 * p).toFixed(2)}%`;
+      /* the mount, the rail, and the hints step aside as the plate takes over */
+      hero!.style.setProperty('--p', p.toFixed(3));
+      hold!.classList.toggle('full', p > 0.9);
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+
+    /* ---- index rows ---- */
+    let openRow = rows.findIndex((r) => r.classList.contains('open'));
+    rows.forEach((row, i) => {
+      const head = row.querySelector<HTMLButtonElement>('.lp-rowhead')!;
+      head.addEventListener('click', () => {
+        const on = i !== openRow;
+        rows.forEach((r, n) => {
+          const o = on && n === i;
+          r.classList.toggle('open', o);
+          r.querySelector('.lp-rowhead')!.setAttribute('aria-expanded', String(o));
+        });
+        openRow = on ? i : -1;
+        if (on) select(i);
+      });
+    });
 
     addEventListener('keydown', (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const el = document.activeElement;
-      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
-      if (e.key === 'ArrowLeft') open(active - 1);
-      else if (e.key === 'ArrowRight') open(active + 1);
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || (el as HTMLElement).isContentEditable)) return;
+      if (e.key === 'ArrowLeft') select(active - 1);
+      else if (e.key === 'ArrowRight') select(active + 1);
     });
-  })();
+  }
+
+  wire();
+  document.addEventListener('astro:page-load', wire);
 </script>

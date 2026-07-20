@@ -9,6 +9,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '@fontsource/ibm-plex-mono/700.css';
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Logo from '../components/Logo.astro';
 
 interface Props {
@@ -111,6 +112,7 @@ const crumbs = trail.map((t) => t.toLowerCase());
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#1C1B17" />
   <title>{title} · Matt Mattei</title>
+  <ClientRouter />
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
