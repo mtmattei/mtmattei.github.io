@@ -14,6 +14,16 @@ import '@fontsource/fraunces/400.css';
    the house blue accent for state, Instrument Sans / IBM Plex Mono. */
 
 type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: string };
+/* extra world panels beyond the iteration timeline:
+   note = a prose panel; app = the running interface; parts = a card grid */
+type Extra = {
+  kind: 'note' | 'app' | 'parts';
+  label: string;
+  title?: string;
+  body?: string;
+  rows?: string[];
+  items?: { no: string; title: string; body: string; read: string }[];
+};
 type Proj = {
   slug: string;
   name: string;
@@ -28,6 +38,9 @@ type Proj = {
   ink: string;
   base?: string;
   iters: Iter[];
+  pre?: Extra[];
+  post?: Extra[];
+  question?: string;
 };
 
 const PROJECTS: Proj[] = [
@@ -36,11 +49,40 @@ const PROJECTS: Proj[] = [
        site; each iteration's artifact is the live WebGL stage from /poolside/ */
     slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/', linkLabel: 'OPEN CASE STUDY',
     deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
+    question: 'How quiet can a chemistry report be and still be trusted?',
+    pre: [
+      {
+        kind: 'note', label: 'ORIGIN', title: 'It started as a shader, not an app.',
+        body: 'The first build was Refraction Pixels, an Uno Platform desktop sample written to test SkiaSharp 4.148’s runtime SkSL through SKCanvasElement. Watching the caustics run, the question changed from “can the canvas do this” to “what product deserves this water.” That answer is Poolside.',
+        rows: ['refraction pixels', 'skiasharp 4.148', 'runtime sksl'],
+      },
+    ],
     iters: [
-      { v: 'V0.1', title: 'Field', cap: 'A noise field first: four fbm octaves breathing at a tenth of time. Not water yet, but already weather.', rows: ['fbm', '4 octaves'], fig: 'field' },
-      { v: 'V0.4', title: 'Warp', cap: 'The field displaces a grid; straight lines learn to bend before any water is drawn.', rows: ['displacement', 'grid'], fig: 'warp' },
-      { v: 'V0.7', title: 'Caustics', cap: 'Light focused by the moving surface: five iterations of folding, clamped to a sparkle.', rows: ['5 folds', 'clamped'], fig: 'caustic' },
-      { v: 'V1.0', title: 'Water', cap: 'The composite: tiles, refraction, caustics, specular. The same surface that ships in the app.', rows: ['one pass', 'ships in app'], fig: 'water' },
+      { v: 'V0.1', title: 'Field', cap: 'Value noise to fbm: a hashed lattice smoothed with a cubic fade, then four octaves summed. Everything organic in the shader — surface wobble, caustic warp, murk — is drawn from this field.', rows: ['hashed lattice', '4 octaves'], fig: 'field' },
+      { v: 'V0.4', title: 'Warp', cap: 'Three sine waves at odd angles with incommensurate frequencies displace the sampling position, so nothing ever lines up. Gray is the undisturbed grid; ink is what the water does to it.', rows: ['3 sines', 'off-grid'], fig: 'warp' },
+      { v: 'V0.7', title: 'Caustics', cap: 'Warped-sine interference, rotated off-grid and bent by slow value noise. A sixth-power falloff pinches the bright bands into filaments.', rows: ['interference', 'filaments'], fig: 'caustic' },
+      { v: 'V1.0', title: 'Water', cap: 'Depth tint, caustics scaled by clarity, specular from the noise gradient, and sparkle on the filament cores. The app runs exactly this.', rows: ['composite', 'own inks'], fig: 'water' },
+    ],
+    post: [
+      {
+        kind: 'app', label: 'APP', title: 'The home screen, running',
+        body: 'The surface is an SKCanvasElement inside a folding basin control; chemistry binds to an MVUX IState of PoolSnapshot; the one-sentence insight comes from a DI-registered IWaterAnalyzer. Fraunces carries the readings, Instrument Sans the actions.',
+        rows: ['uno platform', 'net10.0', 'desktop + android', 'mvux'],
+      },
+      {
+        kind: 'note', label: 'ONE PASS', title: 'Four stages, one pass.',
+        body: 'In the app the stages are not four passes: they are one half4 main(float2 fragCoord) SkSL program, compiled once into an SKRuntimeEffect and drawn by a single SKCanvasElement. field, warp, and caustic are helper functions feeding the composite, so the whole stack resolves per pixel in a single pass. The builder is cached once, uniforms are snapshotted to plain fields, and the render loop rides CompositionTarget.Rendering.',
+        rows: ['skruntimeeffect', 'one pass', 'vsync'],
+      },
+      {
+        kind: 'parts', label: 'NOTES', title: 'Field notes',
+        items: [
+          { no: '01', title: 'One warp, three channels', body: 'The displacement is linear in its scale, so s(k) = suv + k·disp derives the red and blue samples exactly from the green evaluation.', read: 'disp ±0.06 · dispersion for free' },
+          { no: '02', title: 'Cache the builder', body: 'SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect, and the next render access-violates.', read: 'build once · feed uniforms' },
+          { no: '03', title: 'Zero-alloc loop', body: 'The render loop rides CompositionTarget.Rendering, snapshots inputs to plain fields, and reuses uniform buffers. At 0% intensity it stops painting.', read: 'vsync · idle at 0%' },
+          { no: '04', title: 'GLSL to SkSL', body: 'No varyings, no gl_FragColor. Return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.', read: 'half4 · Y-down DIPs' },
+        ],
+      },
     ],
   },
   {
@@ -86,8 +128,8 @@ const PROJECTS: Proj[] = [
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters }) => ({
-  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters,
+const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question }) => ({
+  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question,
 }));
 
 /* landing card positions, from the mockup measurements */
@@ -104,15 +146,6 @@ const CARD_X = [304, 492, 680, 868, 1056];
     <a class="logo" href="/" aria-label="Matt Mattei — home">
       <Logo height={62} />
     </a>
-
-    <nav aria-label="Sections">
-      <a href="/"          style="left:926px;">WORK</a>
-      <a href="/texts/"    style="left:1031.5px;">TEXTS</a>
-      <a href="/xaml-uno/" style="left:1150.5px;">SKILLS</a>
-      <a href="/program/"  style="left:1281px;">PROGRAM</a>
-      <a href="/contact/"  style="left:1412px;">CONTACT</a>
-      <span class="dot"></span>
-    </nav>
 
     <h1 aria-label="Design what connects.">
       <span class="t hl" id="hl1" data-x="84" data-w="123" data-captop="229">DESIGN</span>
@@ -243,6 +276,32 @@ const CARD_X = [304, 492, 680, 868, 1056];
 </div>
 <div class="grain"></div>
 
+<!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
+<div class="lrail" id="lrail">
+  <button class="lrail-strip" id="lrailStrip" aria-expanded="false" aria-controls="lnav" aria-label="Open navigation">
+    <span class="lrail-label">Nav</span>
+  </button>
+  <nav class="lnav" id="lnav" aria-label="Sections">
+    <div class="lnav-g">
+      <span class="lnav-k">Overview</span>
+      <a class="lnav-i is-active" href="/"><span class="ltick"></span>Index</a>
+    </div>
+    <div class="lnav-g">
+      <span class="lnav-k">Projects</span>
+      <a class="lnav-i" href="/poolside/"><span class="ltick"></span>Poolside</a>
+      <a class="lnav-i" href="/source-figure/"><span class="ltick"></span>Source / Figure</a>
+      <a class="lnav-i" href="/texts/"><span class="ltick"></span>Texts</a>
+      <a class="lnav-i" href="/xaml-uno/"><span class="ltick"></span>XAML / Uno</a>
+      <a class="lnav-i" href="/ledger/"><span class="ltick"></span>Ledger</a>
+    </div>
+    <div class="lnav-g lnav-quiet">
+      <span class="lnav-k">About</span>
+      <a class="lnav-i" href="/program/"><span class="ltick"></span>Program</a>
+      <a class="lnav-i" href="/contact/"><span class="ltick"></span>Contact</a>
+    </div>
+  </nav>
+</div>
+
 <div id="detail" role="region" aria-label="Project detail">
   <div class="dcam" id="dcam"><div class="rail" id="rail"></div></div>
   <div class="dchrome">
@@ -289,16 +348,47 @@ body {
 /* ---- logo: the M mark, in place of the mockup's studio logo ---- */
 .logo { position: absolute; left: 62px; top: 42px; display: block; color: var(--ink); }
 
-/* ---- nav: moved to the top, real routes ---- */
-.scene nav a {
-  position: absolute; top: 52px; transform: translateX(-50%);
-  font-size: 12.4px; font-weight: 600; letter-spacing: 1.9px;
-  color: var(--ink); text-decoration: none; line-height: 20px;
-  transition-property: opacity; transition-duration: .15s; transition-timing-function: ease-out;
+/* ---- side rail: the Shell's collapsed rail, incorporated on the stage ---- */
+.lrail { position: fixed; left: 0; top: 0; bottom: 0; z-index: 6; display: flex; transition: opacity .2s ease-out; }
+body.walked .lrail { opacity: 0; pointer-events: none; }
+.lrail-strip {
+  width: 34px; border: 0; border-right: var(--bw) solid var(--line);
+  background: rgba(246,242,238,.55); cursor: pointer;
+  display: flex; justify-content: center; align-items: flex-start; padding-top: var(--s6);
+  transition: background .15s;
 }
-.scene nav a:hover { opacity: .65; }
-.scene nav a::after { content: ''; position: absolute; inset: -10px -14px; }
-.scene nav .dot { position: absolute; left: 926px; top: 84px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transform: translateX(-50%); }
+.lrail-strip:hover { background: var(--gray-1); }
+.lrail-label {
+  writing-mode: vertical-rl;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); transition: color .15s;
+}
+.lrail-strip:hover .lrail-label, .lrail.open .lrail-label { color: var(--ink); }
+.lnav {
+  position: absolute; left: 34px; top: 0; bottom: 0; width: 236px;
+  background: var(--paper); border-right: var(--bw) solid var(--line);
+  box-shadow: 22px 0 44px -30px rgba(26,24,21,.4);
+  padding: var(--s6) 0; overflow-y: auto;
+  transform: translateX(-10px); opacity: 0; pointer-events: none; visibility: hidden;
+  transition: transform .22s cubic-bezier(.22,1,.36,1), opacity .18s ease-out, visibility .22s;
+}
+.lrail.open .lnav { transform: none; opacity: 1; pointer-events: auto; visibility: visible; }
+.lnav-g + .lnav-g { margin-top: var(--s4); }
+.lnav-k {
+  display: block; padding: 0 var(--s4); margin-bottom: var(--s2);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+}
+.lnav-i {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: 7px var(--s4); font-size: 14px; color: var(--ink); text-decoration: none;
+  transition: background .15s;
+}
+.lnav-i:hover { background: var(--gray-1); }
+.ltick { width: 2px; height: 14px; border-radius: 1px; background: transparent; flex: none; }
+.lnav-i.is-active .ltick { background: var(--accent); }
+.lnav-quiet .lnav-i { opacity: .62; }
+.lnav-quiet .lnav-i:hover { opacity: 1; }
 
 /* ---- headline ---- */
 .hl {
@@ -395,7 +485,7 @@ a.viewall:hover { opacity: .65; }
 }
 .bb-wpill svg { width: 15px; height: 15px; display: block; }
 .bb-water { position: relative; flex: 1 1 auto; border-radius: 18px; overflow: hidden; background: #0E3444; box-shadow: inset 0 0 0 1px rgba(18,51,61,.35); }
-.bb-water .plate, #bbwater { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.bb-water .plate, .bb-water canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .bb-pill {
   position: absolute; left: 14px; top: 13px; display: inline-flex; align-items: center; gap: 7px;
   font-size: 12px; font-weight: 600; color: var(--bb-ink);
@@ -593,7 +683,30 @@ a.viewall:hover { opacity: .65; }
   padding: 6px 12px; border: 1px solid currentColor; border-radius: 20px; opacity: .55;
   white-space: nowrap;
 }
+/* ---- extra world panels: prose notes, the running app, card grids ---- */
+.dnote { width: 900px; padding: 300px 0 0 60px; }
+.dnote .dh { font-size: 68px; -webkit-text-stroke: 1.2px currentColor; white-space: normal; max-width: 760px; }
+.dnote .dcap { max-width: 640px; font-size: 16.5px; line-height: 26px; }
+.dinterface { width: 1160px; padding: 96px 0 0 60px; }
+.dinterface .dh { font-size: 56px; }
+.dapp-hold {
+  position: relative; width: 933px; height: 442px; margin: 24px 0 26px;
+  border-radius: 26px; overflow: hidden;
+  box-shadow: 0 34px 64px -34px rgba(0,0,0,.4);
+}
+.dinterface .dcap { max-width: 680px; }
+.dparts { width: 1140px; padding: 140px 0 0 60px; }
+.dparts .dh { font-size: 56px; }
+.dparts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 1000px; margin-top: 28px; }
+.dpart { position: relative; padding: 22px 24px 20px; border-radius: 14px; }
+.dpart::before { content: ''; position: absolute; inset: 0; border: 1px solid currentColor; opacity: .22; border-radius: inherit; pointer-events: none; }
+.dpart-no { font-family: var(--mono); font-size: 11px; letter-spacing: 1.6px; opacity: .5; }
+.dpart b { display: block; font-size: 18px; margin: 8px 0 8px; }
+.dpart p { font-size: 13.5px; line-height: 21px; opacity: .8; margin: 0; }
+.dpart-read { display: block; margin-top: 14px; font-family: var(--mono); font-size: 11px; letter-spacing: 1.2px; opacity: .6; }
+
 .dend { width: 860px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+.dend .dq { font-style: italic; font-size: 17px; opacity: .75; max-width: 480px; text-align: center; }
 .dend .dlbl { opacity: .5; }
 .dback {
   font-family: 'BigShoulders', sans-serif; font-weight: 800; font-size: 64px;
@@ -804,7 +917,9 @@ function dfigsBuild() {
   railEl.querySelectorAll('canvas.dfig').forEach(function (cv) {
     var draw = glSetup(cv, GL_FRAGS[cv.dataset.fig]);
     if (!draw) return;                                // ring + caption still stand
-    cv.width = 1320; cv.height = 820;                 // 2x the 660x410 world frame
+    // 2x the laid-out box so panels stay crisp at any viewport scale
+    cv.width = Math.round((cv.offsetWidth || 660) * 2);
+    cv.height = Math.round((cv.offsetHeight || 410) * 2);
     if (reduceMotion) draw(3);
     else dfigs.push({ cv: cv, draw: draw });
   });
@@ -843,6 +958,34 @@ function frameHtml(p, it, kind) {
     '</div>';
 }
 
+function rowsHtml(rows) {
+  if (!rows || !rows.length) return '';
+  return '<div class="drows">' + rows.map(function (r) { return '<span class="drow">' + esc(r).toUpperCase() + '</span>'; }).join('') + '</div>';
+}
+function extraHtml(p, x) {
+  if (x.kind === 'app') {
+    return '<div class="dpanel dinterface">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<div class="dapp-hold"></div>' +
+      '<p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows) +
+      '</div>';
+  }
+  if (x.kind === 'parts') {
+    return '<div class="dpanel dparts">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<div class="dparts-grid">' + (x.items || []).map(function (it) {
+        return '<div class="dpart"><span class="dpart-no">' + esc(it.no) + '</span><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p><span class="dpart-read">' + esc(it.read) + '</span></div>';
+      }).join('') + '</div></div>';
+  }
+  return '<div class="dpanel dnote">' +
+    '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+    '<div class="dh">' + esc(x.title || '') + '</div>' +
+    '<p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows) +
+    '</div>';
+}
+
 function buildDetail(i) {
   var p = PROJECTS[i];
   dfigsTeardown();
@@ -862,6 +1005,7 @@ function buildDetail(i) {
            '<a class="dopen" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' style="color:' + p.accent + '">' + esc(p.linkLabel || 'OPEN CASE STUDY') + ' <span aria-hidden="true">↗</span></a>'
          : '<span class="dposter"></span>') +
        '</div>';
+  (p.pre || []).forEach(function (x) { h += extraHtml(p, x); });
   p.iters.forEach(function (it, n) {
     h += '<div class="dpanel diter' + (n % 2 ? ' alt' : '') + '">' +
          '<div class="dnum">' + esc(it.v.replace('V', '')) + '</div>' +
@@ -873,7 +1017,9 @@ function buildDetail(i) {
          '<div class="drows">' + it.rows.map(function (r) { return '<span class="drow">' + esc(r).toUpperCase() + '</span>'; }).join('') + '</div>' +
          '</div></div>';
   });
+  (p.post || []).forEach(function (x) { h += extraHtml(p, x); });
   h += '<div class="dpanel dend">' +
+       (p.question ? '<p class="dq">' + esc(p.question) + '</p>' : '') +
        '<div class="dlbl">END OF TIMELINE</div>' +
        '<a class="dback" href="#/" style="color:' + p.accent + '">STEP BACK OUT</a>' +
        '</div><div class="dend-pad"></div>';
@@ -883,11 +1029,27 @@ function buildDetail(i) {
   var tpl = document.getElementById('plate-' + p.slug);
   if (tpl) railEl.querySelector('.dposter').appendChild(tpl.content.cloneNode(true));
 
+  // the app panel gets a live clone of the billboard interface
+  var hold = railEl.querySelector('.dapp-hold');
+  if (hold) {
+    var app = document.querySelector('.tv .bb-app');
+    if (app) {
+      var clone = app.cloneNode(true);
+      var cv = clone.querySelector('canvas');
+      if (cv) { cv.removeAttribute('id'); cv.classList.add('dfig'); cv.dataset.fig = 'water'; }
+      hold.appendChild(clone);
+    }
+  }
+
   dfigsBuild();                                       // live stages, when the project has them
 
-  // timeline ruler: one tick per stop (title + iterations + end)
+  // timeline ruler: one tick per stop (title + panels + end)
   var tl = document.getElementById('dtimeline');
-  var stops = ['IN'].concat(p.iters.map(function (it) { return it.v; })).concat(['OUT']);
+  var stops = ['IN']
+    .concat((p.pre || []).map(function (x) { return x.label; }))
+    .concat(p.iters.map(function (it) { return it.v; }))
+    .concat((p.post || []).map(function (x) { return x.label; }))
+    .concat(['OUT']);
   var t = '<div class="tl-rule"></div>';
   stops.forEach(function (s, n) {
     var pct = stops.length > 1 ? (n / (stops.length - 1)) * 100 : 0;
@@ -1035,6 +1197,7 @@ function animEnter(i) {
   setFeatured(i);
   buildDetail(i);
   clearTransTimers();
+  document.body.classList.add('walked');
   scene.classList.add('pushing');
   detail.style.willChange = 'opacity, transform';
 
@@ -1071,6 +1234,7 @@ function animExit() {
   function land() {
     state.mode = 'landing';
     camState.push = 0; applyCamera();        // deterministic even if rAF was throttled
+    document.body.classList.remove('walked');
     scene.classList.remove('pushing');
     detail.classList.remove('on');
     detail.style.willChange = '';
@@ -1103,6 +1267,7 @@ function route(initial) {
     if (initial) {                            // deep link: no motion
       state.mode = 'detail';
       setFeatured(i); buildDetail(i);
+      document.body.classList.add('walked');
       scene.classList.add('pushing');
       camState.push = 1; applyCamera();
       detail.classList.add('on'); detail.classList.add('in');
@@ -1119,6 +1284,20 @@ addEventListener('hashchange', function () { route(false); });
 function enterProject(i) { location.hash = '#/p/' + PROJECTS[i].slug; }
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape' && state.mode === 'detail') location.hash = '#/';
+});
+
+// ---- side rail: strip toggles the nav; leaving the rail closes it ----
+var lrail = document.getElementById('lrail');
+var lrailStrip = document.getElementById('lrailStrip');
+function lrailSet(open) {
+  lrail.classList.toggle('open', open);
+  lrailStrip.setAttribute('aria-expanded', String(open));
+  lrailStrip.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+}
+lrailStrip.addEventListener('click', function () { lrailSet(!lrail.classList.contains('open')); });
+lrail.addEventListener('pointerleave', function () { lrailSet(false); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && state.mode === 'landing' && lrail.classList.contains('open')) lrailSet(false);
 });
 route(true);
 bbWake();
