@@ -673,7 +673,8 @@ a.viewall:hover { opacity: .65; }
 .card-basin span { display: block; }
 .basin-mini {
   position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
-  transform: scale(.58) rotateX(55deg) rotateZ(45deg);
+  /* the projected diamond sits low in its box; lift it to center in the card */
+  transform: translateY(-12px) scale(.58) rotateX(55deg) rotateZ(45deg);
 }
 .b-wall {
   position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
