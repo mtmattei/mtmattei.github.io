@@ -87,10 +87,63 @@ const projects: Project[] = [
       <div class="lp-billboard" aria-hidden="true">
         <div class="lp-screen"></div>
       </div>
-      <div class="lp-mount" aria-hidden="true">
-        <span class="lp-leg"></span><span class="lp-leg"></span><span class="lp-leg"></span>
-      </div>
-      <div class="lp-shelf" aria-hidden="true"></div>
+      <!-- the mount: three posts on a wall shelf, lit from the upper left -->
+      <svg class="lp-rig" viewBox="0 0 1060 78" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="postG" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#CDC3B3" />
+            <stop offset="0.22" stop-color="#FFFEFB" />
+            <stop offset="0.62" stop-color="#F1EBE2" />
+            <stop offset="1" stop-color="#C6BBA8" />
+          </linearGradient>
+          <linearGradient id="topG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFFFFD" />
+            <stop offset="0.55" stop-color="#F8F4EE" />
+            <stop offset="1" stop-color="#EDE6DC" />
+          </linearGradient>
+          <linearGradient id="frontG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F9F5EF" />
+            <stop offset="0.62" stop-color="#E4DCCF" />
+            <stop offset="1" stop-color="#C3B8A5" />
+          </linearGradient>
+          <linearGradient id="castG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1A1815" stop-opacity="0.45" />
+            <stop offset="1" stop-color="#1A1815" stop-opacity="0" />
+          </linearGradient>
+          <filter id="blurS" x="-30%" y="-60%" width="160%" height="240%">
+            <feGaussianBlur stdDeviation="2.4" />
+          </filter>
+          <filter id="blurL" x="-20%" y="-80%" width="140%" height="300%">
+            <feGaussianBlur stdDeviation="7" />
+          </filter>
+        </defs>
+
+        <!-- ambient occlusion: the billboard's underside on the wall -->
+        <rect x="60" y="-16" width="940" height="26" fill="#1A1815" opacity="0.16" filter="url(#blurL)" />
+
+        <!-- posts: wall shadow, then the post, then its contact shadow -->
+        <g>
+          <rect x="196" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
+          <rect x="536" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
+          <rect x="876" y="-4" width="24" height="40" fill="#1A1815" opacity="0.26" filter="url(#blurS)" />
+          <rect x="190" y="-8" width="22" height="42" fill="url(#postG)" />
+          <rect x="530" y="-8" width="22" height="42" fill="url(#postG)" />
+          <rect x="870" y="-8" width="22" height="42" fill="url(#postG)" />
+          <ellipse cx="201" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
+          <ellipse cx="541" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
+          <ellipse cx="881" cy="35" rx="22" ry="3.5" fill="#1A1815" opacity="0.4" filter="url(#blurS)" />
+        </g>
+
+        <!-- the shelf's cast shadow on the wall below -->
+        <rect x="24" y="56" width="1012" height="18" fill="url(#castG)" filter="url(#blurL)" />
+
+        <!-- shelf: lit top face, hard break, front edge falling into shadow -->
+        <rect x="6" y="34" width="1048" height="9" fill="url(#topG)" />
+        <rect x="6" y="42.4" width="1048" height="1.1" fill="#A99D88" opacity="0.55" />
+        <rect x="6" y="43.5" width="1048" height="12.5" fill="url(#frontG)" rx="1" />
+        <rect x="6" y="34" width="1048" height="0.9" fill="#FFFFFF" opacity="0.9" />
+        <rect x="6" y="55" width="1048" height="1" fill="#1A1815" opacity="0.14" />
+      </svg>
     </div>
 
     <div class="lp-drive">
@@ -152,40 +205,25 @@ const projects: Project[] = [
 
   /* the billboard: bezel + empty plate, mounted on a shelf */
   .lp-stage { animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .1s; }
-  /* proportions read off the reference: bezel 1.05% of screen width,
-     outer radius 3.2%, screen 2.16:1, posts and shelf in paper white */
+  /* screen 2.16:1; thin bezel, generous radius — as on the reference */
   .lp-billboard {
+    position: relative;
     background: var(--ink);
-    border-radius: clamp(18px, 3.2%, 34px);
-    padding: clamp(7px, 1.05%, 12px);
+    border-radius: clamp(22px, 4.6%, 48px);
+    padding: clamp(4px, 0.55%, 7px);
     box-shadow:
-      0 2px 1px rgba(26, 24, 21, .04),
-      0 26px 44px -30px rgba(26, 24, 21, .55);
+      0 1px 1px rgba(26, 24, 21, .05),
+      0 30px 50px -34px rgba(26, 24, 21, .6);
   }
   .lp-screen {
     aspect-ratio: 2.16 / 1;
-    border-radius: clamp(12px, 2.4%, 25px);
+    border-radius: clamp(18px, 4%, 42px);
     background: linear-gradient(152deg, var(--gray-2) 0%, var(--line) 55%, #D8CFC2 100%);
     box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .10);
   }
-  /* three posts, evenly spaced, standing on the shelf */
-  .lp-mount {
-    display: flex; justify-content: center; gap: 26.5%; height: 30px;
-    margin-top: -2px; position: relative; z-index: 1;
-  }
-  .lp-leg {
-    width: 16px; background: var(--paper);
-    box-shadow: inset 1px 0 0 var(--line), inset -1px 0 0 var(--line-2);
-  }
-  .lp-shelf {
-    height: 20px; margin: 0 -2.5%;
-    background: linear-gradient(var(--paper) 0 62%, var(--gray-1) 62% 100%);
-    box-shadow:
-      inset 0 1px 0 #FFFDFA,
-      inset 0 0 0 1px var(--line),
-      0 14px 26px -20px rgba(26, 24, 21, .6);
-    border-radius: 2px;
-  }
+
+  /* ---- Hardware: drawn as SVG so the edges and shadows survive scaling ---- */
+  .lp-rig { display: block; width: 106%; margin: -4px 0 0 -3%; height: auto; }
 
   .lp-drive {
     display: flex; flex-direction: column; gap: var(--s4);
