@@ -255,13 +255,13 @@ const CARD_X = [304, 492, 680, 868, 1056];
         style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
         aria-label={p.name}
       >{p.slug === 'poolside' ? (
-        /* the app's own IsoBasin (construction from /poolside/), shader on top */
-        <span class="card-basin">
-          <span class="basin-mini">
-            <span class="b-wall n"></span><span class="b-wall s"></span>
-            <span class="b-wall w"></span><span class="b-wall e"></span>
-            <span class="b-floor"></span>
-            <span class="b-surf"><Plate slug="poolside" /><canvas id="cardwater" aria-hidden="true"></canvas></span>
+        /* the exploded shader stack from /poolside/ (pl-deck), lift 15, live */
+        <span class="card-stage">
+          <span class="card-deck">
+            <span class="pl-layer" style="--i:0"><canvas data-fig="water" aria-hidden="true"></canvas></span>
+            <span class="pl-layer" style="--i:1"><canvas data-fig="caustic" aria-hidden="true"></canvas></span>
+            <span class="pl-layer" style="--i:2"><canvas data-fig="warp" aria-hidden="true"></canvas></span>
+            <span class="pl-layer" style="--i:3"><canvas data-fig="field" aria-hidden="true"></canvas></span>
           </span>
         </span>
       ) : (
@@ -665,31 +665,28 @@ a.viewall:hover { opacity: .65; }
     0 5px 9px -4px rgba(95,85,72,.42);
 }
 .pcard:active { transform: scale(.96); }
-/* the poolside card: the IsoBasin, rules reused from /poolside/ (poolside.css) */
-.card-basin {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  perspective: 900px; background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
+/* the poolside card: the exploded shader stack, rules reused from /poolside/
+   (.pl-stage / .pl-deck / .pl-layer; lift 15 · SCALE 2.4, scaled to a 120px
+   deck -> translateZ steps of ~10px). Layers bleed off the edges as on the
+   exhibit's own stage. */
+.card-stage {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--gray-1); overflow: hidden;
+  perspective: 1250px; perspective-origin: 50% 44%;
 }
-.card-basin span { display: block; }
-.basin-mini {
-  position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
-  /* the projected diamond sits low in its box; lift it to center in the card */
-  transform: translateY(-12px) scale(.58) rotateX(55deg) rotateZ(45deg);
+.card-deck {
+  position: relative; width: 118px; height: 118px; display: block;
+  transform-style: preserve-3d;
+  transform: rotateX(54deg) rotateZ(-32deg);
 }
-.b-wall {
-  position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -8px 12px -8px rgba(0,30,40,.35);
+.card-deck .pl-layer { position: absolute; inset: 0; display: block; }
+.card-deck .pl-layer canvas {
+  width: 100%; height: 100%; display: block;
+  border: 1px solid var(--ink); background: var(--paper);
 }
-.b-wall.n { top: 0; left: 0; width: 100%; height: 22px; transform-origin: top center; transform: rotateX(-90deg); }
-.b-wall.s { bottom: 0; left: 0; width: 100%; height: 22px; transform-origin: bottom center; transform: rotateX(90deg); }
-.b-wall.w { top: 0; left: 0; width: 22px; height: 100%; transform-origin: left center; transform: rotateY(90deg); }
-.b-wall.e { top: 0; right: 0; width: 22px; height: 100%; transform-origin: right center; transform: rotateY(-90deg); }
-.b-floor { position: absolute; inset: 0; background: #b3d3d9; transform: translateZ(-22px); }
-.b-surf {
-  position: absolute; inset: 0; border-radius: 16px; overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -18px 26px -18px rgba(0,20,30,.5), 0 22px 34px -26px rgba(9,80,102,.75);
-}
-.b-surf .plate, .b-surf canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.card-deck .pl-layer:nth-child(2) { transform: translateZ(10px); }
+.card-deck .pl-layer:nth-child(3) { transform: translateZ(20px); }
+.card-deck .pl-layer:nth-child(4) { transform: translateZ(31px); }
 .pcard.selected {
   box-shadow:
     0 0 0 1.5px var(--paper),
@@ -1014,31 +1011,31 @@ if (bbCv) {
   if (bbDraw) { bbCv.width = 1868; bbCv.height = 884; }  // 2x: crisp through the push
   else bbCv = null;
 }
-// the featured card's IsoBasin runs the same surface
-var cardCv = document.getElementById('cardwater');
-var cardDraw = null;
-if (cardCv) {
-  cardDraw = glSetup(cardCv, GL_FRAGS.water);
-  if (cardDraw) { cardCv.width = 328; cardCv.height = 328; }
-  else cardCv = null;
-}
+// the featured card's exploded stack runs the four live stages
+var cardFigs = [];
+document.querySelectorAll('.card-deck canvas').forEach(function (cv) {
+  var draw = glSetup(cv, GL_FRAGS[cv.dataset.fig]);
+  if (!draw) return;
+  cv.width = 236; cv.height = 236;
+  cardFigs.push(draw);
+});
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return state.mode !== 'detail' && (bbOn() || !!cardDraw);
+  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0);
 }
 function bbTick(now) {
   bbRaf = null;
   if (!bbActive()) return;                            // parks; bbWake() restarts it
   if (bbOn()) bbDraw(now / 1000);
-  if (cardDraw) cardDraw(now / 1000);
+  cardFigs.forEach(function (d) { d(now / 1000); });
   bbRaf = requestAnimationFrame(bbTick);
 }
 function bbWake() {
-  if (!bbDraw && !cardDraw) return;
+  if (!bbDraw && !cardFigs.length) return;
   if (reduceMotion) {                                 // a still frame, no loop
     if (bbOn()) bbDraw(3);
-    if (cardDraw) cardDraw(3);
+    cardFigs.forEach(function (d) { d(3); });
     return;
   }
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);
