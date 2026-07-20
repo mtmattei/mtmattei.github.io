@@ -2,6 +2,9 @@
 import Bare from '../layouts/Bare.astro';
 import Logo from '../components/Logo.astro';
 import Plate from '../components/Plate.astro';
+/* Fraunces: the Poolside app's display face, used in the billboard UI */
+import '@fontsource/fraunces/300.css';
+import '@fontsource/fraunces/400.css';
 
 /* The landing rebuilt from the billboard mockup (mockup-landing, SPEC.md):
    a fixed 1536×1024 stage fit-scaled to the viewport. Entering a project is
@@ -15,7 +18,9 @@ type Proj = {
   slug: string;
   name: string;
   tag: string;
-  href: string;
+  /* absent href = no case study yet; linkLabel names the destination */
+  href?: string;
+  linkLabel?: string;
   /* detail-world palette: surface tone, display accent, body ink */
   deep: string;
   accent: string;
@@ -25,7 +30,7 @@ type Proj = {
 
 const PROJECTS: Proj[] = [
   {
-    slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/',
+    slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/', linkLabel: 'OPEN CASE STUDY',
     deep: '#0E3444', accent: '#2FB7BF', ink: '#EAF7F6',
     iters: [
       { v: 'V0.1', title: 'Flat water', cap: 'A sine ripple on a SkiaSharp canvas. Wrong on arrival: real water reads as weather, not as waves.', rows: ['one sine', 'sksl', 'desktop'] },
@@ -35,27 +40,37 @@ const PROJECTS: Proj[] = [
     ],
   },
   {
-    slug: 'source-figure', name: 'SOURCE / FIGURE', tag: 'DESIGN / SYSTEM', href: '/source-figure/',
-    deep: '#151A2B', accent: '#6F87EE', ink: '#EFF2FA',
+    slug: 'momentui', name: 'MOMENTUI', tag: 'APP / RUNTIME UI',
+    deep: '#231712', accent: '#E8896B', ink: '#F7EFE9',
     iters: [
-      { v: 'V0.1', title: 'The draft program', cap: 'portfolio() written before any layout existed. The sitemap is the source; the pages are its output.', rows: ['portfolio()', 'source first'] },
-      { v: 'V0.4', title: 'Typeset by source', cap: 'The name set by its own code: the hero draws its own toString(), glyph boxes measured and pinned.', rows: ['self-typeset', 'measured boxes'] },
-      { v: 'V0.7', title: 'Plates', cap: 'Each project’s artwork drawn as SVG by the page that hangs it. No photography, no stock, no exports.', rows: ['5 plates', 'svg only'] },
-      { v: 'V1.0', title: 'Method', cap: 'The drawing method that runs the whole site: figure follows source, and the page is the program that drew it.', rows: ['method', 'site-wide'] },
+      { v: 'V0.1', title: 'Fixed screens', cap: 'The app drawn the usual way first: static XAML, hand-placed controls. The baseline to beat.', rows: ['static xaml', 'baseline'] },
+      { v: 'V0.4', title: 'UI as data', cap: 'Screens described as data and assembled at runtime; layout becomes a decision the app makes.', rows: ['runtime tree', 'composition'] },
+      { v: 'V0.7', title: 'Moments', cap: 'Each app state is a moment; when the moment changes, the interface recomposes around it.', rows: ['state → ui', 'recompose'] },
+      { v: 'NOW', title: 'In progress', cap: 'An interface composed at runtime, being built in the open on Uno Platform.', rows: ['uno platform', 'building'] },
     ],
   },
   {
-    slug: 'xaml-uno', name: 'XAML / UNO', tag: 'SKILLS / MOTION', href: '/xaml-uno/',
-    deep: '#221E19', accent: '#C8B37E', ink: '#F4EFE8',
+    slug: 'unoannotation', name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP',
+    deep: '#10231A', accent: '#5FC98F', ink: '#EAF5EE',
     iters: [
-      { v: 'V0.1', title: 'Adjectives', cap: 'Motion described as smooth and snappy. Unbuildable. The fix was deciding to write numbers down instead.', rows: ['no numbers', 'unbuildable'] },
-      { v: 'V0.4', title: 'House curves', cap: 'EaseSmooth 0.22,1 0.36,1. Durations 150, 200, 280. Press 0.98. The feel, fixed once as tokens.', rows: ['keyspline', '3 durations', 'press .98'] },
-      { v: 'V0.7', title: 'Ten rules', cap: 'The rules that make a XAML surface read hand-built, each with the wrong version, the right version, and why.', rows: ['10 rules', 'wrong vs right'] },
-      { v: 'V1.0', title: 'Skills', cap: 'Shipped as installable Claude Code skills. The taste is written down precisely enough to hand to an agent.', rows: ['npx skills add', '2 repos'] },
+      { v: 'V0.1', title: 'Blind agent', cap: 'An AI agent building UI it cannot see. Every fix was a guess relayed through screenshots.', rows: ['no eyes', 'guesswork'] },
+      { v: 'V0.4', title: 'Eyes', cap: 'The running app exposes its visual tree over MCP; the agent reads structure instead of pixels.', rows: ['mcp server', 'visual tree'] },
+      { v: 'V0.7', title: 'Hands', cap: 'Element peers let the agent press what it sees. Verify loops replace describe-and-hope.', rows: ['peer actions', 'verify loop'] },
+      { v: 'NOW', title: 'In progress', cap: 'Eyes and hands for agents, hardening into the everyday Uno Platform toolchain.', rows: ['uno platform', 'daily use'] },
     ],
   },
   {
-    slug: 'ledger', name: 'LEDGER', tag: 'SKILLS / OSS', href: '/ledger/',
+    slug: 'liquidglasslab', name: 'LIQUIDGLASSLAB', tag: 'LAB / SKIA REFRACTION',
+    deep: '#0D2230', accent: '#7FD4E8', ink: '#EAF4F8',
+    iters: [
+      { v: 'V0.1', title: 'Frosted', cap: 'A backdrop blur pretending to be glass. Frosted, not refractive: nothing bends.', rows: ['blur only', 'no bend'] },
+      { v: 'V0.4', title: 'Refraction', cap: 'SkSL through the image-filter graph as displacement: the live backdrop bends like a lens.', rows: ['sksl', 'displacement'] },
+      { v: 'V0.7', title: 'Chromatic edge', cap: 'Three displacement scales split by channel and recombined; color fringes at the rim.', rows: ['3 channels', 'fringe'] },
+      { v: 'NOW', title: 'In progress', cap: 'A lab of lenses over live app content on the Skia canvas.', rows: ['skiasharp', 'live backdrop'] },
+    ],
+  },
+  {
+    slug: 'design-ledger', name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', href: 'https://github.com/mtmattei/design-ledger', linkLabel: 'OPEN REPO',
     deep: '#26221B', accent: '#E7DECF', ink: '#F4EFE8',
     iters: [
       { v: 'V0.1', title: 'First entry', cap: 'One decision written down: what was chosen, why, and what it cost. The format followed later.', rows: ['1 entry', 'chose / why / cost'] },
@@ -64,21 +79,11 @@ const PROJECTS: Proj[] = [
       { v: 'V1.0', title: 'Public', cap: 'Open sourced. The decisions behind the work, auditable by anyone who cares to check.', rows: ['open source', 'github'] },
     ],
   },
-  {
-    slug: 'program', name: 'PROGRAM', tag: 'RETURN / META', href: '/program/',
-    deep: '#10141B', accent: '#9FB0F4', ink: '#EEF1F8',
-    iters: [
-      { v: 'V0.1', title: 'Sitemap as source', cap: 'The site printed as the function that draws it. Each line of the program routes a page.', rows: ['printed source', 'lines route'] },
-      { v: 'V0.4', title: 'Highlight', cap: 'The printed source gains syntax color and live anchors. Reading the program is navigating the site.', rows: ['syntax color', 'live anchors'] },
-      { v: 'V0.7', title: 'Return values', cap: 'contact() returns the real coordinates. The program ends where a conversation starts.', rows: ['contact()', 'returns real'] },
-      { v: 'V1.0', title: 'Running', cap: 'The portfolio as it runs: this page is the output of the code it prints.', rows: ['self-hosting', '2026'] },
-    ],
-  },
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, deep, accent, ink, iters }) => ({
-  slug, name, tag, href, deep, accent, ink, iters,
+const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, iters }) => ({
+  slug, name, tag, href, linkLabel, deep, accent, ink, iters,
 }));
 
 /* landing card positions, from the mockup measurements */
@@ -105,8 +110,8 @@ const CARD_X = [304, 492, 680, 868, 1056];
       <span class="dot"></span>
     </nav>
 
-    <h1 aria-label="We design what connects.">
-      <span class="t hl" id="hl1" data-x="84" data-w="183" data-captop="229">WE DESIGN</span>
+    <h1 aria-label="Design what connects.">
+      <span class="t hl" id="hl1" data-x="84" data-w="123" data-captop="229">DESIGN</span>
       <span class="t hl" id="hl2" data-x="84" data-w="97"  data-captop="302">WHAT</span>
       <span class="t hl" id="hl3" data-x="86" data-w="187" data-captop="372">CONNECTS.</span>
     </h1>
@@ -123,8 +128,59 @@ const CARD_X = [304, 492, 680, 868, 1056];
       <div class="screen">
         {PROJECTS.map((p, i) => (
           <span class:list={['art', { on: i === 0 }]} data-art={p.slug}>
-            <Plate slug={p.slug} />
-            {p.slug === 'poolside' && <canvas id="bbwater" aria-hidden="true"></canvas>}
+            {p.slug === 'poolside' ? (
+              /* the Poolside app itself, landscape: its real UI is the billboard */
+              <span class="bb-app" aria-label="Poolside — the app's home screen">
+                <span class="bb-rail">
+                  <span class="bb-tab active"><svg viewBox="0 0 24 24"><path d="M12 3 C8.5 8 7 10.5 7 13.5 a5 5 0 0 0 10 0 C17 10.5 15.5 8 12 3 Z"/></svg><i></i></span>
+                  <span class="bb-tab"><svg viewBox="0 0 24 24"><path d="M3.5 16.5 9 11l4 4 7-7.5M15.5 7.5H20V12"/></svg></span>
+                  <span class="bb-tab"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg></span>
+                  <span class="bb-tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg></span>
+                </span>
+                <span class="bb-main">
+                  <span class="bb-head">
+                    <span class="bb-greet">
+                      <span class="bb-gsub">Good morning</span>
+                      <span class="bb-gname">Backyard Pool</span>
+                    </span>
+                    <span class="bb-wpill">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="#eebb55" stroke="none"/><g stroke="#e0a63f" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M5.2 18.8l1.7-1.7M17.1 6.9l1.7-1.7"/></g></svg>
+                      Sunny · 24°
+                    </span>
+                  </span>
+                  <span class="bb-water">
+                    <Plate slug="poolside" />
+                    <canvas id="bbwater" aria-hidden="true"></canvas>
+                    <span class="bb-pill"><i></i>Crystal clear</span>
+                    <span class="bb-badge"><b>97</b><em>Water clarity</em></span>
+                    <span class="bb-fab"><svg viewBox="0 0 24 24"><path d="M4 8.5a2 2 0 0 1 2-2h1.6l1.2-1.8h6.4l1.2 1.8H18a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.6" r="3.2"/></svg></span>
+                  </span>
+                </span>
+                <span class="bb-side">
+                  <span class="bb-card">
+                    <span class="bb-chemhead">Chemistry<em>Tested 2h ago</em></span>
+                    <span class="bb-gauges">
+                      <span class="bb-gauge"><span class="bb-grow"><i>pH</i><b>7.4</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:35%;width:40%"></span><span class="bb-gmark" style="left:55%"></span></span></span>
+                      <span class="bb-gauge"><span class="bb-grow"><i>Chlorine</i><b>2.4</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:25%;width:45%"></span><span class="bb-gmark" style="left:48%"></span></span></span>
+                      <span class="bb-gauge"><span class="bb-grow"><i>Alkalinity</i><b>100</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:30%;width:50%"></span><span class="bb-gmark" style="left:50%"></span></span></span>
+                      <span class="bb-gauge"><span class="bb-grow"><i>Stabilizer</i><b>40</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:28%;width:37%"></span><span class="bb-gmark" style="left:45%"></span></span></span>
+                    </span>
+                  </span>
+                  <span class="bb-card bb-fc">
+                    <span class="bb-fchip"><svg viewBox="0 0 24 24"><path d="M3.5 16.5 9 11l4 4 7-7.5M15.5 7.5H20V12"/></svg>Forecast</span>
+                    <svg class="bb-spark" viewBox="0 0 260 104" preserveAspectRatio="none">
+                      <line class="fc-thresh" x1="4" y1="34" x2="256" y2="34"/>
+                      <polyline class="fc-line" points="6,20 34,24 62,30 90,26 118,38 146,48 174,44 202,58"/>
+                      <line class="fc-proj" x1="202" y1="58" x2="248" y2="80"/>
+                      <circle class="fc-ghost" cx="248" cy="80" r="4"/>
+                    </svg>
+                    <span class="bb-warn">Clarity has slipped 18 points over three weeks. A shock this week holds it clear.</span>
+                  </span>
+                </span>
+              </span>
+            ) : (
+              <Plate slug={p.slug} />
+            )}
           </span>
         ))}
         <span class="vignette" aria-hidden="true"></span>
@@ -161,7 +217,6 @@ const CARD_X = [304, 492, 680, 868, 1056];
       ><Plate slug={p.slug} /></a>
     ))}
 
-    <div class="t quote">&ldquo;Every figure on this site is drawn by the code that describes it.&rdquo;</div>
     <span class="sig-mark"><Logo height={30} /></span>
 
     <span class="wave">
@@ -303,9 +358,79 @@ a.viewall:hover { opacity: .65; }
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
 }
 .tv .art.on { opacity: 1; transform: none; }
-/* poolside's screen is the app's real water shader; the plate underneath is
-   the no-WebGL fallback */
-#bbwater { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* ---- poolside billboard: the app's real UI in landscape ----
+   Inks are the app's own (--lg-* on /poolside/); Fraunces carries display
+   numbers. The water surface runs the app's WebGL shader; the plate
+   underneath it is the no-WebGL fallback. */
+.bb-app {
+  --bb-ink: #12333D; --bb-slate: #5F7B85; --bb-slate2: #93A8B0;
+  --bb-deep: #0A6C88; --bb-sage: #57B394; --bb-line: rgba(60,52,40,.11);
+  position: absolute; inset: 0; display: flex;
+  background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
+  font-family: 'Instrument Sans', system-ui, sans-serif; color: var(--bb-ink);
+  text-align: left;
+}
+.bb-rail {
+  width: 64px; flex: none; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 34px;
+  border-right: 1px solid var(--bb-line);
+}
+.bb-tab { position: relative; color: var(--bb-slate2); }
+.bb-tab svg { display: block; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.bb-tab.active { color: var(--bb-deep); }
+.bb-tab.active i { position: absolute; left: 50%; bottom: -9px; width: 4px; height: 4px; border-radius: 50%; background: var(--bb-deep); transform: translateX(-50%); }
+.bb-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: 24px 24px 26px 28px; }
+.bb-head { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 18px; }
+.bb-gsub { display: block; font-size: 13px; font-weight: 500; color: var(--bb-slate2); }
+.bb-gname { display: block; font-family: 'Fraunces', serif; font-weight: 400; font-size: 30px; line-height: 1.1; letter-spacing: -.3px; }
+.bb-wpill {
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 4px;
+  font-size: 12px; font-weight: 600; color: var(--bb-slate);
+  background: rgba(255,255,255,.6); border: 1px solid var(--bb-line);
+  border-radius: 999px; padding: 6px 12px;
+}
+.bb-wpill svg { width: 15px; height: 15px; display: block; }
+.bb-water { position: relative; flex: 1 1 auto; border-radius: 18px; overflow: hidden; background: #0E3444; box-shadow: inset 0 0 0 1px rgba(18,51,61,.35); }
+.bb-water .plate, #bbwater { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.bb-pill {
+  position: absolute; left: 14px; top: 13px; display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--bb-ink);
+  background: rgba(255,255,255,.88); border-radius: 999px; padding: 6px 12px;
+}
+.bb-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--bb-sage); display: block; }
+.bb-badge { position: absolute; left: 16px; bottom: 12px; color: #fff; }
+.bb-badge b { display: block; font-family: 'Fraunces', serif; font-weight: 300; font-size: 46px; line-height: .9; }
+.bb-badge em { display: block; font-style: normal; font-size: 12px; font-weight: 500; letter-spacing: .2px; opacity: .92; }
+.bb-fab {
+  position: absolute; right: 14px; bottom: 12px; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bb-deep); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 16px -8px rgba(10,58,74,.7);
+}
+.bb-fab svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bb-side { width: 292px; flex: none; display: flex; flex-direction: column; gap: 14px; padding: 24px 24px 26px 0; }
+.bb-card {
+  background: rgba(255,255,255,.55); border: 1px solid var(--bb-line);
+  border-radius: 16px; padding: 14px 16px;
+}
+.bb-chemhead { display: flex; align-items: baseline; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--bb-slate); }
+.bb-chemhead em { font-style: normal; font-size: 10.5px; font-weight: 500; letter-spacing: .2px; text-transform: none; color: var(--bb-slate2); }
+.bb-gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 12px; }
+.bb-grow { display: flex; align-items: baseline; gap: 6px; }
+.bb-grow i { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--bb-slate); }
+.bb-grow b { margin-left: auto; font-family: 'Fraunces', serif; font-weight: 400; font-size: 19px; }
+.bb-grow u { width: 6px; height: 6px; border-radius: 50%; background: var(--bb-sage); }
+.bb-gtrack { position: relative; display: block; margin-top: 7px; height: 5px; border-radius: 3px; background: rgba(60,52,40,.1); }
+.bb-gband { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: rgba(87,179,148,.4); }
+.bb-gmark { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%,-50%); background: var(--bb-sage); box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+.bb-fc { flex: 1 1 auto; display: flex; flex-direction: column; }
+.bb-fchip { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--bb-deep); }
+.bb-fchip svg { width: 13px; height: 13px; stroke: var(--bb-deep); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bb-spark { display: block; width: 100%; flex: 1 1 auto; min-height: 0; margin-top: 8px; }
+.bb-spark .fc-thresh { stroke: rgba(87,179,148,.5); stroke-width: 1; stroke-dasharray: 3 4; }
+.bb-spark .fc-line { fill: none; stroke: var(--bb-deep); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.bb-spark .fc-proj { stroke: var(--bb-deep); stroke-width: 2; stroke-dasharray: 2 4; opacity: .7; }
+.bb-spark .fc-ghost { fill: none; stroke: var(--bb-deep); stroke-width: 1.6; opacity: .7; }
+.bb-warn { margin-top: 8px; font-size: 11.5px; line-height: 1.45; color: var(--bb-slate); }
 /* the display darkens at its perimeter and carries a light sheen */
 .vignette {
   position: absolute; inset: 0; pointer-events: none; z-index: 2;
@@ -353,13 +478,8 @@ a.viewall:hover { opacity: .65; }
     0 5px 9px -4px rgba(95,85,72,.42);
 }
 
-/* ---- quote + mark ---- */
-.sig-mark { position: absolute; left: 753px; top: 944px; color: var(--ink); opacity: .8; }
-.quote {
-  top: 927px; left: 768px; transform: translateX(-50%);
-  font-style: italic; font-size: 17px; letter-spacing: .05px;
-  color: var(--ink);
-}
+/* ---- signature mark ---- */
+.sig-mark { position: absolute; left: 753px; top: 938px; color: var(--ink); opacity: .8; }
 
 /* ---- sound: room tone, off until asked ---- */
 .wave { position: absolute; left: 1344px; top: 952px; }
@@ -615,7 +735,7 @@ var bbDraw = null, bbRaf = null;
 })();
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbActive() {
-  return !!bbDraw && bbCv.parentElement.classList.contains('on') && state.mode !== 'detail';
+  return !!bbDraw && bbCv.closest('.art').classList.contains('on') && state.mode !== 'detail';
 }
 function bbTick(now) {
   bbRaf = null;
@@ -626,7 +746,7 @@ function bbTick(now) {
 function bbWake() {
   if (!bbDraw) return;
   if (reduceMotion) {                                 // a still frame, no loop
-    if (bbCv.parentElement.classList.contains('on')) bbDraw(3);
+    if (bbCv.closest('.art').classList.contains('on')) bbDraw(3);
     return;
   }
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);
@@ -678,8 +798,10 @@ function buildDetail(i) {
        '<h2 class="dname" style="color:' + p.accent + '" tabindex="-1" id="dfocus">' + esc(p.name) + '</h2>' +
        '<div class="dtag">' + esc(p.tag) + '</div>' +
        '<div class="dmeta"><span>' + p.iters.length + ' ITERATIONS</span><span>2026</span><span>SCROLL →</span></div>' +
-       '<a class="dposter" href="' + p.href + '" aria-label="Open ' + esc(p.name) + ' case study"></a>' +
-       '<a class="dopen" href="' + p.href + '" style="color:' + p.accent + '">OPEN CASE STUDY <span aria-hidden="true">↗</span></a>' +
+       (p.href
+         ? '<a class="dposter" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' aria-label="Open ' + esc(p.name) + '"></a>' +
+           '<a class="dopen" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' style="color:' + p.accent + '">' + esc(p.linkLabel || 'OPEN CASE STUDY') + ' <span aria-hidden="true">↗</span></a>'
+         : '<span class="dposter"></span>') +
        '</div>';
   p.iters.forEach(function (it, n) {
     h += '<div class="dpanel diter' + (n % 2 ? ' alt' : '') + '">' +

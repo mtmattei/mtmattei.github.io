@@ -59,7 +59,79 @@ const { slug } = Astro.props;
     </g>
   )}
 
-  {slug === 'ledger' && (
+  {slug === 'momentui' && (
+    <g>
+      <rect width="216" height="100" fill="#1C1511" />
+      {/* fragments drifting in from the left… */}
+      <g fill="#F7EFE9">
+        <rect x="14" y="16" width="34" height="9" rx="2" fill-opacity="0.2" transform="rotate(-8 31 20)" />
+        <rect x="26" y="44" width="22" height="22" rx="4" fill-opacity="0.14" transform="rotate(12 37 55)" />
+        <rect x="12" y="76" width="42" height="7" rx="2" fill-opacity="0.24" transform="rotate(-5 33 79)" />
+        <rect x="58" y="24" width="26" height="8" rx="2" fill-opacity="0.3" transform="rotate(6 71 28)" />
+        <rect x="62" y="62" width="30" height="12" rx="3" fill-opacity="0.18" transform="rotate(-10 77 68)" />
+      </g>
+      <rect x="55" y="80" width="18" height="6" rx="2" fill="#E8896B" fill-opacity="0.85" transform="rotate(8 64 83)" />
+      {/* …composing into an aligned interface on the right */}
+      <g>
+        <rect x="118" y="14" width="84" height="14" rx="3" fill="#F7EFE9" fill-opacity="0.9" />
+        <rect x="118" y="34" width="52" height="8" rx="2" fill="#F7EFE9" fill-opacity="0.35" />
+        <rect x="118" y="48" width="84" height="22" rx="4" fill="#F7EFE9" fill-opacity="0.14" />
+        <rect x="118" y="76" width="40" height="10" rx="3" fill="#E8896B" />
+        <rect x="164" y="76" width="38" height="10" rx="3" fill="#F7EFE9" fill-opacity="0.22" />
+      </g>
+    </g>
+  )}
+
+  {slug === 'unoannotation' && (
+    <g>
+      <rect width="216" height="100" fill="#101B15" />
+      {/* the interface, as the agent cannot see it */}
+      <g fill="#EAF5EE">
+        <rect x="18" y="14" width="180" height="12" rx="3" fill-opacity="0.16" />
+        <rect x="18" y="34" width="86" height="40" rx="4" fill-opacity="0.10" />
+        <rect x="112" y="34" width="86" height="18" rx="3" fill-opacity="0.10" />
+        <rect x="112" y="56" width="86" height="18" rx="3" fill-opacity="0.10" />
+        <rect x="18" y="82" width="60" height="8" rx="2" fill-opacity="0.14" />
+      </g>
+      {/* …and the annotations that give it eyes */}
+      <g fill="none" stroke="#5FC98F" stroke-width="1.4">
+        <rect x="14" y="30" width="94" height="48" rx="5" />
+        <rect x="108" y="52" width="94" height="26" rx="4" stroke-dasharray="4 3" stroke-opacity="0.7" />
+        <path d="M61 10 v10 M56 15 h10" stroke-width="1.2" />
+      </g>
+      <text x="18" y="26" font-family="IBM Plex Mono, monospace" font-size="7" fill="#5FC98F">ref:a1</text>
+      <text x="112" y="48" font-family="IBM Plex Mono, monospace" font-size="7" fill="#5FC98F" fill-opacity="0.7">ref:a2</text>
+    </g>
+  )}
+
+  {slug === 'liquidglasslab' && (
+    <g>
+      <rect width="216" height="100" fill="#0C161D" />
+      {Array.from({ length: 9 }, (_, i) => (
+        <line x1={0} y1={10 + i * 10} x2={216} y2={10 + i * 10} stroke="#EAF4F8" stroke-opacity="0.09" stroke-width="0.7" />
+      ))}
+      {Array.from({ length: 17 }, (_, i) => (
+        <line x1={8 + i * 12.5} y1={0} x2={8 + i * 12.5} y2={100} stroke="#EAF4F8" stroke-opacity="0.09" stroke-width="0.7" />
+      ))}
+      {/* the lens: the same grid, bent */}
+      <clipPath id="pl-lens"><circle cx="86" cy="50" r="30" /></clipPath>
+      <g clip-path="url(#pl-lens)">
+        <rect x="56" y="20" width="60" height="60" fill="#10222D" />
+        {Array.from({ length: 5 }, (_, i) => (
+          <path d={`M56 ${30 + i * 10} q 30 ${(i - 2) * 7} 60 0`} fill="none" stroke="#EAF4F8" stroke-opacity="0.28" stroke-width="0.9" />
+        ))}
+        {Array.from({ length: 5 }, (_, i) => (
+          <path d={`M${66 + i * 10} 20 q ${(i - 2) * 7} 30 0 60`} fill="none" stroke="#EAF4F8" stroke-opacity="0.28" stroke-width="0.9" />
+        ))}
+      </g>
+      <circle cx="86" cy="50" r="30" fill="none" stroke="#E893B7" stroke-opacity="0.5" stroke-width="2.2" />
+      <circle cx="86" cy="50" r="30" fill="none" stroke="#7FD4E8" stroke-width="1.4" />
+      <circle cx="75" cy="39" r="7" fill="#EAF4F8" fill-opacity="0.14" />
+      <text x="140" y="88" font-family="IBM Plex Mono, monospace" font-size="7" fill="#7FD4E8" fill-opacity="0.8">backdrop · sksl</text>
+    </g>
+  )}
+
+  {(slug === 'ledger' || slug === 'design-ledger') && (
     <g>
       <rect width="216" height="100" fill="#F0EAE3" />
       {Array.from({ length: 10 }, (_, i) => (
