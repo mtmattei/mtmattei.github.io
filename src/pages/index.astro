@@ -13,7 +13,7 @@ import '@fontsource/fraunces/400.css';
    Portfolio identity kept: the M mark, the Plates (art drawn by the page),
    the house blue accent for state, Instrument Sans / IBM Plex Mono. */
 
-type Iter = { v: string; title: string; cap: string; rows: string[] };
+type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: string };
 type Proj = {
   slug: string;
   name: string;
@@ -21,22 +21,26 @@ type Proj = {
   /* absent href = no case study yet; linkLabel names the destination */
   href?: string;
   linkLabel?: string;
-  /* detail-world palette: surface tone, display accent, body ink */
+  /* detail-world palette: surface tone, display accent, body ink;
+     base is the far radial color (near-black default; paper = light world) */
   deep: string;
   accent: string;
   ink: string;
+  base?: string;
   iters: Iter[];
 };
 
 const PROJECTS: Proj[] = [
   {
+    /* light world: Poolside's exhibit is paper-and-ink like the rest of the
+       site; each iteration's artifact is the live WebGL stage from /poolside/ */
     slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/', linkLabel: 'OPEN CASE STUDY',
-    deep: '#0E3444', accent: '#2FB7BF', ink: '#EAF7F6',
+    deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
     iters: [
-      { v: 'V0.1', title: 'Flat water', cap: 'A sine ripple on a SkiaSharp canvas. Wrong on arrival: real water reads as weather, not as waves.', rows: ['one sine', 'sksl', 'desktop'] },
-      { v: 'V0.4', title: 'Displacement', cap: 'A runtime shader bends the pool tiles instead of drawing lines on them. The surface starts refracting.', rows: ['runtime shader', 'refraction', '60fps'] },
-      { v: 'V0.7', title: 'Weather states', cap: 'Calm, breeze, and rain as states of one shader. You read the water the way you read a sky.', rows: ['3 states', 'one shader', 'uno platform'] },
-      { v: 'V1.0', title: 'Exhibit', cap: 'The shipped interface, exploded back to its source. Every figure on the project page is drawn by the code that ships.', rows: ['exhibit', 'shader → page', '2026'] },
+      { v: 'V0.1', title: 'Field', cap: 'A noise field first: four fbm octaves breathing at a tenth of time. Not water yet, but already weather.', rows: ['fbm', '4 octaves'], fig: 'field' },
+      { v: 'V0.4', title: 'Warp', cap: 'The field displaces a grid; straight lines learn to bend before any water is drawn.', rows: ['displacement', 'grid'], fig: 'warp' },
+      { v: 'V0.7', title: 'Caustics', cap: 'Light focused by the moving surface: five iterations of folding, clamped to a sparkle.', rows: ['5 folds', 'clamped'], fig: 'caustic' },
+      { v: 'V1.0', title: 'Water', cap: 'The composite: tiles, refraction, caustics, specular. The same surface that ships in the app.', rows: ['one pass', 'ships in app'], fig: 'water' },
     ],
   },
   {
@@ -82,8 +86,8 @@ const PROJECTS: Proj[] = [
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, iters }) => ({
-  slug, name, tag, href, linkLabel, deep, accent, ink, iters,
+const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters }) => ({
+  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters,
 }));
 
 /* landing card positions, from the mockup measurements */
@@ -214,7 +218,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
         href={`#/p/${p.slug}`} data-slug={p.slug}
         style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
         aria-label={p.name}
-      ><Plate slug={p.slug} /></a>
+      ><Plate slug={p.slug === 'poolside' ? 'poolside-app' : p.slug} /></a>
     ))}
 
     <span class="sig-mark"><Logo height={30} /></span>
@@ -249,7 +253,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
 
 <!-- plates for the detail worlds: cloned into posters when a world is built -->
 {PROJECTS.map((p) => (
-  <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
+  <template id={`plate-${p.slug}`}><Plate slug={p.slug === 'poolside' ? 'poolside-app' : p.slug} /></template>
 ))}
 
 </Bare>
@@ -567,6 +571,13 @@ a.viewall:hover { opacity: .65; }
 }
 .dframe .dframe-tag { font-size: 10px; font-weight: 600; letter-spacing: 2px; opacity: .6; }
 .dframe .dframe-v { font-family: var(--mono); font-size: 44px; letter-spacing: 2px; opacity: .9; }
+/* live-figure frames: the canvas is the artifact */
+.dframe .dfig { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.dframe .dframe-ring { position: absolute; inset: 0; border: 1px solid currentColor; opacity: .25; border-radius: inherit; pointer-events: none; }
+.dframe .dframe-live {
+  position: absolute; right: 16px; bottom: 13px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1.6px; opacity: .55;
+}
 .dtext { position: absolute; left: 110px; width: 420px; }
 .diter.alt .dtext { top: 600px; }
 .diter:not(.alt) .dtext { top: 150px; }
@@ -663,26 +674,24 @@ function setFeatured(i) {
   bbWake();
 }
 
-// ---- billboard water: the Poolside app's real surface shader (see /poolside/) ----
-var bbCv = document.getElementById('bbwater');
-var bbDraw = null, bbRaf = null;
-(function () {
-  if (!bbCv) return;
-  var g = bbCv.getContext('webgl', { antialias: true, premultipliedAlpha: false });
-  if (!g) { bbCv = null; return; }                    // plate underneath stays as fallback
-  var vsrc = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
-  var fsrc =
-    'precision highp float;varying vec2 v_uv;uniform vec2 u_res;uniform float u_time;' +
-    'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}' +
-    'float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);' +
-    'float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));' +
-    'vec2 u=f*f*(3.0-2.0*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}' +
-    'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*vnoise(p);p=p*2.02+vec2(1.7,9.2);a*=0.5;}return v;}' +
-    'float caustic(vec2 uv,float t){vec2 p=mod(uv*6.28318,6.28318)-250.0;vec2 i=p;float c=1.0,inten=0.0045;' +
-    'for(int n=0;n<5;n++){float tt=t*0.5*(1.0-(3.5/float(n+1)));' +
-    'i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x));' +
-    'c+=1.0/length(vec2(p.x/(sin(i.x+tt)/inten),p.y/(cos(i.y+tt)/inten)));}' +
-    'c/=5.0;c=1.17-pow(c,1.4);return clamp(pow(abs(c),8.0),0.0,1.0);}' +
+// ---- shared WebGL: the Poolside shaders (ported from /poolside/) ----
+var GL_VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
+var GL_HELPERS =
+  'precision highp float;varying vec2 v_uv;uniform vec2 u_res;uniform float u_time;' +
+  'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}' +
+  'float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);' +
+  'float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));' +
+  'vec2 u=f*f*(3.0-2.0*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}' +
+  'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*vnoise(p);p=p*2.02+vec2(1.7,9.2);a*=0.5;}return v;}' +
+  'float caustic(vec2 uv,float t){vec2 p=mod(uv*6.28318,6.28318)-250.0;vec2 i=p;float c=1.0,inten=0.0045;' +
+  'for(int n=0;n<5;n++){float tt=t*0.5*(1.0-(3.5/float(n+1)));' +
+  'i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x));' +
+  'c+=1.0/length(vec2(p.x/(sin(i.x+tt)/inten),p.y/(cos(i.y+tt)/inten)));}' +
+  'c/=5.0;c=1.17-pow(c,1.4);return clamp(pow(abs(c),8.0),0.0,1.0);}';
+// figures draw in the site's inks: paper #F6F2EE, ink #1A1815
+var GL_PAPER = 'vec3(0.965,0.949,0.933)', GL_INK = 'vec3(0.102,0.094,0.082)';
+var GL_FRAGS = {
+  water: GL_HELPERS +
     'uniform float u_clarity;uniform float u_murk;uniform float u_caustic;uniform vec3 u_murkCol;' +
     'vec3 tileCol(vec2 g){vec2 id=floor(g);vec2 f=fract(g);' +
     'vec2 e=smoothstep(0.0,0.07,f)*smoothstep(1.0,0.93,f);float grout=e.x*e.y;' +
@@ -704,13 +713,35 @@ var bbDraw = null, bbRaf = null;
     'float spec=pow(max(dot(n,normalize(vec3(0.35,0.55,1.0))),0.0),22.0);col+=spec*0.45*u_clarity;' +
     'float hz=u_murk*(0.30+0.55*depth);col=mix(col,u_murkCol,hz);' +
     'float vig=smoothstep(1.15,0.35,d);col*=0.85+0.15*vig;' +
-    'gl_FragColor=vec4(col,1.0);}';
+    'gl_FragColor=vec4(col,1.0);}',
+  field: GL_HELPERS +
+    'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);' +
+    'float v=fbm(auv*3.2+u_time*0.10);v=smoothstep(0.22,0.78,v);' +
+    'gl_FragColor=vec4(mix(' + GL_PAPER + ',' + GL_INK + ',v),1.0);}',
+  warp: GL_HELPERS +
+    'float grid(vec2 p){vec2 f=abs(fract(p)-0.5);float d=min(f.x,f.y);return 1.0-smoothstep(0.0,0.045,d);}' +
+    'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);float t=u_time;' +
+    'vec2 d1=vec2(0.83,0.55),d2=vec2(-0.42,0.91),d3=vec2(0.66,-0.75);' +
+    'vec2 w=d1*sin(dot(auv,d1)*11.3+t*1.21)+d2*(0.7*sin(dot(auv,d2)*17.7-t*1.63))+d3*(0.5*sin(dot(auv,d3)*26.9+t*0.87));' +
+    'vec3 col=' + GL_PAPER + ';' +
+    'col=mix(col,vec3(0.79,0.80,0.82),grid(auv*6.0));' +
+    'col=mix(col,' + GL_INK + ',grid((auv+w*0.03)*6.0));' +
+    'gl_FragColor=vec4(col,1.0);}',
+  caustic: GL_HELPERS +
+    'void main(){float asp=u_res.x/u_res.y;vec2 auv=vec2(v_uv.x*asp,v_uv.y);float t=u_time;' +
+    'vec2 w=vec2(fbm(auv*3.2+t*0.10),fbm(auv*3.2-t*0.12+5.0));vec2 cuv=auv*1.5+(w-0.5)*0.10;' +
+    'float ca=caustic(cuv,t);float ca2=caustic(cuv*1.8+4.0,t*1.15);ca=max(ca,ca2*0.55);' +
+    'gl_FragColor=vec4(mix(' + GL_PAPER + ',' + GL_INK + ',clamp(ca*1.7,0.0,1.0)),1.0);}'
+};
+function glSetup(cv, fsrc) {
+  var g = cv.getContext('webgl', { antialias: true, premultipliedAlpha: false });
+  if (!g) return null;
   function sh(t, s) { var x = g.createShader(t); g.shaderSource(x, s); g.compileShader(x); return x; }
   var p = g.createProgram();
-  g.attachShader(p, sh(g.VERTEX_SHADER, vsrc));
+  g.attachShader(p, sh(g.VERTEX_SHADER, GL_VS));
   g.attachShader(p, sh(g.FRAGMENT_SHADER, fsrc));
   g.linkProgram(p);
-  if (!g.getProgramParameter(p, g.LINK_STATUS)) { bbCv = null; return; }
+  if (!g.getProgramParameter(p, g.LINK_STATUS)) return null;
   g.useProgram(p);
   var bb = g.createBuffer();
   g.bindBuffer(g.ARRAY_BUFFER, bb);
@@ -718,21 +749,28 @@ var bbDraw = null, bbRaf = null;
   var l = g.getAttribLocation(p, 'p');
   g.enableVertexAttribArray(l);
   g.vertexAttribPointer(l, 2, g.FLOAT, false, 0, 0);
-  // 2x the 934x442 world box: crisp through the 2.2x walk-through push
-  bbCv.width = 1868; bbCv.height = 884;
   var U = {};
   ['u_res', 'u_time', 'u_clarity', 'u_murk', 'u_caustic', 'u_murkCol'].forEach(function (k) { U[k] = g.getUniformLocation(p, k); });
-  bbDraw = function (time) {
-    g.viewport(0, 0, bbCv.width, bbCv.height);
-    g.uniform2f(U.u_res, bbCv.width, bbCv.height);
+  return function (time) {
+    g.viewport(0, 0, cv.width, cv.height);
+    g.uniform2f(U.u_res, cv.width, cv.height);
     g.uniform1f(U.u_time, time);
-    g.uniform1f(U.u_clarity, .97);
-    g.uniform1f(U.u_murk, .05);
-    g.uniform1f(U.u_caustic, 1.076);
-    g.uniform3f(U.u_murkCol, .775, .844, .865);
+    if (U.u_clarity) g.uniform1f(U.u_clarity, .97);
+    if (U.u_murk) g.uniform1f(U.u_murk, .05);
+    if (U.u_caustic) g.uniform1f(U.u_caustic, 1.076);
+    if (U.u_murkCol) g.uniform3f(U.u_murkCol, .775, .844, .865);
     g.drawArrays(g.TRIANGLES, 0, 3);
   };
-})();
+}
+
+// ---- billboard water: the app's surface inside the billboard UI ----
+var bbCv = document.getElementById('bbwater');
+var bbDraw = null, bbRaf = null;
+if (bbCv) {
+  bbDraw = glSetup(bbCv, GL_FRAGS.water);       // plate underneath stays as fallback
+  if (bbDraw) { bbCv.width = 1868; bbCv.height = 884; }  // 2x: crisp through the push
+  else bbCv = null;
+}
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbActive() {
   return !!bbDraw && bbCv.closest('.art').classList.contains('on') && state.mode !== 'detail';
@@ -752,21 +790,33 @@ function bbWake() {
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);
 }
 
-document.querySelectorAll('.pcard').forEach(function (c, i) {
-  c.addEventListener('click', function (e) {
-    e.preventDefault();
-    if (state.featured === i) enterProject(i);
-    else setFeatured(i);
+// ---- detail-world figures: each Poolside iteration runs its live stage ----
+var dfigs = [], dfigRaf = null;
+function dfigsTeardown() {
+  dfigs.forEach(function (s) {
+    var g = s.cv.getContext('webgl');
+    var ext = g && g.getExtension('WEBGL_lose_context');
+    if (ext) ext.loseContext();
   });
-});
-document.querySelector('.swipe .prev').addEventListener('click', function (e) {
-  e.preventDefault(); setFeatured((state.featured + PROJECTS.length - 1) % PROJECTS.length);
-});
-document.querySelector('.swipe .next').addEventListener('click', function (e) {
-  e.preventDefault(); setFeatured((state.featured + 1) % PROJECTS.length);
-});
-tv.addEventListener('click', function () { enterProject(state.featured); });
-tv.addEventListener('keydown', function (e) { if (e.key === 'Enter') enterProject(state.featured); });
+  dfigs = [];
+}
+function dfigsBuild() {
+  railEl.querySelectorAll('canvas.dfig').forEach(function (cv) {
+    var draw = glSetup(cv, GL_FRAGS[cv.dataset.fig]);
+    if (!draw) return;                                // ring + caption still stand
+    cv.width = 1320; cv.height = 820;                 // 2x the 660x410 world frame
+    if (reduceMotion) draw(3);
+    else dfigs.push({ cv: cv, draw: draw });
+  });
+  dfigWake();
+}
+function dfigTick(now) {
+  dfigRaf = null;
+  if (!dfigs.length || (state.mode !== 'detail' && state.mode !== 'entering')) return;
+  dfigs.forEach(function (s) { s.draw(now / 1000); });
+  dfigRaf = requestAnimationFrame(dfigTick);
+}
+function dfigWake() { if (!dfigRaf && dfigs.length && !reduceMotion) dfigRaf = requestAnimationFrame(dfigTick); }
 
 // ---- detail world ----
 var detail = document.getElementById('detail');
@@ -777,6 +827,14 @@ var rail = { x: 0, target: 0, max: 0, width: 0, centers: [] };
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
 function frameHtml(p, it, kind) {
+  if (it.fig) {
+    // the artifact is real: the iteration's live WebGL stage (see /poolside/)
+    return '<div class="dframe dframe-fig" style="color:' + p.ink + '">' +
+      '<canvas class="dfig" data-fig="' + esc(it.fig) + '"></canvas>' +
+      '<span class="dframe-ring"></span>' +
+      '<span class="dframe-live">LIVE · ' + esc(it.fig).toUpperCase() + ' · WEBGL</span>' +
+      '</div>';
+  }
   // artifact slot: designed placeholder until the real image lands (per-iter img in PROJECTS)
   return '<div class="dframe" style="background:radial-gradient(120% 140% at 30% 20%, ' + p.deep + ' 0%, rgba(6,8,9,.0) 100%); color:' + p.ink + '">' +
     '<div class="dframe-inner"></div>' +
@@ -787,7 +845,8 @@ function frameHtml(p, it, kind) {
 
 function buildDetail(i) {
   var p = PROJECTS[i];
-  detail.style.background = 'radial-gradient(130% 120% at 30% 10%, ' + p.deep + ' 0%, #060809 78%)';
+  dfigsTeardown();
+  detail.style.background = 'radial-gradient(130% 120% at 30% 10%, ' + p.deep + ' 0%, ' + (p.base || '#060809') + ' 78%)';
   detail.style.color = p.ink;
 
   var no = String(i + 1).padStart(2, '0');
@@ -823,6 +882,8 @@ function buildDetail(i) {
   // the poster is the project's plate, cloned from its template
   var tpl = document.getElementById('plate-' + p.slug);
   if (tpl) railEl.querySelector('.dposter').appendChild(tpl.content.cloneNode(true));
+
+  dfigsBuild();                                       // live stages, when the project has them
 
   // timeline ruler: one tick per stop (title + iterations + end)
   var tl = document.getElementById('dtimeline');
