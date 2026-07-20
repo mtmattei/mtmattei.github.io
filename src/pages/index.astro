@@ -7,6 +7,8 @@ import '@fontsource/fraunces/300.css';
 import '@fontsource/fraunces/400.css';
 /* the Poolside phone build's own styles, scoped under .pworld */
 import '../styles/poolside-app.css';
+import { highlightSource } from '../data/portfolio';
+import { DISPERSION_SRC, CAUSTIC_SRC } from '../data/poolside-src';
 
 /* The landing rebuilt from the billboard mockup (mockup-landing, SPEC.md):
    a fixed 1536×1024 stage fit-scaled to the viewport. Entering a project is
@@ -20,12 +22,14 @@ type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: strin
    note = a prose panel; app = the running interface; parts = a card grid;
    stack = the exploded shader deck with its legend (from /poolside/) */
 type Extra = {
-  kind: 'note' | 'app' | 'parts' | 'stack';
+  kind: 'note' | 'app' | 'parts' | 'stack' | 'exploded' | 'code';
   label: string;
   title?: string;
   body?: string;
   rows?: string[];
-  items?: { no: string; title: string; body: string; read?: string }[];
+  items?: { no: string; title: string; body: string; read?: string; lead?: string }[];
+  /* a note panel may carry the project's video beside the text */
+  video?: { src: string; cap: string; sub: string };
 };
 type Proj = {
   slug: string;
@@ -46,16 +50,28 @@ type Proj = {
   question?: string;
   /* overrides the "N ITERATIONS" line in the title panel's meta row */
   meta?: string;
+  /* the case-study page head, carried into the title panel */
+  lede?: string;
+  facts?: string[];
 };
 
 const PROJECTS: Proj[] = [
   {
     /* light world: Poolside's exhibit is paper-and-ink like the rest of the
        site; each iteration's artifact is the live WebGL stage from /poolside/ */
-    slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/', linkLabel: 'OPEN CASE STUDY',
+    /* the world IS the Poolside detail page: /poolside/ replicated for the
+       horizontal scrolling concept */
+    slug: 'poolside', name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM',
     deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
     question: 'How quiet can a chemistry report be and still be trusted?',
     meta: '4 STAGES · ONE PASS',
+    lede: 'A pool chemistry companion created to explore real-time shaders with SkiaSharp. The experience became a playground for exploring water caustics, real-time shaders, and interactive rendering with SkiaSharp.',
+    facts: [
+      'Uno Platform · net10.0 · desktop + Android',
+      'SkiaSharp 4.148 GA · runtime SkSL water',
+      'MVUX · Toolkit TabBar · ShadowContainer',
+      'Fraunces readings · Instrument Sans actions',
+    ],
     pre: [
       /* the finished product leads; the making-of follows */
       {
@@ -67,6 +83,7 @@ const PROJECTS: Proj[] = [
         kind: 'note', label: 'ORIGIN', title: 'It started as a shader, not an app.',
         body: 'The first build was Refraction Pixels, an Uno Platform desktop sample written to test SkiaSharp 4.148’s runtime SkSL through SKCanvasElement. Watching the caustics run, the question changed from “can the canvas do this” to “what product deserves this water.” That answer is Poolside.',
         rows: ['refraction pixels', 'skiasharp 4.148', 'runtime sksl'],
+        video: { src: '/videos/water-shader.mp4', cap: 'The water shader, live', sub: 'Uno Platform · SkiaSharp 4.148' },
       },
       {
         /* the exploded layer stack, exactly as on the exhibit (pl-deck + legend) */
@@ -88,12 +105,28 @@ const PROJECTS: Proj[] = [
         rows: ['skruntimeeffect', 'one pass', 'vsync'],
       },
       {
+        kind: 'code', label: 'CODE', title: 'Key passages · PoolWater.sksl',
+        body: 'The exact passages behind the dispersion and the caustic web, as they run in the app.',
+      },
+      {
         kind: 'parts', label: 'NOTES', title: 'Field notes',
         items: [
           { no: '01', title: 'One warp, three channels', body: 'The displacement is linear in its scale, so s(k) = suv + k·disp derives the red and blue samples exactly from the green evaluation.', read: 'disp ±0.06 · dispersion for free' },
           { no: '02', title: 'Cache the builder', body: 'SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect, and the next render access-violates.', read: 'build once · feed uniforms' },
           { no: '03', title: 'Zero-alloc loop', body: 'The render loop rides CompositionTarget.Rendering, snapshots inputs to plain fields, and reuses uniform buffers. At 0% intensity it stops painting.', read: 'vsync · idle at 0%' },
           { no: '04', title: 'GLSL to SkSL', body: 'No varyings, no gl_FragColor. Return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.', read: 'half4 · Y-down DIPs' },
+        ],
+      },
+      {
+        /* the exhibit's exploded view closes the timeline: the four key
+           features out of the shell, x-part tags and notes verbatim */
+        kind: 'exploded', label: 'EXPLODED', title: 'The interface, exploded.',
+        body: 'Explode the interface and its key features lift out of the shell, remaining fully interactive and tethered to their original positions.',
+        items: [
+          { no: '1', title: 'WaterConditionCanvas · WaterCondition.sksl', lead: 'WaterConditionCanvas is an SKCanvasElement', body: 'running WaterCondition.sksl. Clarity, green, milky, and sediment are DependencyProperties snapshotted to fields for the render thread; the loop is vsync-aligned, capped at 30fps, and lives inside the folding IsoBasin control.' },
+          { no: '2', title: 'engraved plate · IState‹PoolSnapshot›', lead: 'One recessed plate, four gauges in a 2×2 grid.', body: 'Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState of PoolSnapshot; a ChemistryExpanded state swaps compact numbers for full range bands.' },
+          { no: '3', title: 'IWaterAnalyzer · PoolModel · one line', lead: 'The insight is a service.', body: 'IWaterAnalyzer is DI-registered and injected through the PoolModel(IWaterAnalyzer Analyzer) primary constructor. It reads the snapshot and the test strip (StripReader), then returns one sentence carrying a status tone.' },
+          { no: '4', title: 'TrendsModel · Polyline · WaterThumbnail', lead: 'History is a Polyline sparkline', body: 'fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed, so projected weeks are never drawn in the solid ink of the ones already measured.' },
         ],
       },
     ],
@@ -141,8 +174,8 @@ const PROJECTS: Proj[] = [
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta }) => ({
-  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta,
+const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts }) => ({
+  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
 /* landing card positions, from the mockup measurements */
@@ -313,7 +346,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
     </div>
     <div class="lnav-g">
       <span class="lnav-k">Projects</span>
-      <a class="lnav-i" href="/poolside/"><span class="ltick"></span>Poolside</a>
+      <a class="lnav-i" href="/#/p/poolside"><span class="ltick"></span>Poolside</a>
       <a class="lnav-i" href="/source-figure/"><span class="ltick"></span>Source / Figure</a>
       <a class="lnav-i" href="/texts/"><span class="ltick"></span>Texts</a>
       <a class="lnav-i" href="/xaml-uno/"><span class="ltick"></span>XAML / Uno</a>
@@ -339,6 +372,16 @@ const CARD_X = [304, 492, 680, 868, 1056];
 {PROJECTS.map((p) => (
   <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
+
+<!-- the key SkSL passages, highlighted server-side as on /poolside/ -->
+<template id="psrc">
+  <div class="srcblock" style="margin-bottom:12px">
+    <pre set:html={highlightSource(DISPERSION_SRC)} />
+  </div>
+  <div class="srcblock">
+    <pre set:html={highlightSource(CAUSTIC_SRC)} />
+  </div>
+</template>
 
 <!-- the original Poolside mobile build, markup reused from /poolside/;
      cloned into the world's APP panel. The surface canvas is classed for
@@ -683,8 +726,9 @@ a.viewall:hover { opacity: .65; }
 .card-basin span { display: block; }
 .basin-mini {
   position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
-  /* the projected diamond sits low in its box; lift it to center in the card */
-  transform: translateY(-12px) scale(.58) rotateX(55deg) rotateZ(45deg);
+  /* the projected diamond sits low in its box; lift and shrink to clear
+     the card's edges (95px tall) */
+  transform: translateY(-25px) scale(.5) rotateX(55deg) rotateZ(45deg);
 }
 .b-wall {
   position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
@@ -769,6 +813,10 @@ a.viewall:hover { opacity: .65; }
 }
 .dname:focus { outline: none; }
 .dtag { font-size: 12px; font-weight: 600; letter-spacing: 2.6px; opacity: .75; }
+.dlede { max-width: 560px; margin-top: 22px; font-size: 15.5px; line-height: 24px; opacity: .82; white-space: normal; }
+.dfacts { margin-top: 22px; }
+.dfact { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; opacity: .7; padding: 3px 0; }
+.dfact i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .6; }
 .dmeta { display: flex; gap: 34px; margin-top: 56px; font-family: var(--mono);
   font-size: 13px; letter-spacing: 1.6px; opacity: .55; }
 .dposter { display: block; position: relative; margin-top: 48px; width: 264px; height: 143px; border-radius: 14px; overflow: hidden;
@@ -829,6 +877,21 @@ a.viewall:hover { opacity: .65; }
 .dnote { width: 900px; padding: 300px 0 0 60px; }
 .dnote .dh { font-size: 68px; -webkit-text-stroke: 1.2px currentColor; white-space: normal; max-width: 760px; }
 .dnote .dcap { max-width: 640px; font-size: 16.5px; line-height: 26px; }
+/* a note with the project's footage beside it */
+.dnote-media { width: 1420px; display: flex; align-items: center; gap: 70px; padding-top: 0; }
+.dnote-media .dnote-text { max-width: 680px; }
+.dnote-media .videocard { flex: none; width: 520px; }
+.dnote-media .videocard video { display: block; width: 100%; border-radius: 6px; }
+/* the key passages, in the site's srcblock grammar */
+.dcode { width: 980px; padding: 90px 0 0 60px; }
+.dcode .dh { font-size: 56px; }
+.dcode-hold { margin-top: 26px; width: 860px; }
+.dcode-hold .srcblock { text-align: left; }
+/* the richer title panel (the case-study head folded in) sits denser */
+.dtitle.rich { padding-top: 96px; }
+.dtitle.rich .dname { font-size: 150px; }
+.dtitle.rich .dmeta { margin-top: 26px; }
+.dtitle.rich .dposter { margin-top: 24px; }
 .dinterface { width: 1120px; padding: 88px 0 0 60px; }
 .dinterface .dh { font-size: 56px; }
 /* the phone build sits beside its caption; the phone brings its own chrome */
@@ -888,6 +951,27 @@ a.viewall:hover { opacity: .65; }
 .dstack-tag { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 4px; }
 .dstack-legend b { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
 .dstack-legend p { margin: 0; font-size: 13px; line-height: 1.5; opacity: .7; }
+
+/* the exploded closing panel; fig-tag / x-note rules reused from /poolside/ */
+.dexploded { width: 1400px; padding: 72px 0 0 60px; }
+.dexploded .dh { font-size: 56px; }
+.dexp-lede { max-width: 560px; margin-top: 4px; }
+.dexp-grid { display: grid; grid-template-columns: repeat(2, 600px); gap: 30px 70px; margin-top: 26px; }
+.dexp-body { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+.dexp-hold { width: 320px; }
+.dexp-comp {
+  background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
+  border-radius: 14px; padding: 4px 10px 10px;
+  box-shadow: 0 16px 32px -20px rgba(18,51,61,.5);
+}
+.fig-tag { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.fig-no {
+  flex: none; width: 18px; height: 18px; border: 1px solid currentColor; border-radius: 50%;
+  display: grid; place-items: center; font-family: var(--mono); font-size: 9px;
+}
+.fig-cap { font-family: var(--mono); font-size: 8px; letter-spacing: .16em; text-transform: uppercase; opacity: .6; }
+.dexploded .x-note { margin: 0; font-size: 13.5px; line-height: 1.5; opacity: .72; text-wrap: pretty; }
+.dexploded .x-note b { font-weight: 500; opacity: 1; }
 
 .dparts { width: 1140px; padding: 140px 0 0 60px; }
 .dparts .dh { font-size: 56px; }
@@ -1201,6 +1285,21 @@ function extraHtml(p, x) {
       }).join('') + '</ol></div>' +
       '</div></div>';
   }
+  if (x.kind === 'exploded') {
+    // the exhibit's exploded view: the four features out of the shell,
+    // each with its fig-tag and x-note; components cloned from #pphone
+    return '<div class="dpanel dexploded">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<p class="dcap dexp-lede">' + esc(x.body || '') + '</p>' +
+      '<div class="dexp-grid">' + (x.items || []).map(function (it) {
+        return '<div class="dexp-part">' +
+          '<div class="fig-tag"><span class="fig-no">' + esc(it.no) + '</span><span class="fig-cap">' + esc(it.title) + '</span></div>' +
+          '<div class="dexp-body"><div class="dexp-hold"></div>' +
+          '<p class="x-note"><b>' + esc(it.lead || '') + '</b> ' + esc(it.body) + '</p></div>' +
+          '</div>';
+      }).join('') + '</div></div>';
+  }
   if (x.kind === 'parts') {
     return '<div class="dpanel dparts">' +
       '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
@@ -1209,11 +1308,27 @@ function extraHtml(p, x) {
         return '<div class="dpart"><span class="dpart-no">' + esc(it.no) + '</span><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p><span class="dpart-read">' + esc(it.read) + '</span></div>';
       }).join('') + '</div></div>';
   }
-  return '<div class="dpanel dnote">' +
+  if (x.kind === 'code') {
+    // the highlighted SkSL passages, cloned from the server-rendered template
+    return '<div class="dpanel dcode">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<p class="dcap">' + esc(x.body || '') + '</p>' +
+      '<div class="dcode-hold"></div>' +
+      '</div>';
+  }
+  var noteInner =
     '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
     '<div class="dh">' + esc(x.title || '') + '</div>' +
-    '<p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows) +
-    '</div>';
+    '<p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows);
+  if (x.video) {
+    // the project's own footage rides beside the note (videocard as on the page)
+    return '<div class="dpanel dnote dnote-media"><div class="dnote-text">' + noteInner + '</div>' +
+      '<div class="videocard"><video controls muted playsinline preload="metadata" src="' + esc(x.video.src) + '"></video>' +
+      '<div class="cap"><b>' + esc(x.video.cap) + '</b><span class="mono">' + esc(x.video.sub) + '</span></div></div>' +
+      '</div>';
+  }
+  return '<div class="dpanel dnote">' + noteInner + '</div>';
 }
 
 function buildDetail(i) {
@@ -1224,12 +1339,14 @@ function buildDetail(i) {
 
   var no = String(i + 1).padStart(2, '0');
   var h = '';
-  h += '<div class="dpanel dtitle">' +
+  h += '<div class="dpanel dtitle' + (p.lede ? ' rich' : '') + '">' +
        '<div class="dnum">' + no + '</div>' +
        '<div class="dlbl">PROJECT ' + no + ' — WALKED IN</div>' +
        '<h2 class="dname" style="color:' + p.accent + '" tabindex="-1" id="dfocus">' + esc(p.name) + '</h2>' +
        '<div class="dtag">' + esc(p.tag) + '</div>' +
+       (p.lede ? '<p class="dlede">' + esc(p.lede) + '</p>' : '') +
        '<div class="dmeta"><span>' + esc(p.meta || (p.iters.length + ' ITERATIONS')) + '</span><span>2026</span><span>SCROLL →</span></div>' +
+       (p.facts ? '<div class="dfacts">' + p.facts.map(function (f) { return '<div class="dfact"><i></i>' + esc(f) + '</div>'; }).join('') + '</div>' : '') +
        (p.href
          ? '<a class="dposter" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' aria-label="Open ' + esc(p.name) + '"></a>' +
            '<a class="dopen" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' style="color:' + p.accent + '">' + esc(p.linkLabel || 'OPEN CASE STUDY') + ' <span aria-hidden="true">↗</span></a>'
@@ -1276,6 +1393,24 @@ function buildDetail(i) {
   var hold = railEl.querySelector('.dapp-hold');
   var phoneTpl = document.getElementById('pphone');
   if (hold && phoneTpl) hold.appendChild(phoneTpl.content.cloneNode(true));
+
+  // the code panel gets the server-highlighted SkSL passages
+  var codeHold = railEl.querySelector('.dcode-hold');
+  var srcTpl = document.getElementById('psrc');
+  if (codeHold && srcTpl) codeHold.appendChild(srcTpl.content.cloneNode(true));
+
+  // the exploded panel's holds get the phone's own sections, out of the shell
+  var expHolds = railEl.querySelectorAll('.dexp-hold');
+  if (expHolds.length && phoneTpl) {
+    var secs = phoneTpl.content.querySelectorAll('.p-sec');
+    expHolds.forEach(function (hh, n) {
+      if (!secs[n]) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'pworld lg dexp-comp';
+      wrap.appendChild(secs[n].cloneNode(true));
+      hh.appendChild(wrap);
+    });
+  }
 
   dfigsBuild();                                       // live stages, when the project has them
 
@@ -1373,7 +1508,7 @@ detail.addEventListener('wheel', function (e) {
   railWake();
 }, { passive: false });
 detail.addEventListener('pointerdown', function (e) {
-  if (state.mode !== 'detail' || e.target.closest('a') || e.target.closest('input')) return;
+  if (state.mode !== 'detail' || e.target.closest('a') || e.target.closest('input') || e.target.closest('video')) return;
   railInput.dragging = true; railInput.dragX = e.clientX; railInput.dragStart = rail.target;
   detail.classList.add('grabbing');
   detail.setPointerCapture(e.pointerId);
