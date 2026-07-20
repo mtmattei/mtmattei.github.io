@@ -1,0 +1,48 @@
+---
+// Bare — head-only layout for full-viewport stage pages (the landing).
+// The Shell's rail/topbar grid would fight the fixed 1536×1024 stage,
+// so this carries only the document head and the site's fonts/tokens.
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/400-italic.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const {
+  title,
+  description = 'Matt Mattei. Developer and designer in Montréal. Code, design, writing, and the toolchain behind them.',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="generator" content={Astro.generator} />
+  <meta property="og:title" content={`${title} · Matt Mattei`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+  <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32x32.png?v=4" type="image/png" sizes="32x32" />
+  <link rel="icon" href="/favicon-16x16.png?v=4" type="image/png" sizes="16x16" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#1C1B17" />
+  <link rel="preload" href="/fonts/big-shoulders-800.woff2" as="font" type="font/woff2" crossorigin />
+  <title>{title} · Matt Mattei</title>
+</head>
+<body>
+  <slot />
+</body>
+</html>
