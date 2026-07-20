@@ -252,7 +252,19 @@ const CARD_X = [304, 492, 680, 868, 1056];
         href={`#/p/${p.slug}`} data-slug={p.slug}
         style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
         aria-label={p.name}
-      ><Plate slug={p.slug === 'poolside' ? 'poolside-iso' : p.slug} /></a>
+      >{p.slug === 'poolside' ? (
+        /* the app's own IsoBasin (construction from /poolside/), shader on top */
+        <span class="card-basin">
+          <span class="basin-mini">
+            <span class="b-wall n"></span><span class="b-wall s"></span>
+            <span class="b-wall w"></span><span class="b-wall e"></span>
+            <span class="b-floor"></span>
+            <span class="b-surf"><Plate slug="poolside" /><canvas id="cardwater" aria-hidden="true"></canvas></span>
+          </span>
+        </span>
+      ) : (
+        <Plate slug={p.slug} />
+      )}</a>
     ))}
 
     <span class="sig-mark"><Logo height={30} /></span>
@@ -313,7 +325,7 @@ const CARD_X = [304, 492, 680, 868, 1056];
 
 <!-- plates for the detail worlds: cloned into posters when a world is built -->
 {PROJECTS.map((p) => (
-  <template id={`plate-${p.slug}`}><Plate slug={p.slug === 'poolside' ? 'poolside-app' : p.slug} /></template>
+  <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
 
 </Bare>
@@ -563,6 +575,30 @@ a.viewall:hover { opacity: .65; }
     0 5px 9px -4px rgba(95,85,72,.42);
 }
 .pcard:active { transform: scale(.96); }
+/* the poolside card: the IsoBasin, rules reused from /poolside/ (poolside.css) */
+.card-basin {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  perspective: 900px; background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
+}
+.card-basin span { display: block; }
+.basin-mini {
+  position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
+  transform: scale(.58) rotateX(55deg) rotateZ(45deg);
+}
+.b-wall {
+  position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -8px 12px -8px rgba(0,30,40,.35);
+}
+.b-wall.n { top: 0; left: 0; width: 100%; height: 22px; transform-origin: top center; transform: rotateX(-90deg); }
+.b-wall.s { bottom: 0; left: 0; width: 100%; height: 22px; transform-origin: bottom center; transform: rotateX(90deg); }
+.b-wall.w { top: 0; left: 0; width: 22px; height: 100%; transform-origin: left center; transform: rotateY(90deg); }
+.b-wall.e { top: 0; right: 0; width: 22px; height: 100%; transform-origin: right center; transform: rotateY(-90deg); }
+.b-floor { position: absolute; inset: 0; background: #b3d3d9; transform: translateZ(-22px); }
+.b-surf {
+  position: absolute; inset: 0; border-radius: 16px; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -18px 26px -18px rgba(0,20,30,.5), 0 22px 34px -26px rgba(9,80,102,.75);
+}
+.b-surf .plate, .b-surf canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pcard.selected {
   box-shadow:
     0 0 0 1.5px var(--paper),
@@ -634,9 +670,15 @@ a.viewall:hover { opacity: .65; }
 .dtag { font-size: 12px; font-weight: 600; letter-spacing: 2.6px; opacity: .75; }
 .dmeta { display: flex; gap: 34px; margin-top: 56px; font-family: var(--mono);
   font-size: 13px; letter-spacing: 1.6px; opacity: .55; }
-.dposter { display: block; margin-top: 48px; width: 264px; height: 143px; border-radius: 14px; overflow: hidden;
+.dposter { display: block; position: relative; margin-top: 48px; width: 264px; height: 143px; border-radius: 14px; overflow: hidden;
   box-shadow: 0 10px 26px -8px rgba(0,0,0,.6); }
-.dposter svg { display: block; width: 100%; height: 100%; }
+.dposter .plate { display: block; width: 100%; height: 100%; }
+/* the interface, scaled to poster size (933x442 · scale .3235 -> 302x143,
+   centered over the 264-wide poster) */
+.dposter .bb-scale {
+  position: absolute; left: -19px; top: 0; width: 933px; height: 442px;
+  transform: scale(.3235); transform-origin: 0 0;
+}
 .dopen {
   display: inline-flex; align-items: center; gap: 10px; margin-top: 30px;
   font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 2px;
@@ -883,20 +925,31 @@ if (bbCv) {
   if (bbDraw) { bbCv.width = 1868; bbCv.height = 884; }  // 2x: crisp through the push
   else bbCv = null;
 }
+// the featured card's IsoBasin runs the same surface
+var cardCv = document.getElementById('cardwater');
+var cardDraw = null;
+if (cardCv) {
+  cardDraw = glSetup(cardCv, GL_FRAGS.water);
+  if (cardDraw) { cardCv.width = 328; cardCv.height = 328; }
+  else cardCv = null;
+}
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
+function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return !!bbDraw && bbCv.closest('.art').classList.contains('on') && state.mode !== 'detail';
+  return state.mode !== 'detail' && (bbOn() || !!cardDraw);
 }
 function bbTick(now) {
   bbRaf = null;
   if (!bbActive()) return;                            // parks; bbWake() restarts it
-  bbDraw(now / 1000);
+  if (bbOn()) bbDraw(now / 1000);
+  if (cardDraw) cardDraw(now / 1000);
   bbRaf = requestAnimationFrame(bbTick);
 }
 function bbWake() {
-  if (!bbDraw) return;
+  if (!bbDraw && !cardDraw) return;
   if (reduceMotion) {                                 // a still frame, no loop
-    if (bbCv.closest('.art').classList.contains('on')) bbDraw(3);
+    if (bbOn()) bbDraw(3);
+    if (cardDraw) cardDraw(3);
     return;
   }
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);
@@ -1024,9 +1077,22 @@ function buildDetail(i) {
        '</div><div class="dend-pad"></div>';
   railEl.innerHTML = h;
 
-  // the poster is the project's plate, cloned from its template
-  var tpl = document.getElementById('plate-' + p.slug);
-  if (tpl) railEl.querySelector('.dposter').appendChild(tpl.content.cloneNode(true));
+  // the poster: for poolside, a scaled clone of the real interface;
+  // otherwise the project's plate, cloned from its template
+  var poster = railEl.querySelector('.dposter');
+  var papp = p.slug === 'poolside' ? document.querySelector('.tv .bb-app') : null;
+  if (papp) {
+    var pclone = papp.cloneNode(true);
+    var pcv = pclone.querySelector('canvas');
+    if (pcv) { pcv.removeAttribute('id'); pcv.classList.add('dfig'); pcv.dataset.fig = 'water'; }
+    var wrap = document.createElement('span');
+    wrap.className = 'bb-scale';
+    wrap.appendChild(pclone);
+    poster.appendChild(wrap);
+  } else {
+    var tpl = document.getElementById('plate-' + p.slug);
+    if (tpl) poster.appendChild(tpl.content.cloneNode(true));
+  }
 
   // the app panel gets a live clone of the billboard interface
   var hold = railEl.querySelector('.dapp-hold');
