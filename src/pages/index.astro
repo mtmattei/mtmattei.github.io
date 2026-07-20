@@ -851,11 +851,36 @@ a.viewall:hover { opacity: .65; }
   transform-style: preserve-3d;
   transform: rotateX(54deg) rotateZ(-32deg);
 }
-.dstack-deck .pl-layer { position: absolute; inset: 0; }
+.dstack-col { flex: none; display: flex; flex-direction: column; gap: 12px; }
+.dstack-deck .pl-layer {
+  position: absolute; inset: 0;
+  transition: transform .4s cubic-bezier(.22,.8,.3,1), opacity .4s ease;
+}
 .dstack-deck .pl-layer canvas {
   width: 100%; height: 100%; display: block;
   border: 1px solid currentColor; background: var(--paper);
 }
+/* the lift gauge, rules reused from /poolside/ (.pl-gauge) */
+.dstack-gauge {
+  width: 560px; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s3) var(--s4) 10px; background: var(--paper);
+}
+.pl-gauge-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); margin-bottom: 8px; }
+.dstack-kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.dstack-readout { font-family: var(--mono); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dstack-gauge input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; cursor: ew-resize; margin: 0;
+}
+.dstack-gauge input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.dstack-gauge input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--line-2); }
+.dstack-gauge input[type=range]::-moz-range-track { height: 1px; background: var(--line-2); }
+.dstack-gauge input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 18px; margin-top: -9px; border-radius: 1px;
+  background: var(--paper); border: 1px solid var(--ink); box-shadow: inset 3px 0 0 -2px var(--accent);
+}
+.dstack-gauge input[type=range]::-moz-range-thumb { width: 9px; height: 16px; border-radius: 1px; background: var(--paper); border: 1px solid var(--ink); }
+.pl-ticks { display: flex; justify-content: space-between; margin-top: 5px; }
+.pl-ticks span { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: .06em; }
 .dstack-side { max-width: 480px; padding-top: 10px; }
 .dstack-legend { list-style: none; margin: 22px 0 0; padding: 0; }
 .dstack-legend li { padding: 13px 0; border-top: 1px solid currentColor; position: relative; }
@@ -1158,11 +1183,18 @@ function extraHtml(p, x) {
       '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
       '<div class="dh">' + esc(x.title || '') + '</div>' +
       '<div class="dstack-row">' +
+      '<div class="dstack-col">' +
       '<div class="dstack-stage"><div class="dstack-deck">' +
       ['water', 'caustic', 'warp', 'field'].map(function (f, n) {
         return '<div class="pl-layer" style="transform:translateZ(' + (n * 36) + 'px)"><canvas class="dfig" data-fig="' + f + '"></canvas></div>';
       }).join('') +
       '</div></div>' +
+      '<div class="dstack-gauge">' +
+      '<div class="pl-gauge-top"><span class="dstack-kicker">exploded view · fig.04–07</span><span class="dstack-readout">lift 15</span></div>' +
+      '<input type="range" min="0" max="40" step="1" value="15" aria-label="Layer separation, 0 one pass to 40 exploded">' +
+      '<div class="pl-ticks"><span>0 · one pass</span><span>20</span><span>40 · exploded</span></div>' +
+      '</div>' +
+      '</div>' +
       '<div class="dstack-side"><p class="dcap">' + esc(x.body || '') + '</p>' +
       '<ol class="dstack-legend">' + (x.items || []).map(function (it) {
         return '<li><span class="dstack-tag">' + esc(it.no) + '</span><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p></li>';
@@ -1247,6 +1279,23 @@ function buildDetail(i) {
 
   dfigsBuild();                                       // live stages, when the project has them
 
+  // the exploded-view slider, wired as on the exhibit (SCALE 2.4, FADE 7)
+  var sdeck = railEl.querySelector('.dstack-deck');
+  var slider = railEl.querySelector('.dstack-gauge input');
+  var readout = railEl.querySelector('.dstack-readout');
+  if (sdeck && slider) {
+    var slayers = sdeck.querySelectorAll('.pl-layer');
+    var applyLift = function (E) {
+      slayers.forEach(function (ly, n) {
+        ly.style.transform = 'translateZ(' + (n * E * 2.4).toFixed(1) + 'px)';
+        ly.style.opacity = n === 0 ? '1' : Math.max(0, Math.min(1, E / 7)).toFixed(3);
+      });
+      readout.textContent = 'lift ' + String(E).padStart(2, '0');
+    };
+    slider.addEventListener('input', function () { applyLift(+slider.value); });
+    applyLift(15);
+  }
+
   // timeline ruler: one tick per stop (title + panels + end)
   var tl = document.getElementById('dtimeline');
   var stops = ['IN']
@@ -1324,7 +1373,7 @@ detail.addEventListener('wheel', function (e) {
   railWake();
 }, { passive: false });
 detail.addEventListener('pointerdown', function (e) {
-  if (state.mode !== 'detail' || e.target.closest('a')) return;
+  if (state.mode !== 'detail' || e.target.closest('a') || e.target.closest('input')) return;
   railInput.dragging = true; railInput.dragX = e.clientX; railInput.dragStart = rail.target;
   detail.classList.add('grabbing');
   detail.setPointerCapture(e.pointerId);
