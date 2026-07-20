@@ -150,6 +150,52 @@ a { color: inherit; }
 .icon-link:active { scale: 0.96; }
 .icon-link svg { width: 17px; height: 17px; display: block; }
 
+/* ---- Side rail: collapsed to a strip ---- */
+.rail-toggle {
+  margin-left: auto;
+  width: 22px; height: 22px; padding: 0;
+  border: var(--bw) solid var(--line); border-radius: var(--radius);
+  background: var(--paper); cursor: pointer;
+  display: grid; place-items: center; position: relative;
+  transition: border-color .15s, background .15s, scale .1s;
+}
+.rail-toggle::after { content: ""; position: absolute; inset: -9px; }
+.rail-toggle:hover { border-color: var(--line-2); background: var(--gray-1); }
+.rail-toggle:active { scale: 0.94; }
+.rail-caret {
+  width: 0; height: 0;
+  border-right: 4px solid var(--muted);
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  transition: transform .18s cubic-bezier(.22, 1, .36, 1), border-right-color .15s;
+}
+.rail-toggle[aria-pressed="true"] .rail-caret { transform: rotate(180deg); }
+.rail-toggle:hover .rail-caret { border-right-color: var(--ink); }
+
+.rail-strip { display: none; }
+.app.rail-collapsed { grid-template-columns: 52px 1fr; }
+.app.rail-collapsed .brand { padding: 0 var(--s2); gap: 4px; }
+.app.rail-collapsed .brand-link { display: none; }
+.app.rail-collapsed .rail-toggle { margin: 0 auto; }
+.app.rail-collapsed .rail-strip {
+  grid-area: nav; display: flex; justify-content: center; padding-top: var(--s6);
+  border-right: var(--bw) solid var(--line);
+  cursor: pointer;
+}
+.app.rail-collapsed .rail-strip:hover .rail-strip-label { color: var(--ink); }
+.rail-strip-label {
+  writing-mode: vertical-rl;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); transition: color .15s;
+}
+.app.rail-collapsed .nav {
+  position: fixed; top: 49px; left: 52px; bottom: 0; width: 267px; z-index: 40;
+  background: var(--paper); border-right: var(--bw) solid var(--line);
+  transform: translateX(calc(-100% - 52px)); transition: transform .22s cubic-bezier(.22, 1, .36, 1);
+}
+.app.rail-collapsed .nav.peek { transform: none; box-shadow: 1px 0 0 var(--line), 12px 0 28px -22px rgba(26, 24, 21, .8); }
+.app.rail-collapsed .overlay { inset: 49px 0 0 52px; }
+
 /* ---- Sidebar nav ---- */
 .nav {
   grid-area: nav;

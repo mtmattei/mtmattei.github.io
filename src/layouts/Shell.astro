@@ -20,6 +20,8 @@ interface Props {
   tokens?: [string, string][];
   /* widen the content column (exploded exhibit views) */
   wide?: boolean;
+  /* start with the side rail collapsed to a strip (the stage views) */
+  rail?: 'open' | 'collapsed';
 }
 const {
   title,
@@ -27,6 +29,7 @@ const {
   description = 'Matt Mattei. Developer and designer in Montréal. Code, design, writing, and the toolchain behind them, measured in monochrome.',
   tokens = [],
   wide = false,
+  rail = 'open',
 } = Astro.props;
 
 type NavItem = { label: string; href: string; children?: NavItem[] };
@@ -116,7 +119,7 @@ const crumbs = trail.map((t) => t.toLowerCase());
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
-<div class="app">
+<div class:list={['app', { 'rail-collapsed': rail === 'collapsed' }]} id="app" data-rail={rail}>
 
   <!-- Brand -->
   <div class="brand">
@@ -124,6 +127,9 @@ const crumbs = trail.map((t) => t.toLowerCase());
       <Logo height={30} />
     </a>
     <button class="toggle nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-pressed="false"><span class="dot"></span>MENU</button>
+    <button class="rail-toggle" id="railToggle" aria-label="Collapse side rail" aria-pressed={rail === 'collapsed' ? 'true' : 'false'} title="Side rail (\\)">
+      <span class="rail-caret" aria-hidden="true"></span>
+    </button>
   </div>
 
   <!-- Top bar -->
@@ -143,6 +149,9 @@ const crumbs = trail.map((t) => t.toLowerCase());
       </a>
     </div>
   </div>
+
+  <!-- Collapsed rail: a strip that reveals the nav on click -->
+  <div class="rail-strip" aria-hidden="true"><span class="rail-strip-label">Nav</span></div>
 
   <!-- Sidebar nav -->
   <nav class="nav" id="nav" aria-label="Sections">
@@ -257,6 +266,27 @@ const crumbs = trail.map((t) => t.toLowerCase());
   gridToggle.addEventListener('click', () => setGrid(gridToggle.getAttribute('aria-pressed') !== 'true'));
   inspToggle.addEventListener('click', () => setInsp(inspToggle.getAttribute('aria-pressed') !== 'true'));
   document.getElementById('inspClose').addEventListener('click', () => setInsp(false));
+
+  // Side rail: collapsed leaves a strip; the nav then opens as an overlay so
+  // the stage keeps its full width. The page's own default wins on first view.
+  const app = document.getElementById('app');
+  const railToggle = document.getElementById('railToggle');
+  function setRail(collapsed) {
+    app.classList.toggle('rail-collapsed', collapsed);
+    railToggle.setAttribute('aria-pressed', String(collapsed));
+    railToggle.setAttribute('aria-label', collapsed ? 'Expand side rail' : 'Collapse side rail');
+    if (!collapsed) nav.classList.remove('peek');
+    sessionStorage.setItem('mm.rail', collapsed ? '1' : '0');
+  }
+  railToggle.addEventListener('click', () => setRail(!app.classList.contains('rail-collapsed')));
+  const railPref = sessionStorage.getItem('mm.rail');
+  if (railPref !== null) setRail(railPref === '1');
+
+  // while collapsed, the strip reveals the nav on demand
+  nav.addEventListener('pointerleave', () => nav.classList.remove('peek'));
+  document.querySelector('.rail-strip')?.addEventListener('click', () => {
+    nav.classList.toggle('peek');
+  });
 
   document.getElementById('navToggle').addEventListener('click', (e) => {
     const t = e.currentTarget;
