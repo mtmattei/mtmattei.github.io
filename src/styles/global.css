@@ -20,9 +20,9 @@
   --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
   --s6: 24px; --s8: 32px; --s12: 48px; --s16: 64px;
 
-  /* Type — STIX Two Text (editorial serif) + IBM Plex Mono (instrument) */
-  --serif: 'STIX Two Text', Georgia, 'Times New Roman', serif;
-  --sans: 'STIX Two Text', Georgia, serif;   /* legacy token name; the editorial face is a serif now */
+  /* Type — Instrument Sans (reading face) + IBM Plex Mono (instrument) */
+  --serif: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
@@ -284,7 +284,7 @@ a { color: inherit; }
 .page-head { margin-bottom: var(--s8); }
 .page-head .kicker { display: block; margin-bottom: var(--s3); }
 h1.title {
-  font-size: 32px; line-height: 1.15; font-weight: 600;
+  font-size: 28px; line-height: 1.15; font-weight: 600;
   letter-spacing: -0.015em; margin: 0 0 var(--s3);
   text-wrap: balance;
 }

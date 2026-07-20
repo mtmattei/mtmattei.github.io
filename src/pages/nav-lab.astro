@@ -1,0 +1,337 @@
+---
+/* NAV LAB — throwaway exploration page for nav-rail interactions.
+   Renders with the real fonts + palette so directions can be felt on the
+   dev server. Remove once a direction is chosen. Not linked from the site. */
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+
+type Item = { l: string; i: string; active?: boolean };
+type Group = { k: string; items: Item[] };
+const NAV: Group[] = [
+  { k: 'Overview', items: [{ l: 'Index', i: '00' }] },
+  {
+    k: 'Projects',
+    items: [
+      { l: 'Poolside', i: '01' },
+      { l: 'Source / Figure', i: '02', active: true },
+      { l: 'Texts', i: '03' },
+      { l: 'XAML / Uno', i: '04' },
+      { l: 'Ledger', i: '05' },
+    ],
+  },
+  { k: 'About', items: [{ l: 'Program', i: '06' }, { l: 'Contact', i: '07' }] },
+];
+
+const VARIANTS = [
+  { id: 'A', name: 'Tracer bracket', note: 'The bracket draws itself on hover; a hairline traces to the active row with a live offset readout. Closest to today — the measurement made legible.' },
+  { id: 'B', name: 'Magnetic scrub', note: 'One accent indicator glides between rows following the pointer, snapping back to the active page at rest. The rail reads as a slider you tune.' },
+  { id: 'C', name: 'Gutter / breakpoint', note: 'Full editor metaphor: line-number gutter, active row set like a debugger breakpoint, current-line band. Literal source → figure.' },
+  { id: 'D', name: 'Focus collapse', note: 'A narrow mono-glyph rail that expands on hover with staggered label reveals. Reclaims width; the tree becomes a spine you open.' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nav Lab · source → figure</title>
+</head>
+<body class="lab">
+  <header class="lab-top">
+    <div class="lab-brand"><Logo height={26} /><span class="mono lab-tag">nav&nbsp;lab</span></div>
+    <span class="mono lab-sub">4 rails · one tree · pick one</span>
+  </header>
+
+  <main class="lab-grid">
+    {VARIANTS.map((v) => (
+      <section class="cell" data-variant={v.id}>
+        <div class="cell-head">
+          <span class="kicker">Rail {v.id}</span>
+          <h2 class="cell-name">{v.name}</h2>
+          <p class="cell-note">{v.note}</p>
+        </div>
+
+        <div class="labstage" data-rail={v.id}>
+          <div class={`rail rail-${v.id}`}>
+            {v.id === 'B' && <div class="mag" aria-hidden="true"></div>}
+            {NAV.map((g) => (
+              <div class="grp">
+                <div class="kicker grp-k">{g.k}</div>
+                <div class="items">
+                  {g.items.map((it) => (
+                    <a
+                      href="#"
+                      class:list={['row', { 'is-active': it.active }]}
+                      data-i={it.i}
+                      data-label={it.l}
+                    >
+                      <span class="gutter mono">{it.i}</span>
+                      <span class="tick"></span>
+                      <span class="glyph mono">{it.l.charAt(0)}</span>
+                      <span class="lbl">{it.l}</span>
+                      <span class="idx mono">{it.i}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div class="readout mono"><span class="r-k">y</span><span class="r-v" data-readout>—</span></div>
+        </div>
+      </section>
+    ))}
+  </main>
+
+<style>
+  .lab { background: var(--paper); min-height: 100vh; }
+  .lab-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--s3) var(--s6);
+    border-bottom: var(--bw) solid var(--line);
+    position: sticky; top: 0; background: var(--paper); z-index: 5;
+  }
+  .lab-brand { display: flex; align-items: center; gap: var(--s3); color: var(--ink); }
+  .lab-tag { letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+  .lab-sub { color: var(--muted); }
+
+  .lab-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: var(--bw); background: var(--line);
+    border-bottom: var(--bw) solid var(--line);
+  }
+  @media (max-width: 920px){ .lab-grid { grid-template-columns: 1fr; } }
+
+  .cell { background: var(--paper); padding: var(--s8) var(--s6); }
+  .cell-head { max-width: 42ch; margin-bottom: var(--s6); }
+  .cell-name { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: var(--s2) 0 var(--s2); }
+  .cell-note { font-size: 14px; color: var(--muted); margin: 0; text-wrap: pretty; }
+
+  /* ---- shared labstage + rail ---- */
+  .labstage {
+    position: relative;
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray-1);
+    padding: var(--s4) var(--s4) var(--s4) var(--s3);
+    min-height: 360px;
+  }
+  .rail { position: relative; width: 248px; }
+  .grp { margin-bottom: var(--s4); }
+  .grp:last-child { margin-bottom: 0; }
+  .grp-k { padding: 0 var(--s2) 6px; display: block; }
+  .items { position: relative; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 0 2px 0 1fr auto;
+    align-items: center;
+    gap: var(--s2);
+    padding: 7px var(--s2);
+    font-size: 14px; color: color-mix(in srgb, var(--muted), #000 15%);
+    text-decoration: none; border-radius: var(--radius);
+    position: relative;
+    transition: color .15s, background .15s;
+  }
+  .row:hover { color: var(--ink); }
+  /* pin every cell to a fixed column so hiding gutter/glyph never shifts the label */
+  .row .gutter { grid-column: 1; }
+  .row .tick   { grid-column: 2; width: 2px; height: 14px; border-radius: 1px; background: transparent; transition: background .15s; }
+  .row .glyph  { grid-column: 3; }
+  .row .lbl    { grid-column: 4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .idx    { grid-column: 5; font-size: 11px; color: var(--muted); }
+  .row .gutter, .row .glyph { display: none; }
+  .row.is-active { color: var(--ink); font-weight: 500; }
+  .row.is-active .tick { background: var(--accent); }
+
+  .readout {
+    position: absolute; bottom: var(--s3); right: var(--s4);
+    font-size: 11px; color: var(--muted); letter-spacing: .04em;
+    display: flex; gap: 6px; opacity: 0; transition: opacity .15s;
+  }
+  .labstage:hover .readout, .readout.on { opacity: 1; }
+  .readout .r-k { color: var(--line-2); }
+  .readout .r-v { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* ============ A · Tracer bracket ============ */
+  .rail-A .items { padding-left: 12px; }
+  .rail-A .items::before {
+    content: ""; position: absolute; left: 4px; top: 2px; bottom: 2px; width: 0;
+    border-left: var(--bw) solid var(--line);
+    transform: scaleY(0); transform-origin: top; transition: transform .32s cubic-bezier(.16,1,.3,1), border-color .15s;
+  }
+  .rail-A .grp:hover .items::before,
+  .rail-A .items.has-active::before { transform: scaleY(1); }
+  .rail-A .items.has-active::before { border-color: var(--accent); }
+  .rail-A .grp:hover .items::before { border-color: var(--line-2); }
+  /* horizontal tracer that draws from bracket to the hovered/active row */
+  .rail-A .row::before {
+    content: ""; position: absolute; left: -8px; top: 50%; height: var(--bw);
+    width: 0; background: var(--line-2); transition: width .2s cubic-bezier(.16,1,.3,1);
+  }
+  .rail-A .row:hover::before { width: 8px; }
+  .rail-A .row.is-active::before { width: 8px; background: var(--accent); }
+
+  /* ============ B · Magnetic scrub ============ */
+  .rail-B .items { padding-left: 6px; }
+  .rail-B .mag {
+    position: absolute; left: 0; top: 0; width: 100%; height: 30px;
+    border-radius: var(--radius);
+    background: var(--accent-soft);
+    box-shadow: inset 2px 0 0 var(--accent);
+    opacity: 0; pointer-events: none;
+    transform: translateY(0);
+    will-change: transform;
+  }
+  .rail-B .mag.live { opacity: 1; }
+  .rail-B .row.is-active .tick { background: transparent; }  /* indicator carries the accent */
+  .rail-B .row { z-index: 1; }
+
+  /* ============ C · Gutter / breakpoint ============ */
+  .rail-C .grp-k { padding-left: 44px; }
+  .rail-C .row {
+    grid-template-columns: 30px 2px 0 1fr auto;
+    gap: var(--s2);
+    border-radius: 0;
+    margin-left: -4px; padding-left: 6px;
+  }
+  .rail-C .row .gutter {
+    display: block; text-align: right; font-size: 11px;
+    color: var(--line-2); font-variant-numeric: tabular-nums;
+    transition: color .15s;
+  }
+  .rail-C .row .idx { display: none; }
+  .rail-C .row .tick { justify-self: center; width: 6px; height: 6px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 var(--bw) var(--line-2); }
+  .rail-C .row:hover { background: color-mix(in srgb, var(--accent-soft), transparent 40%); }
+  .rail-C .row:hover .gutter { color: var(--muted); }
+  .rail-C .row.is-active {
+    background: var(--accent-soft);
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .rail-C .row.is-active .gutter { color: var(--accent); }
+  .rail-C .row.is-active .tick { background: var(--accent); box-shadow: none; }
+
+  /* ============ D · Focus collapse ============ */
+  .rail-D { width: 56px; transition: width .28s cubic-bezier(.16,1,.3,1); overflow: hidden; }
+  .labstage[data-rail="D"]:hover .rail-D,
+  .rail-D.pinned { width: 232px; }
+  .rail-D .grp-k {
+    white-space: nowrap; opacity: 0; transform: translateX(-4px);
+    transition: opacity .18s, transform .18s;
+  }
+  .rail-D .row { grid-template-columns: 0 0 22px 1fr auto; gap: var(--s2); }
+  .rail-D .row .tick { display: none; }
+  .rail-D .row .glyph {
+    display: grid; place-items: center; width: 22px; height: 22px;
+    font-size: 12px; color: var(--muted); border-radius: 3px;
+    background: var(--gray-2); transition: background .15s, color .15s;
+  }
+  .rail-D .row.is-active .glyph { background: var(--accent); color: var(--paper); }
+  .rail-D .row .lbl, .rail-D .row .idx {
+    opacity: 0; transform: translateX(-6px);
+    transition: opacity .2s, transform .2s;
+  }
+  .labstage[data-rail="D"]:hover .grp-k,
+  .rail-D.pinned .grp-k,
+  .labstage[data-rail="D"]:hover .row .lbl,
+  .rail-D.pinned .row .lbl,
+  .labstage[data-rail="D"]:hover .row .idx,
+  .rail-D.pinned .row .idx {
+    opacity: 1; transform: none;
+  }
+  /* stagger the reveal down the tree */
+  .rail-D .row:nth-child(1) .lbl { transition-delay: .02s; }
+  .rail-D .row:nth-child(2) .lbl { transition-delay: .05s; }
+  .rail-D .row:nth-child(3) .lbl { transition-delay: .08s; }
+  .rail-D .row:nth-child(4) .lbl { transition-delay: .11s; }
+  .rail-D .row:nth-child(5) .lbl { transition-delay: .14s; }
+  .d-pin {
+    position: absolute; top: var(--s3); right: var(--s4);
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    color: var(--muted); background: var(--paper);
+    border: var(--bw) solid var(--line); border-radius: var(--radius);
+    padding: 3px 7px; cursor: pointer; transition: color .15s, border-color .15s;
+  }
+  .d-pin:hover { color: var(--ink); border-color: var(--line-2); }
+  .d-pin[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    .rail-A .items::before { transform: scaleY(1); }
+  }
+</style>
+
+<script is:inline>
+  // Per-rail readout: report the active/hovered row's vertical offset in px.
+  document.querySelectorAll('.labstage').forEach((labstage) => {
+    const out = labstage.querySelector('[data-readout]');
+    const rows = [...labstage.querySelectorAll('.row')];
+    const active = labstage.querySelector('.row.is-active');
+    const offOf = (el) => Math.round(el.getBoundingClientRect().top - labstage.getBoundingClientRect().top);
+    const set = (el) => { if (out && el) out.textContent = String(offOf(el)).padStart(3, '0'); };
+    if (active) set(active);
+    rows.forEach((r) => {
+      r.addEventListener('pointerenter', () => set(r));
+      r.addEventListener('click', (e) => e.preventDefault());
+    });
+    labstage.addEventListener('pointerleave', () => { if (active) set(active); });
+  });
+
+  // B · magnetic indicator — spring toward the hovered row, rest on active.
+  (function () {
+    const rail = document.querySelector('.rail-B');
+    if (!rail) return;
+    const mag = rail.querySelector('.mag');
+    const rows = [...rail.querySelectorAll('.row')];
+    const active = rail.querySelector('.row.is-active') || rows[0];
+    const railTop = () => rail.getBoundingClientRect().top;
+    const targetOf = (el) => el.getBoundingClientRect().top - railTop();
+    let target = targetOf(active), pos = target, vel = 0, raf = 0;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    mag.style.height = active.getBoundingClientRect().height + 'px';
+    mag.classList.add('live');
+    function tick() {
+      const k = 0.18, d = 0.72;               // stiffness / damping — critically-ish damped
+      vel = (vel + (target - pos) * k) * d;
+      pos += vel;
+      mag.style.transform = `translateY(${pos}px)`;
+      if (Math.abs(target - pos) > 0.3 || Math.abs(vel) > 0.3) raf = requestAnimationFrame(tick);
+      else { pos = target; mag.style.transform = `translateY(${pos}px)`; raf = 0; }
+    }
+    function moveTo(el) {
+      mag.style.height = el.getBoundingClientRect().height + 'px';
+      target = targetOf(el);
+      if (reduce) { pos = target; mag.style.transform = `translateY(${pos}px)`; return; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+    rows.forEach((r) => r.addEventListener('pointerenter', () => moveTo(r)));
+    rail.addEventListener('pointerleave', () => moveTo(active));
+    const settle = () => { pos = target = targetOf(active); mag.style.height = active.getBoundingClientRect().height + 'px'; mag.style.transform = `translateY(${pos}px)`; };
+    addEventListener('resize', settle);
+    // re-measure once layout + web fonts have settled so the indicator rests on the active row
+    requestAnimationFrame(settle);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+  })();
+
+  // D · pin toggle to keep the rail expanded
+  (function () {
+    const labstage = document.querySelector('.labstage[data-rail="D"]');
+    if (!labstage) return;
+    const rail = labstage.querySelector('.rail-D');
+    const btn = document.createElement('button');
+    btn.className = 'd-pin'; btn.type = 'button';
+    btn.setAttribute('aria-pressed', 'false'); btn.textContent = 'PIN';
+    labstage.appendChild(btn);
+    btn.addEventListener('click', () => {
+      const on = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!on));
+      rail.classList.toggle('pinned', !on);
+    });
+  })();
+</script>
+</body>
+</html>

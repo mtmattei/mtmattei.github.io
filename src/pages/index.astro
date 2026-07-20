@@ -3,294 +3,326 @@ import Shell from '../layouts/Shell.astro';
 
 const tokens: [string, string][] = [
   ['concept', 'source → figure'],
-  ['hero.src', 'hero.toString()'],
-  ['points', '≤1500'],
-  ['accent.use', 'state · future'],
+  ['hero', 'billboard · empty plate'],
+  ['index.rows', '5'],
+  ['accent.use', 'state · selection'],
+];
+
+type Project = {
+  no: string;
+  title: string;
+  tags: string;
+  href: string;
+  blurb: string;
+  role: string[];
+  format: string[];
+  year: string;
+};
+
+const projects: Project[] = [
+  {
+    no: '01',
+    title: 'Poolside — Water, read like weather',
+    tags: 'Code / SkiaSharp',
+    href: '/poolside/',
+    blurb:
+      'The real interface, exploded back to the shader it grew from. Every figure on the page is drawn by the same code that ships in the app.',
+    role: ['Shader work', 'Interaction', 'Writing'],
+    format: ['Uno Platform', 'Desktop'],
+    year: '2026',
+  },
+  {
+    no: '02',
+    title: 'Source / Figure — The drawing method',
+    tags: 'Design / System',
+    href: '/source-figure/',
+    blurb:
+      'A study of the page as its own instrument: the name is typeset by its own source, and every plate is placed by the code that describes it.',
+    role: ['Design direction', 'Typesetting', 'Prototyping'],
+    format: ['Web', 'Canvas'],
+    year: '2026',
+  },
+  {
+    no: '03',
+    title: 'XAML / Uno — The feel system',
+    tags: 'Skills / Motion',
+    href: '/xaml-uno/',
+    blurb:
+      'Tuned numbers, not adjectives. Easing curves, durations, press states, and entrances written down so a decision can be defended later.',
+    role: ['Motion system', 'Documentation'],
+    format: ['WinUI', 'Uno Platform'],
+    year: '2026',
+  },
+  {
+    no: '04',
+    title: 'Ledger — Design DNA, append-only',
+    tags: 'Skills / OSS',
+    href: '/ledger/',
+    blurb:
+      'A public, append-only record of the decisions behind the work: what was chosen, why, and what it cost.',
+    role: ['Systems', 'Writing'],
+    format: ['Open source'],
+    year: '2026',
+  },
+  {
+    no: '05',
+    title: 'Program — The portfolio as it runs',
+    tags: 'Return / Meta',
+    href: '/program/',
+    blurb:
+      'The source is the sitemap. The site prints the program that drew it, and the program routes the site.',
+    role: ['Architecture', 'Build'],
+    format: ['Astro'],
+    year: '2026',
+  },
 ];
 ---
-<Shell title="Index" crumb="index" tokens={tokens}
+<Shell title="Index" crumb="index" tokens={tokens} wide
   description="Matt Mattei's public notebook: ideas, experiments, sketches, software, and lessons at the intersection of design and development.">
-  <section class="hero">
-    <h1 class="hero-display">A public Notebook</h1>
-    <p class="hero-sub">Ideas, experiments, sketches, samples, and lessons learned along the way. Some take shape. Some simply remain ideas.</p>
 
-    <figure class="hero-plate">
-      <div class="hero-frame">
-        <canvas id="herocv" role="button" tabindex="0" aria-label="the name MATT MATTEI drawn from the characters of its own source; drag to reveal the source, press Enter to replay"></canvas>
-        <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+  <!-- ============ Hero: headline left, billboard right ============ -->
+  <section class="lp-hero">
+    <div class="lp-stage">
+      <!-- the billboard: an empty plate, mounted -->
+      <div class="lp-billboard" aria-hidden="true">
+        <div class="lp-screen"></div>
       </div>
-      <figcaption class="hero-plaque">
-        <span class="mono">Plate 00</span>
-        <span>hero() · the name, drawn by its own source</span>
-        <span class="mono hero-hint">drag to read the source</span>
-      </figcaption>
-    </figure>
+      <div class="lp-mount" aria-hidden="true">
+        <span class="lp-leg"></span><span class="lp-leg"></span><span class="lp-leg"></span>
+      </div>
+      <div class="lp-shelf" aria-hidden="true"></div>
+    </div>
 
-    <div class="hero-body">
-      <p>I'm exploring the intersection of design and development, mostly because I love making things.</p>
-      <a class="hero-scroll" href="#index">Explore the notebook <span aria-hidden="true">↓</span></a>
+    <div class="lp-drive">
+      <span class="mono lp-drive-label">Drag or use<br />arrows</span>
+      <div class="lp-arrows">
+        <button class="lp-arrow" id="lpPrev" aria-label="Previous project">←</button>
+        <button class="lp-arrow" id="lpNext" aria-label="Next project">→</button>
+      </div>
     </div>
   </section>
 
-  <hr class="rule" />
-
-  <span class="kicker" id="index" style="display:block;margin-bottom:var(--s3)">Index</span>
-  <div class="grid">
-    <a class="card" href="/poolside/"><span class="kicker">Code · exhibit<span class="no">no.01</span></span><h3>Poolside</h3><p>Water, read like weather. The real interface, exploded, back to the SkiaSharp shader it grew from.</p></a>
-    <a class="card" href="/texts/"><span class="kicker">Writing<span class="no">no.02</span></span><h3>Texts</h3><p>Essays in galley: real excerpts at reading measure.</p></a>
-    <a class="card" href="/xaml-uno/"><span class="kicker">Skills<span class="no">no.03</span></span><h3>XAML / Uno</h3><p>The feel system. Tuned numbers, not adjectives.</p></a>
-    <a class="card" href="/ledger/"><span class="kicker">Skills · oss<span class="no">no.04</span></span><h3>Ledger</h3><p>A public, append-only record of design DNA.</p></a>
-    <a class="card" href="/program/"><span class="kicker">Return<span class="no">no.05</span></span><h3>Program</h3><p>The portfolio as it runs. The source is the sitemap.</p></a>
+  <!-- ============ Index: numbered rows, one open ============ -->
+  <div class="lp-index" id="lp-index">
+    {projects.map((p, i) => (
+      <article class:list={['lp-row', { open: i === 1 }]} data-row={p.no}>
+        <button class="lp-rowhead" type="button" aria-expanded={i === 1 ? 'true' : 'false'}>
+          <span class="lp-no">{p.no}</span>
+          <span class="lp-title">{p.title}</span>
+          <span class="lp-tags mono">{p.tags}</span>
+          <span class="lp-view mono">View project <i aria-hidden="true">→</i></span>
+        </button>
+        <div class="lp-panel">
+          <div class="lp-panel-in">
+            <div class="lp-thumb"></div>
+            <p class="lp-blurb">{p.blurb}</p>
+            <dl class="lp-meta">
+              <div>
+                <dt class="kicker">My role</dt>
+                {p.role.map((r) => <dd>{r}</dd>)}
+              </div>
+              <div>
+                <dt class="kicker">Format</dt>
+                {p.format.map((f) => <dd>{f}</dd>)}
+              </div>
+              <div>
+                <dt class="kicker">Year</dt>
+                <dd>{p.year}</dd>
+              </div>
+            </dl>
+            <a class="lp-open mono" href={p.href}>Open <i aria-hidden="true">→</i></a>
+          </div>
+        </div>
+      </article>
+    ))}
   </div>
 
-  <hr class="rule" />
-  <p class="mono">Toggle GRID to see the baseline and column. Toggle INSPECT to read the tokens of the active view.</p>
+  <p class="lp-mark mono">Based in Montréal<br />working globally</p>
 </Shell>
 
 <style>
-  .hero { text-align: center; max-width: 760px; margin: 0 auto; padding: clamp(20px, 6vw, 80px) 0 var(--s8); }
-  .hero > * { animation: heroRise .7s cubic-bezier(.22, .61, .21, 1) both; }
-  .hero-eyebrow {
-    font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 var(--s6); animation-delay: .04s;
+  /* ---- Hero ------------------------------------------------------ */
+  .lp-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 108px;
+    gap: var(--s8);
+    align-items: center;
+    padding: clamp(8px, 2vw, 28px) 0 clamp(32px, 5vw, 64px);
   }
-  .hero-display {
-    font-family: var(--sans); font-weight: 500;
-    font-size: clamp(27px, 3.8vw, 44px); line-height: 1.1; letter-spacing: -0.02em;
-    color: var(--ink); margin: 0 0 var(--s4); text-wrap: balance; animation-delay: .12s;
+
+  /* the billboard: bezel + empty plate, mounted on a shelf */
+  .lp-stage { animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .1s; }
+  .lp-billboard {
+    background: var(--ink);
+    border-radius: 18px;
+    padding: 7px;
+    box-shadow: 0 1px 0 rgba(26, 24, 21, .06), 0 18px 40px -24px rgba(26, 24, 21, .45);
   }
-  .hero-sub {
-    font-size: clamp(16px, 2vw, 19px); line-height: 1.5; color: var(--muted);
-    max-width: 46ch; margin: 0 auto clamp(30px, 5vw, 52px); text-wrap: balance; animation-delay: .2s;
+  .lp-screen {
+    aspect-ratio: 21 / 10;
+    border-radius: 12px;
+    background:
+      linear-gradient(152deg, var(--gray-2) 0%, var(--line) 55%, #D8CFC2 100%);
+    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .10);
   }
-  .hero-plate { margin: 0 0 clamp(26px, 5vw, 44px); animation-delay: .3s; }
-  .hero-frame {
-    position: relative;
-    border: 1px solid rgba(26, 24, 21, 0.55); border-radius: var(--radius);
-    background: #201C17;
-    padding: clamp(24px, 4vw, 48px); max-width: 620px; margin: 0 auto;
+  .lp-mount { display: flex; justify-content: center; gap: 28%; height: 22px; }
+  .lp-leg { width: 10px; background: var(--gray-2); box-shadow: inset 0 0 0 1px var(--line); }
+  .lp-leg:nth-child(2) { width: 14px; }
+  .lp-shelf {
+    height: 12px; margin: 0 -4%;
+    background: var(--gray-1);
+    box-shadow: inset 0 0 0 1px var(--line), 0 10px 22px -18px rgba(26, 24, 21, .5);
+    border-radius: 2px;
   }
-  /* faint inner keyline — the passe-partout */
-  .hero-frame::after {
-    content: ""; position: absolute; inset: 9px; pointer-events: none;
-    border: 1px solid rgba(239, 234, 226, 0.12); border-radius: 2px;
+
+  .lp-drive {
+    display: flex; flex-direction: column; gap: var(--s4);
+    animation: lpRise .7s cubic-bezier(.22, 1, .36, 1) both .18s;
   }
-  .hero-frame canvas { display: block; margin: 0 auto; max-width: 100%; cursor: ew-resize; touch-action: pan-y; }
-  /* corner registration marks */
-  .hero-frame .reg { position: absolute; width: 11px; height: 11px; opacity: .5; pointer-events: none; }
-  .hero-frame .reg::before, .hero-frame .reg::after { content: ""; position: absolute; background: rgba(239, 234, 226, .55); }
-  .hero-frame .reg::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
-  .hero-frame .reg::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-50%); }
-  .hero-frame .reg.tl { top: 12px; left: 12px; } .hero-frame .reg.tr { top: 12px; right: 12px; }
-  .hero-frame .reg.bl { bottom: 12px; left: 12px; } .hero-frame .reg.br { bottom: 12px; right: 12px; }
-  .hero-plaque {
-    display: flex; justify-content: center; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
-    margin-top: var(--s4); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--muted);
+  .lp-drive-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.5; }
+  .lp-arrows { display: flex; gap: var(--s2); }
+  .lp-arrow {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: var(--bw) solid var(--line-2); background: var(--paper);
+    color: var(--ink); font-size: 15px; line-height: 1; cursor: pointer;
+    display: grid; place-items: center;
+    transition: border-color .15s, background .15s, scale .1s;
   }
-  .hero-hint { opacity: .7; }
-  .hero-body { max-width: 56ch; margin: 0 auto; animation-delay: .42s; }
-  .hero-body p { font-size: 16px; line-height: 1.6; color: var(--muted); margin: 0 0 var(--s6); text-wrap: pretty; }
-  .hero-scroll {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--mono); font-size: 13px; letter-spacing: .04em; color: var(--ink);
-    text-decoration: none; border-bottom: var(--bw) solid var(--line-2); padding-bottom: 3px;
-    transition: border-color .15s, gap .15s;
+  .lp-arrow:hover { border-color: var(--ink); background: var(--gray-1); }
+  .lp-arrow:active { scale: 0.96; }
+
+  @keyframes lpRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ---- Index rows ------------------------------------------------ */
+  .lp-index { border-top: var(--bw) solid var(--line-2); }
+  .lp-row { border-bottom: var(--bw) solid var(--line); position: relative; }
+  .lp-row.open { background: var(--gray-1); }
+  .lp-row.open::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--accent);
   }
-  .hero-scroll:hover { border-color: var(--accent); gap: 12px; }
-  @keyframes heroRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .hero > * { animation: none; } }
+  .lp-rowhead {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) 190px 150px;
+    align-items: center;
+    gap: var(--s4);
+    width: 100%;
+    padding: 18px 0;
+    background: none; border: 0; font: inherit; text-align: left; cursor: pointer;
+    color: var(--ink);
+    transition: color .15s;
+  }
+  .lp-no {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 26px; letter-spacing: -0.01em; color: var(--muted);
+    padding: 0 var(--s6);
+    border-left: var(--bw) solid var(--line);
+    border-right: var(--bw) solid var(--line);
+    transition: color .15s;
+  }
+  .lp-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .lp-tags { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
+  .lp-view {
+    text-transform: uppercase; letter-spacing: .1em; font-size: 11px;
+    display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end;
+  }
+  .lp-view i { font-style: normal; transition: transform .15s cubic-bezier(.22, 1, .36, 1); }
+  .lp-rowhead:hover .lp-view i { transform: translateX(3px); }
+  .lp-row.open .lp-no,
+  .lp-row.open .lp-title,
+  .lp-row.open .lp-tags,
+  .lp-row.open .lp-view { color: var(--accent); }
+  .lp-row.open .lp-view i { transform: rotate(-45deg); }
+  .lp-row.open .lp-no { border-left-color: transparent; }
+
+  /* height reveal without animating layout on the children */
+  .lp-panel {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .lp-row.open .lp-panel { grid-template-rows: 1fr; }
+  .lp-panel-in {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 320px 150px;
+    gap: var(--s4);
+    align-items: start;
+    padding-left: 96px;
+    opacity: 0; transition: opacity .2s ease .04s;
+  }
+  .lp-row.open .lp-panel-in { opacity: 1; padding-bottom: 22px; }
+  .lp-thumb {
+    aspect-ratio: 16 / 10; border-radius: 3px;
+    background: var(--ink);
+    box-shadow: inset 0 0 0 1px rgba(26, 24, 21, .3);
+  }
+  .lp-blurb { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); text-wrap: pretty; }
+  .lp-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin: 0; }
+  .lp-meta dt { margin-bottom: 6px; }
+  .lp-meta dd { margin: 0 0 3px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .lp-open {
+    justify-self: end; text-transform: uppercase; letter-spacing: .1em; font-size: 11px;
+    color: var(--accent); text-decoration: none; display: inline-flex; gap: 8px; align-items: center;
+  }
+  .lp-open i { font-style: normal; transition: transform .15s cubic-bezier(.22, 1, .36, 1); }
+  .lp-open:hover i { transform: translateX(3px); }
+
+  .lp-mark { margin: var(--s8) 0 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; line-height: 1.5; }
+
+  /* ---- Responsive ------------------------------------------------ */
+  @media (max-width: 1080px) {
+    .lp-panel-in { grid-template-columns: 200px minmax(0, 1fr); padding-left: 0; }
+    .lp-meta, .lp-open { grid-column: 1 / -1; }
+    .lp-open { justify-self: start; }
+  }
+  @media (max-width: 820px) {
+    .lp-hero { grid-template-columns: 1fr; gap: var(--s6); }
+    .lp-drive { flex-direction: row; align-items: center; justify-content: flex-end; }
+    .lp-rowhead { grid-template-columns: 62px minmax(0, 1fr); row-gap: 6px; }
+    .lp-no { padding: 0 var(--s3); font-size: 20px; }
+    .lp-tags, .lp-view { grid-column: 2; justify-content: flex-start; }
+    .lp-panel-in { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-stage, .lp-drive { animation: none; }
+  }
 </style>
 
 <script is:inline>
-/* ============================================================
-   HERO — the name is its own source (instrument edition).
-   This script is inline and unminified on purpose: hero() reads
-   its own toString(), so the printed prose IS this source.
-   ============================================================ */
+  // One row open at a time; the arrows step through the index.
+  (function () {
+    const rows = Array.from(document.querySelectorAll('.lp-row'));
+    if (!rows.length) return;
+    let active = rows.findIndex((r) => r.classList.contains('open'));
 
-function hero(cv, t) {
-  const src = hero.toString();
-  const marks = glyphs(src);
-  const a = prose(src), b = letterform(src);
-  const g = cv.getContext('2d');
-  g.clearRect(0, 0, cv.width, cv.height);
-  for (let i = 0; i < b.length; i++) {
-    const k = marks[i % marks.length];
-    const pos = glide(a[k], b[i], t, i);
-    if (pos.ink && heroReact > 0.001) {   // once settled, the name pushes away from the cursor
-      const dx = pos.x - mx, dy = pos.y - my, d = Math.hypot(dx, dy) || 1;
-      const push = Math.max(0, 76 - d) / 76 * 16 * heroReact;
-      pos.x += (dx / d) * push; pos.y += (dy / d) * push;
+    function open(i) {
+      active = (i + rows.length) % rows.length;
+      rows.forEach((r, n) => {
+        const on = n === active;
+        r.classList.toggle('open', on);
+        r.querySelector('.lp-rowhead').setAttribute('aria-expanded', String(on));
+      });
     }
-    stamp(g, src[k], pos);
-  }
-}
 
-const INK = '#EFEAE2', ACCENT = '#8AA0EA';
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let CH = 7.2;
+    rows.forEach((r, i) => {
+      r.querySelector('.lp-rowhead').addEventListener('click', () => {
+        if (i === active) {
+          r.classList.remove('open');
+          r.querySelector('.lp-rowhead').setAttribute('aria-expanded', 'false');
+          active = -1;
+        } else open(i);
+      });
+    });
 
-const hash01 = i => {
-  let x = (i + 1) * 2654435761 % 4294967296;
-  x = (x ^ (x >> 13)) * 1274126177 % 4294967296;
-  return (x % 10000) / 10000;
-};
-const smooth = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+    document.getElementById('lpPrev').addEventListener('click', () => open(active - 1));
+    document.getElementById('lpNext').addEventListener('click', () => open(active + 1));
 
-let heroCv, prosePos = null, letterPos = null, glyphIdx = null, HW = 0, HH = 0;
-let heroT = 0, heroTarget = 1, heroDrag = false, dragX0 = 0, dragT0 = 0, dragMoved = 0, heroRaf = null;
-let mx = 0, my = 0, mOver = false, heroReact = 0;
-
-function glyphs(src) {
-  if (glyphIdx) return glyphIdx;
-  glyphIdx = [];
-  for (let i = 0; i < src.length; i++) {
-    if (src[i] !== ' ' && src[i] !== '\n') glyphIdx.push(i);
-  }
-  return glyphIdx;
-}
-function prose(src) {
-  if (prosePos) return prosePos;
-  const chC = CH * 10.5 / 12;
-  const rows = src.split('\n');
-  const maxc = Math.max(...rows.map(r => r.length));
-  const ox = Math.max(10, (HW - maxc * chC) / 2), oy = (HH - rows.length * 15) / 2 + 7;
-  const out = [];
-  let col = 0, row = 0;
-  for (let i = 0; i < src.length; i++) {
-    if (src[i] === '\n') { out.push(null); row++; col = 0; continue; }
-    out.push({ x: ox + col * chC, y: oy + row * 15 });
-    col++;
-  }
-  prosePos = out;
-  return out;
-}
-function letterform(src) {
-  if (letterPos) return letterPos;
-  const S = Math.min((HW * 0.92) / 3.8, HH * 0.4);
-  const off = document.createElement('canvas');
-  off.width = HW; off.height = HH;
-  const og = off.getContext('2d');
-  og.font = '500 ' + S + 'px "IBM Plex Mono"';
-  og.textAlign = 'center'; og.textBaseline = 'middle';
-  og.lineWidth = Math.max(3, S * 0.06);
-  og.strokeText('MATT', HW / 2, HH / 2 - S * 0.62);
-  og.strokeText('MATTEI', HW / 2, HH / 2 + S * 0.62);
-  const data = og.getImageData(0, 0, HW, HH).data;
-  let step = 4, pts = [];
-  do {
-    pts = [];
-    for (let y = 2; y < HH; y += step) {
-      for (let x = 2; x < HW; x += step) {
-        if (data[(y * HW + x) * 4 + 3] > 140) pts.push({ x: x, y: y });
-      }
-    }
-    step += 1;
-  } while (pts.length > 1500 && step < 40);
-  letterPos = pts;
-  return pts;
-}
-function glide(p, q, t, i) {
-  if (!q) return { x: p.x, y: p.y, ink: true };
-  const s = hash01(i) * 0.35;
-  const u = smooth((t * 1.35 - s) / 1.0);
-  const x = p.x + (q.x - p.x) * u;
-  const y = p.y + (q.y - p.y) * u - Math.sin(u * Math.PI) * (10 + hash01(i + 7) * 22);
-  return { x: x, y: y, ink: u <= 0 || u >= 1, sz: 8.6 - 1.8 * u };
-}
-function stamp(g, chr, pos) {
-  g.fillStyle = pos.ink ? INK : ACCENT;
-  const sz = (pos.sz || 8.6).toFixed(1);
-  g.font = /[{}()[\]=+\-*/<>;.,:'!&|?]/.test(chr) ? '500 ' + sz + 'px "IBM Plex Mono"' : sz + 'px "IBM Plex Mono"';
-  g.fillText(chr, pos.x, pos.y);
-}
-function drawHero(t) { hero(heroCv, t); }
-function tick() {
-  heroRaf = null;
-  if (!heroDrag) heroT += (heroTarget - heroT) * 0.045;   // slower, more deliberate settle
-  heroReact += ((mOver && !heroDrag ? 1 : 0) - heroReact) * 0.14;
-  const atTarget = !heroDrag && Math.abs(heroT - heroTarget) < 0.0012;
-  if (atTarget) heroT = heroTarget;
-  drawHero(heroT);
-  if (heroDrag || !atTarget || heroReact > 0.002 || mOver) heroRaf = requestAnimationFrame(tick);
-}
-function kick() { if (heroRaf == null) heroRaf = requestAnimationFrame(tick); }
-function wireScrub() {
-  const rel = (e) => { const r = heroCv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; };
-  const end = () => {
-    if (!heroDrag) return;
-    heroDrag = false;
-    if (dragMoved < 5) heroT = 0;   // a tap replays the assemble
-    heroTarget = 1;
-    if (RM) { heroT = 1; drawHero(1); } else kick();
-  };
-  heroCv.addEventListener('pointerdown', e => {
-    heroCv.setPointerCapture(e.pointerId);
-    heroDrag = true; dragX0 = e.clientX; dragT0 = heroT; dragMoved = 0;
-    if (!RM) kick();
-  });
-  heroCv.addEventListener('pointermove', e => {
-    rel(e);
-    if (heroDrag) {
-      dragMoved = Math.max(dragMoved, Math.abs(e.clientX - dragX0));
-      heroT = Math.max(0, Math.min(1, dragT0 + (e.clientX - dragX0) / HW));
-      if (RM) drawHero(heroT);
-    } else if (!RM) { mOver = true; kick(); }
-  });
-  heroCv.addEventListener('pointerenter', () => { mOver = true; if (!RM) kick(); });
-  heroCv.addEventListener('pointerleave', () => { mOver = false; if (!RM) kick(); });
-  heroCv.addEventListener('pointerup', end);
-  heroCv.addEventListener('pointercancel', end);
-  heroCv.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); heroT = 0; heroTarget = 1; }
-    else if (e.key === 'ArrowLeft') heroTarget = Math.max(0, heroTarget - 0.2);
-    else if (e.key === 'ArrowRight') heroTarget = Math.min(1, heroTarget + 0.2);
-    else return;
-    if (RM) { heroT = heroTarget; drawHero(heroT); } else kick();
-  });
-}
-let heroWired = false;
-function buildHero() {
-  heroCv = document.getElementById('herocv');
-  const holder = heroCv.parentElement; // hero-frame
-  HW = Math.min(520, Math.max(280, holder.clientWidth));
-  HH = Math.round(HW * 0.52);
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  heroCv.width = HW * dpr; heroCv.height = HH * dpr;
-  heroCv.style.width = HW + 'px'; heroCv.style.height = HH + 'px';
-  const g = heroCv.getContext('2d');
-  g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  g.textBaseline = 'middle';
-  prosePos = null; letterPos = null;
-  if (!heroWired) {
-    heroWired = true;
-    if (RM) { heroT = 1; drawHero(1); }
-    else { heroT = 0; drawHero(0); setTimeout(() => { heroTarget = 1; kick(); }, 500); }  // source slowly assembles into the name
-    wireScrub();
-  } else {
-    drawHero(heroT);
-    if (!RM) kick();
-  }
-}
-
-Promise.all([
-  document.fonts.load('12px "IBM Plex Mono"'),
-  document.fonts.load('500 12px "IBM Plex Mono"')
-]).then(() => document.fonts.ready).then(() => {
-  const mc = document.createElement('canvas').getContext('2d');
-  mc.font = '12px "IBM Plex Mono"';
-  CH = mc.measureText('0000000000').width / 10;
-  buildHero();
-
-  let rsz = null;
-  addEventListener('resize', () => {
-    clearTimeout(rsz);
-    rsz = setTimeout(() => {
-      const t = heroT;
-      buildHero();
-      heroT = t; drawHero(heroT);
-      if (!RM) kick();
-    }, 160);
-  });
-});
+    addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'ArrowLeft') open(active - 1);
+      else if (e.key === 'ArrowRight') open(active + 1);
+    });
+  })();
 </script>
