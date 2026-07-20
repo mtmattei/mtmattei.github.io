@@ -301,7 +301,7 @@ const PROJECTS: Proj[] = [
     /* lab: the braille transition engine, the prototype itself embedded */
     slug: 'braille-transition', name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800',
     href: '/braille-transition/index.html', linkLabel: 'OPEN FULL SCREEN',
-    deep: '#101018', accent: '#22D3EE', ink: '#E4E4E7', base: '#0A0A0C',
+    deep: '#E9E9F2', accent: '#3656D4', ink: '#1A1815', base: '#F6F2EE',
     meta: '5 MODES · 256 GLYPHS',
     lede: 'A page-transition engine drawn entirely in the Braille Unicode block: U+2800–U+28FF, each glyph a 2×4 dot matrix — eight bits, 256 states. Five choreographies stagger per-cell delays while the content crossfades through the dot field.',
     facts: [
@@ -314,7 +314,7 @@ const PROJECTS: Proj[] = [
     pre: [
       {
         kind: 'frame', label: 'ENGINE', title: 'The engine, running',
-        body: 'Pick a mode and trigger the transition: each cell fills dot by dot through its own delay window, eased cubic, while the scene crossfades and the field shifts cyan to amber.',
+        body: 'Pick a mode and trigger the transition: each cell fills dot by dot through its own delay window, eased cubic, while the scene crossfades and the field shifts blue to teal.',
         src: '/braille-transition/index.html',
       },
     ],
@@ -385,10 +385,6 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
   <div class="camera" id="camera">
   <div class="scene" id="scene">
 
-    <a class="logo" href="/" aria-label="Matt Mattei — home">
-      <Logo height={62} />
-    </a>
-
     <h1 aria-label="Design what connects.">
       <span class="t hl" id="hl1" data-x="84" data-w="123" data-captop="229">DESIGN</span>
       <span class="t hl" id="hl2" data-x="84" data-w="97"  data-captop="302">WHAT</span>
@@ -455,6 +451,36 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
                     </svg>
                     <span class="bb-warn">Clarity has slipped 18 points over three weeks. A shock this week holds it clear.</span>
                   </span>
+                </span>
+              </span>
+            ) : p.slug === 'xaml-uno' ? (
+              /* the skill's own figure at billboard scale: the EaseSmooth curve
+                 (EasingDemo.astro), animated by the house numbers */
+              <span class="bb-ease">
+                <svg class="bbe-plot" viewBox="0 0 160 140" aria-hidden="true">
+                  <line class="bbe-axis" x1="28" y1="12" x2="28" y2="122" />
+                  <line class="bbe-axis" x1="28" y1="122" x2="138" y2="122" />
+                  <path class="bbe-linear" d="M 28 122 L 138 12" />
+                  <line class="bbe-handle" x1="28" y1="122" x2="52.2" y2="12" />
+                  <line class="bbe-handle" x1="138" y1="12" x2="67.6" y2="12" />
+                  <circle class="bbe-cp" cx="52.2" cy="12" r="2.1" />
+                  <circle class="bbe-cp" cx="67.6" cy="12" r="2.1" />
+                  <path class="bbe-curve" d="M 28 122 C 52.2 12 67.6 12 138 12" />
+                  <circle class="bbe-marker" cx="28" cy="122" r="3" />
+                  <text class="bbe-lbl" x="24" y="15" text-anchor="end">1</text>
+                  <text class="bbe-lbl" x="24" y="124" text-anchor="end">0</text>
+                  <text class="bbe-lbl" x="136" y="133">t</text>
+                </svg>
+                <span class="bbe-rails">
+                  <span class="bbe-rail">
+                    <span class="bbe-tag">EaseSmooth · cubic-bezier(.22,1 .36,1)</span>
+                    <span class="bbe-track"><i class="bbe-target"></i><i class="bbe-tile ink"></i></span>
+                  </span>
+                  <span class="bbe-rail">
+                    <span class="bbe-tag">linear · for contrast</span>
+                    <span class="bbe-track"><i class="bbe-target"></i><i class="bbe-tile lin"></i></span>
+                  </span>
+                  <span class="bbe-foot">XAML: KeySpline 0.22,1 0.36,1 · Duration 280ms</span>
                 </span>
               </span>
             ) : p.slug === 'braille-transition' ? (
@@ -540,6 +566,7 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
 
 <!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
 <div class="lrail" id="lrail">
+  <a class="lrail-logo" href="/" aria-label="Matt Mattei — home"><Logo height={20} /></a>
   <button class="lrail-strip" id="lrailStrip" aria-expanded="false" aria-controls="lnav" aria-label="Open navigation">
     <span class="lrail-label">Nav</span>
   </button>
@@ -571,7 +598,7 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
 </div>
 
 <!-- plates for the detail worlds: cloned into posters when a world is built -->
-{SHOWN.map((p) => (
+{SHOWN.filter((p) => !['braille-transition', 'glyph-grid'].includes(p.slug)).map((p) => (
   <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
 
@@ -711,14 +738,19 @@ body {
 .scene h1, .scene p, #detail h2, #detail p { margin: 0; }
 .scene img, .scene svg { user-select: none; -webkit-user-drag: none; }
 
-/* ---- logo: the M mark, in place of the mockup's studio logo ---- */
-.logo { position: absolute; left: 62px; top: 42px; display: block; color: var(--ink); }
+
 
 /* ---- side rail: the Shell's collapsed rail, incorporated on the stage ---- */
-.lrail { position: fixed; left: 0; top: 0; bottom: 0; z-index: 6; display: flex; transition: opacity .2s ease-out; }
+.lrail { position: fixed; left: 0; top: 0; bottom: 0; z-index: 6; display: flex; flex-direction: column; transition: opacity .2s ease-out; }
+.lrail-logo {
+  width: 34px; display: flex; justify-content: center; padding: 13px 0 11px;
+  color: var(--ink); background: rgba(246,242,238,.55);
+  border-right: var(--bw) solid var(--line);
+}
+.lrail-logo:hover { background: var(--gray-1); }
 body.walked .lrail { opacity: 0; pointer-events: none; }
 .lrail-strip {
-  width: 34px; border: 0; border-right: var(--bw) solid var(--line);
+  width: 34px; flex: 1 1 auto; border: 0; border-right: var(--bw) solid var(--line);
   background: rgba(246,242,238,.55); cursor: pointer;
   display: flex; justify-content: center; align-items: flex-start; padding-top: var(--s6);
   transition: background .15s;
@@ -962,15 +994,39 @@ a.viewall:hover { opacity: .65; }
     0 5px 9px -4px rgba(95,85,72,.42);
 }
 
+/* ---- xaml billboard hero: the EasingDemo figure at billboard scale ---- */
+.bb-ease {
+  position: absolute; inset: 0; display: flex; align-items: center; gap: 70px;
+  padding: 48px 70px; background: linear-gradient(170deg, #F6F2EE, #F0EAE3);
+}
+.bb-ease .bbe-plot { width: 400px; height: auto; flex: none; }
+.bbe-axis { stroke: var(--muted); stroke-width: .8; }
+.bbe-linear { stroke: var(--line-2); stroke-width: .8; stroke-dasharray: 3 3; fill: none; }
+.bbe-handle { stroke: var(--accent); stroke-width: .8; }
+.bbe-cp { fill: var(--accent); }
+.bbe-curve { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.bbe-marker { fill: var(--ink); }
+.bbe-lbl { font-family: var(--mono); font-size: 7px; fill: var(--muted); }
+.bbe-rails { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 34px; }
+.bbe-rail { display: flex; flex-direction: column; gap: 12px; }
+.bbe-tag { font-family: var(--mono); font-size: 14px; letter-spacing: .04em; color: var(--muted); }
+.bbe-track { position: relative; display: block; height: 34px; }
+.bbe-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line-2); }
+.bbe-tile { position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-radius: 4px; }
+.bbe-tile.ink { background: var(--ink); }
+.bbe-tile.lin { background: transparent; border: 1.5px solid var(--accent); }
+.bbe-target { position: absolute; right: 0; top: 0; width: 34px; height: 34px; border: 1.5px dashed var(--line-2); border-radius: 4px; }
+.bbe-foot { font-family: var(--mono); font-size: 14px; letter-spacing: .03em; color: var(--muted); margin-top: 2px; }
+
 /* ---- lab art: each lab shown in its own medium ---- */
 .card-braille, .bb-braille, .braille-poster {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #0A0A0C 0%, #0F0F14 100%); overflow: hidden;
+  background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); overflow: hidden;
 }
 .card-braille pre, .bb-braille pre, .braille-poster pre {
   margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
   line-height: 1.15; letter-spacing: .05em;
-  color: #22D3EE; text-shadow: 0 0 8px rgba(34,211,238,.27), 0 0 2px rgba(34,211,238,.27);
+  color: #3656D4; text-shadow: 0 0 8px rgba(54,86,212,.22), 0 0 2px rgba(54,86,212,.22);
 }
 .card-braille pre { font-size: 4.6px; }
 .bb-braille pre { font-size: 16px; }
@@ -1237,7 +1293,7 @@ a.viewall:hover { opacity: .65; }
 .dembed .dcap { max-width: 760px; }
 .dembed-frame {
   display: block; margin-top: 20px; width: 1160px; height: 640px;
-  border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0A0A0C;
+  border: 1px solid rgba(127,127,127,.3); border-radius: 8px; background: transparent;
 }
 
 .dparts { width: 1140px; padding: 140px 0 0 60px; }
@@ -1468,10 +1524,32 @@ function brailleTick() {
     elp.textContent = out;
   });
 }
+// the xaml billboard hero: the EasingDemo cycle (play 280ms, hold, reset)
+// driven by the house curve; easeSmoothFn reuses the camera's bezier solver
+var easeEl = document.querySelector('.bb-ease');
+var easeParts = easeEl ? {
+  marker: easeEl.querySelector('.bbe-marker'),
+  tileA: easeEl.querySelector('.bbe-tile.ink'),
+  tileB: easeEl.querySelector('.bbe-tile.lin'),
+} : null;
+var easeSmoothFn = null;
+function easeHeroTick(now) {
+  if (!easeParts || !easeEl.closest('.art').classList.contains('on')) return;
+  if (!easeSmoothFn) easeSmoothFn = cubicBezier(0.22, 1, 0.36, 1);
+  // 2.3s cycle: 280ms travel, hold at 1, reset to 0 near the end
+  var t = now % 2300;
+  var p = t < 280 ? t / 280 : (t < 2100 ? 1 : 0);
+  var e = easeSmoothFn(p);
+  easeParts.marker.setAttribute('cx', (28 + p * 110).toFixed(2));
+  easeParts.marker.setAttribute('cy', (122 - e * 110).toFixed(2));
+  var dA = easeParts.tileA.parentElement.offsetWidth - easeParts.tileA.offsetWidth;
+  easeParts.tileA.style.transform = 'translateX(' + (e * dA).toFixed(2) + 'px)';
+  easeParts.tileB.style.transform = 'translateX(' + (p * dA).toFixed(2) + 'px)';
+}
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0 || brailleEls.length > 0);
+  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0 || brailleEls.length > 0 || !!easeParts);
 }
 function bbTick(now) {
   bbRaf = null;
@@ -1479,6 +1557,7 @@ function bbTick(now) {
   if (bbOn()) bbDraw(now / 1000);
   cardFigs.forEach(function (d) { d(now / 1000); });
   brailleTick();
+  easeHeroTick(now);
   bbRaf = requestAnimationFrame(bbTick);
 }
 function bbWake() {
@@ -1487,6 +1566,7 @@ function bbWake() {
     if (bbOn()) bbDraw(3);
     cardFigs.forEach(function (d) { d(3); });
     brailleTick();
+    easeHeroTick(2000);                               // settled
     return;
   }
   if (!bbRaf && bbActive()) bbRaf = requestAnimationFrame(bbTick);

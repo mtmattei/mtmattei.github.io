@@ -8,14 +8,14 @@
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Instrument+Serif:ital@0;1&display=swap');
 
   :root {
-    --bg: #0a0a0c;
-    --glow: #22d3ee;
-    --glow-dim: #22d3ee44;
-    --glow-bright: #67e8f9;
-    --text: #e4e4e7;
-    --muted: #52525b;
-    --amber: #f59e0b;
-    --amber-dim: #f59e0b33;
+    --bg: #F6F2EE;
+    --glow: #3656D4;
+    --glow-dim: #3656d43d;
+    --glow-bright: #3656D4;
+    --text: #1A1815;
+    --muted: #6A635A;
+    --amber: #0A6C88;
+    --amber-dim: #0a6c8833;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -47,10 +47,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #27272a;
+    border: 1px solid #E4DDD3;
     border-radius: 2px;
     overflow: hidden;
-    background: linear-gradient(180deg, #0a0a0c 0%, #0f0f14 100%);
+    background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%);
   }
 
   .braille-stage::before {
@@ -61,8 +61,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(34, 211, 238, 0.015) 2px,
-      rgba(34, 211, 238, 0.015) 4px
+      rgba(54, 86, 212, 0.02) 2px,
+      rgba(54, 86, 212, 0.02) 4px
     );
     pointer-events: none;
     z-index: 2;
@@ -139,7 +139,7 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 0.6rem 1.4rem;
-    border: 1px solid #27272a;
+    border: 1px solid #D0C7BB;
     background: transparent;
     color: var(--text);
     cursor: pointer;
@@ -156,7 +156,7 @@
   .btn.active {
     border-color: var(--glow);
     color: var(--glow);
-    background: rgba(34, 211, 238, 0.06);
+    background: rgba(54, 86, 212, 0.06);
   }
 
   .label {
@@ -195,7 +195,7 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0.35rem 0.7rem;
-    border: 1px solid #1e1e22;
+    border: 1px solid #E4DDD3;
     background: transparent;
     color: var(--muted);
     cursor: pointer;
@@ -203,11 +203,11 @@
     transition: all 0.2s;
   }
 
-  .mode-btn:hover { color: var(--text); border-color: #3f3f46; }
+  .mode-btn:hover { color: var(--text); border-color: #D0C7BB; }
   .mode-btn.active {
     color: var(--glow);
     border-color: var(--glow);
-    background: rgba(34, 211, 238, 0.04);
+    background: rgba(54, 86, 212, 0.04);
   }
 </style>
 </head>
@@ -407,15 +407,15 @@ function transitionTick(time) {
 
   // Color crossfade on the grid
   if (forward) {
-    const r = Math.round(34 + (245 - 34) * contentT);
-    const g = Math.round(211 + (158 - 211) * contentT);
-    const b = Math.round(238 + (11 - 238) * contentT);
+    const r = Math.round(54 + (10 - 54) * contentT);
+    const g = Math.round(86 + (108 - 86) * contentT);
+    const b = Math.round(212 + (136 - 212) * contentT);
     grid.style.color = `rgb(${r},${g},${b})`;
     grid.style.textShadow = `0 0 8px rgba(${r},${g},${b},0.25), 0 0 2px rgba(${r},${g},${b},0.25)`;
   } else {
-    const r = Math.round(245 + (34 - 245) * contentT);
-    const g = Math.round(158 + (211 - 158) * contentT);
-    const b = Math.round(11 + (238 - 11) * contentT);
+    const r = Math.round(10 + (54 - 10) * contentT);
+    const g = Math.round(108 + (86 - 108) * contentT);
+    const b = Math.round(136 + (212 - 136) * contentT);
     grid.style.color = `rgb(${r},${g},${b})`;
     grid.style.textShadow = `0 0 8px rgba(${r},${g},${b},0.25), 0 0 2px rgba(${r},${g},${b},0.25)`;
   }
