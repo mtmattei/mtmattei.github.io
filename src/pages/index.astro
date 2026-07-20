@@ -17,14 +17,15 @@ import '../styles/poolside-app.css';
 
 type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: string };
 /* extra world panels beyond the iteration timeline:
-   note = a prose panel; app = the running interface; parts = a card grid */
+   note = a prose panel; app = the running interface; parts = a card grid;
+   stack = the exploded shader deck with its legend (from /poolside/) */
 type Extra = {
-  kind: 'note' | 'app' | 'parts';
+  kind: 'note' | 'app' | 'parts' | 'stack';
   label: string;
   title?: string;
   body?: string;
   rows?: string[];
-  items?: { no: string; title: string; body: string; read: string }[];
+  items?: { no: string; title: string; body: string; read?: string }[];
 };
 type Proj = {
   slug: string;
@@ -43,6 +44,8 @@ type Proj = {
   pre?: Extra[];
   post?: Extra[];
   question?: string;
+  /* overrides the "N ITERATIONS" line in the title panel's meta row */
+  meta?: string;
 };
 
 const PROJECTS: Proj[] = [
@@ -52,6 +55,7 @@ const PROJECTS: Proj[] = [
     slug: 'poolside', name: 'POOLSIDE', tag: 'CODE / SKIASHARP', href: '/poolside/', linkLabel: 'OPEN CASE STUDY',
     deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
     question: 'How quiet can a chemistry report be and still be trusted?',
+    meta: '4 STAGES · ONE PASS',
     pre: [
       /* the finished product leads; the making-of follows */
       {
@@ -64,13 +68,19 @@ const PROJECTS: Proj[] = [
         body: 'The first build was Refraction Pixels, an Uno Platform desktop sample written to test SkiaSharp 4.148’s runtime SkSL through SKCanvasElement. Watching the caustics run, the question changed from “can the canvas do this” to “what product deserves this water.” That answer is Poolside.',
         rows: ['refraction pixels', 'skiasharp 4.148', 'runtime sksl'],
       },
+      {
+        /* the exploded layer stack, exactly as on the exhibit (pl-deck + legend) */
+        kind: 'stack', label: 'STAGES', title: 'Four stages, one pass.',
+        body: 'The figures are not diagrams: each layer runs its isolated stage in WebGL, in this site’s inks — stacked as the layers they are, composited in a single pass.',
+        items: [
+          { no: 'fig.04 · field', title: 'Value noise → fbm', body: 'A hashed lattice smoothed with a cubic fade, then four octaves summed. Everything organic in the shader (surface wobble, caustic warp, murk) is drawn from this field.' },
+          { no: 'fig.05 · warp', title: 'Directional wave warp', body: 'Three sine waves at odd angles with incommensurate frequencies displace the sampling position, so nothing ever lines up with the grid. Gray is the undisturbed grid; ink is what the water does to it.' },
+          { no: 'fig.06 · caustic', title: 'Caustic web', body: 'Warped-sine interference, rotated off-grid and bent by slow value noise. A sixth-power falloff pinches the bright bands into filaments; a third rotated layer breaks the remaining symmetry.' },
+          { no: 'fig.07 · water · own inks', title: 'Composite · Poolside’s water', body: 'Depth tint, caustics scaled by clarity, spec highlights from the noise gradient, and sparkle on the filament cores. The app runs exactly this.' },
+        ],
+      },
     ],
-    iters: [
-      { v: 'V0.1', title: 'Field', cap: 'Value noise to fbm: a hashed lattice smoothed with a cubic fade, then four octaves summed. Everything organic in the shader — surface wobble, caustic warp, murk — is drawn from this field.', rows: ['hashed lattice', '4 octaves'], fig: 'field' },
-      { v: 'V0.4', title: 'Warp', cap: 'Three sine waves at odd angles with incommensurate frequencies displace the sampling position, so nothing ever lines up. Gray is the undisturbed grid; ink is what the water does to it.', rows: ['3 sines', 'off-grid'], fig: 'warp' },
-      { v: 'V0.7', title: 'Caustics', cap: 'Warped-sine interference, rotated off-grid and bent by slow value noise. A sixth-power falloff pinches the bright bands into filaments.', rows: ['interference', 'filaments'], fig: 'caustic' },
-      { v: 'V1.0', title: 'Water', cap: 'Depth tint, caustics scaled by clarity, specular from the noise gradient, and sparkle on the filament cores. The app runs exactly this.', rows: ['composite', 'own inks'], fig: 'water' },
-    ],
+    iters: [],
     post: [
       {
         kind: 'note', label: 'ONE PASS', title: 'Four stages, one pass.',
@@ -131,8 +141,8 @@ const PROJECTS: Proj[] = [
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question }) => ({
-  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question,
+const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta }) => ({
+  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta,
 }));
 
 /* landing card positions, from the mockup measurements */
@@ -255,13 +265,13 @@ const CARD_X = [304, 492, 680, 868, 1056];
         style={`left:${CARD_X[i]}px; top:772px; width:176px; height:95px;`}
         aria-label={p.name}
       >{p.slug === 'poolside' ? (
-        /* the exploded shader stack from /poolside/ (pl-deck), lift 15, live */
-        <span class="card-stage">
-          <span class="card-deck">
-            <span class="pl-layer" style="--i:0"><canvas data-fig="water" aria-hidden="true"></canvas></span>
-            <span class="pl-layer" style="--i:1"><canvas data-fig="caustic" aria-hidden="true"></canvas></span>
-            <span class="pl-layer" style="--i:2"><canvas data-fig="warp" aria-hidden="true"></canvas></span>
-            <span class="pl-layer" style="--i:3"><canvas data-fig="field" aria-hidden="true"></canvas></span>
+        /* the app's own IsoBasin (construction from /poolside/), shader on top */
+        <span class="card-basin">
+          <span class="basin-mini">
+            <span class="b-wall n"></span><span class="b-wall s"></span>
+            <span class="b-wall w"></span><span class="b-wall e"></span>
+            <span class="b-floor"></span>
+            <span class="b-surf"><Plate slug="poolside" /><canvas data-fig="water" aria-hidden="true"></canvas></span>
           </span>
         </span>
       ) : (
@@ -665,28 +675,31 @@ a.viewall:hover { opacity: .65; }
     0 5px 9px -4px rgba(95,85,72,.42);
 }
 .pcard:active { transform: scale(.96); }
-/* the poolside card: the exploded shader stack, rules reused from /poolside/
-   (.pl-stage / .pl-deck / .pl-layer; lift 15 · SCALE 2.4, scaled to a 120px
-   deck -> translateZ steps of ~10px). Layers bleed off the edges as on the
-   exhibit's own stage. */
-.card-stage {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: var(--gray-1); overflow: hidden;
-  perspective: 1250px; perspective-origin: 50% 44%;
+/* the poolside card: the IsoBasin, rules reused from /poolside/ (poolside.css) */
+.card-basin {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  perspective: 900px; background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
 }
-.card-deck {
-  position: relative; width: 118px; height: 118px; display: block;
-  transform-style: preserve-3d;
-  transform: rotateX(54deg) rotateZ(-32deg);
+.card-basin span { display: block; }
+.basin-mini {
+  position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
+  /* the projected diamond sits low in its box; lift it to center in the card */
+  transform: translateY(-12px) scale(.58) rotateX(55deg) rotateZ(45deg);
 }
-.card-deck .pl-layer { position: absolute; inset: 0; display: block; }
-.card-deck .pl-layer canvas {
-  width: 100%; height: 100%; display: block;
-  border: 1px solid var(--ink); background: var(--paper);
+.b-wall {
+  position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -8px 12px -8px rgba(0,30,40,.35);
 }
-.card-deck .pl-layer:nth-child(2) { transform: translateZ(10px); }
-.card-deck .pl-layer:nth-child(3) { transform: translateZ(20px); }
-.card-deck .pl-layer:nth-child(4) { transform: translateZ(31px); }
+.b-wall.n { top: 0; left: 0; width: 100%; height: 22px; transform-origin: top center; transform: rotateX(-90deg); }
+.b-wall.s { bottom: 0; left: 0; width: 100%; height: 22px; transform-origin: bottom center; transform: rotateX(90deg); }
+.b-wall.w { top: 0; left: 0; width: 22px; height: 100%; transform-origin: left center; transform: rotateY(90deg); }
+.b-wall.e { top: 0; right: 0; width: 22px; height: 100%; transform-origin: right center; transform: rotateY(-90deg); }
+.b-floor { position: absolute; inset: 0; background: #b3d3d9; transform: translateZ(-22px); }
+.b-surf {
+  position: absolute; inset: 0; border-radius: 16px; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -18px 26px -18px rgba(0,20,30,.5), 0 22px 34px -26px rgba(9,80,102,.75);
+}
+.b-surf .plate, .b-surf canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pcard.selected {
   box-shadow:
     0 0 0 1.5px var(--paper),
@@ -822,6 +835,35 @@ a.viewall:hover { opacity: .65; }
 .dint-row { display: flex; align-items: center; gap: 70px; margin-top: 26px; }
 .dapp-hold { flex: none; }
 .dint-side { max-width: 520px; padding-bottom: 60px; }
+/* the exploded shader deck, values reused from /poolside/ (.pl-stage/.pl-deck):
+   perspective 1250 at 50% 44%, deck 420px, rotateX(54) rotateZ(-32),
+   lift 15 x SCALE 2.4 -> translateZ steps of 36px (inline per layer) */
+.dstack { width: 1280px; padding: 88px 0 0 60px; }
+.dstack .dh { font-size: 56px; }
+.dstack-row { display: flex; gap: 60px; margin-top: 30px; align-items: flex-start; }
+.dstack-stage {
+  flex: none; width: 560px; height: 560px;
+  perspective: 1250px; perspective-origin: 50% 44%;
+  display: flex; align-items: center; justify-content: center;
+}
+.dstack-deck {
+  position: relative; width: 420px; height: 420px;
+  transform-style: preserve-3d;
+  transform: rotateX(54deg) rotateZ(-32deg);
+}
+.dstack-deck .pl-layer { position: absolute; inset: 0; }
+.dstack-deck .pl-layer canvas {
+  width: 100%; height: 100%; display: block;
+  border: 1px solid currentColor; background: var(--paper);
+}
+.dstack-side { max-width: 480px; padding-top: 10px; }
+.dstack-legend { list-style: none; margin: 22px 0 0; padding: 0; }
+.dstack-legend li { padding: 13px 0; border-top: 1px solid currentColor; position: relative; }
+.dstack-legend li { border-top-color: rgba(26,24,21,.18); }
+.dstack-tag { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 4px; }
+.dstack-legend b { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.dstack-legend p { margin: 0; font-size: 13px; line-height: 1.5; opacity: .7; }
+
 .dparts { width: 1140px; padding: 140px 0 0 60px; }
 .dparts .dh { font-size: 56px; }
 .dparts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 1000px; margin-top: 28px; }
@@ -1011,12 +1053,12 @@ if (bbCv) {
   if (bbDraw) { bbCv.width = 1868; bbCv.height = 884; }  // 2x: crisp through the push
   else bbCv = null;
 }
-// the featured card's exploded stack runs the four live stages
+// the featured card's basin runs the live surface
 var cardFigs = [];
-document.querySelectorAll('.card-deck canvas').forEach(function (cv) {
+document.querySelectorAll('.pcard canvas[data-fig]').forEach(function (cv) {
   var draw = glSetup(cv, GL_FRAGS[cv.dataset.fig]);
   if (!draw) return;
-  cv.width = 236; cv.height = 236;
+  cv.width = 328; cv.height = 328;
   cardFigs.push(draw);
 });
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
@@ -1110,6 +1152,23 @@ function extraHtml(p, x) {
       '<div class="dint-side"><p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows) + '</div>' +
       '</div></div>';
   }
+  if (x.kind === 'stack') {
+    // the exhibit's exploded deck: four live layers + its legend, side by side
+    return '<div class="dpanel dstack">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh">' + esc(x.title || '') + '</div>' +
+      '<div class="dstack-row">' +
+      '<div class="dstack-stage"><div class="dstack-deck">' +
+      ['water', 'caustic', 'warp', 'field'].map(function (f, n) {
+        return '<div class="pl-layer" style="transform:translateZ(' + (n * 36) + 'px)"><canvas class="dfig" data-fig="' + f + '"></canvas></div>';
+      }).join('') +
+      '</div></div>' +
+      '<div class="dstack-side"><p class="dcap">' + esc(x.body || '') + '</p>' +
+      '<ol class="dstack-legend">' + (x.items || []).map(function (it) {
+        return '<li><span class="dstack-tag">' + esc(it.no) + '</span><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p></li>';
+      }).join('') + '</ol></div>' +
+      '</div></div>';
+  }
   if (x.kind === 'parts') {
     return '<div class="dpanel dparts">' +
       '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
@@ -1138,7 +1197,7 @@ function buildDetail(i) {
        '<div class="dlbl">PROJECT ' + no + ' — WALKED IN</div>' +
        '<h2 class="dname" style="color:' + p.accent + '" tabindex="-1" id="dfocus">' + esc(p.name) + '</h2>' +
        '<div class="dtag">' + esc(p.tag) + '</div>' +
-       '<div class="dmeta"><span>' + p.iters.length + ' ITERATIONS</span><span>2026</span><span>SCROLL →</span></div>' +
+       '<div class="dmeta"><span>' + esc(p.meta || (p.iters.length + ' ITERATIONS')) + '</span><span>2026</span><span>SCROLL →</span></div>' +
        (p.href
          ? '<a class="dposter" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' aria-label="Open ' + esc(p.name) + '"></a>' +
            '<a class="dopen" href="' + p.href + '"' + (p.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + ' style="color:' + p.accent + '">' + esc(p.linkLabel || 'OPEN CASE STUDY') + ' <span aria-hidden="true">↗</span></a>'
