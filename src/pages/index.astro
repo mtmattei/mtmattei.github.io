@@ -63,6 +63,8 @@ type Proj = {
   question?: string;
   /* overrides the "N ITERATIONS" line in the title panel's meta row */
   meta?: string;
+  /* hidden projects keep their data but leave the featured set */
+  hidden?: boolean;
   /* the case-study page head, carried into the title panel */
   lede?: string;
   facts?: string[];
@@ -197,7 +199,7 @@ const PROJECTS: Proj[] = [
   {
     /* the world IS the Source / Figure detail page: /source-figure/ replicated
        for the scrolling concept; studies 01-03 draw themselves live */
-    slug: 'source-figure', name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION',
+    slug: 'source-figure', name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', hidden: true,
     deep: '#E9E9F2', accent: '#3656D4', ink: '#1A1815', base: '#F6F2EE',
     meta: '7 STUDIES · TWO INKS',
     lede: 'Seven studies in which source code is the structure, texture, and rhythm of the image drawn from it. The code becomes the image.',
@@ -364,14 +366,16 @@ const PROJECTS: Proj[] = [
 ];
 
 /* client copy of the data — palette, copy, and route per project */
-const CLIENT_PROJECTS = PROJECTS.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts }) => ({
+const SHOWN = PROJECTS.filter((p) => !p.hidden);
+const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts }) => ({
   slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
-/* landing card positions: seven slots between the strip labels */
-const CARD_X = [270, 408, 546, 684, 822, 960, 1098];
+/* landing card positions: centered on the stage for however many are shown */
 const CARD_W = 128;
 const CARD_H = 69;
+const CARD_PITCH = CARD_W + 10;
+const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH - 10) / 2 + i * CARD_PITCH));
 ---
 <Bare
   title="Index"
@@ -401,7 +405,7 @@ const CARD_H = 69;
     <div class="shelf"><img src="/landing/shelf.png" alt=""></div>
     <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
       <div class="screen">
-        {PROJECTS.map((p, i) => (
+        {SHOWN.map((p, i) => (
           <span class:list={['art', { on: i === 0 }]} data-art={p.slug}>
             {p.slug === 'poolside' ? (
               /* the Poolside app itself, landscape: its real UI is the billboard */
@@ -487,7 +491,7 @@ const CARD_H = 69;
       </svg>
     </span>
 
-    {PROJECTS.map((p, i) => (
+    {SHOWN.map((p, i) => (
       <a
         class:list={['pcard', { selected: i === 0 }]}
         href={`#/p/${p.slug}`} data-slug={p.slug}
@@ -547,7 +551,6 @@ const CARD_H = 69;
     <div class="lnav-g">
       <span class="lnav-k">Projects</span>
       <a class="lnav-i" href="/#/p/poolside"><span class="ltick"></span>Poolside</a>
-      <a class="lnav-i" href="/#/p/source-figure"><span class="ltick"></span>Source / Figure</a>
       <a class="lnav-i" href="/texts/"><span class="ltick"></span>Texts</a>
       <a class="lnav-i" href="/#/p/xaml-uno"><span class="ltick"></span>XAML / Uno</a>
       <a class="lnav-i" href="/ledger/"><span class="ltick"></span>Ledger</a>
@@ -569,7 +572,7 @@ const CARD_H = 69;
 </div>
 
 <!-- plates for the detail worlds: cloned into posters when a world is built -->
-{PROJECTS.map((p) => (
+{SHOWN.map((p) => (
   <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
 
