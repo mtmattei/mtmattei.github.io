@@ -80,6 +80,17 @@ const PROJECTS: Proj[] = [
         rows: ['uno platform', 'net10.0', 'desktop + android', 'mvux'],
       },
       {
+        /* the exhibit's exploded view, paired with the app it takes apart */
+        kind: 'exploded', label: 'EXPLODED', title: 'The interface, exploded.',
+        body: 'Explode the interface and its key features lift out of the shell, remaining fully interactive and tethered to their original positions.',
+        items: [
+          { no: '1', title: 'WaterConditionCanvas · WaterCondition.sksl', lead: 'WaterConditionCanvas is an SKCanvasElement', body: 'running WaterCondition.sksl. Clarity, green, milky, and sediment are DependencyProperties snapshotted to fields for the render thread; the loop is vsync-aligned, capped at 30fps, and lives inside the folding IsoBasin control.' },
+          { no: '2', title: 'engraved plate · IState‹PoolSnapshot›', lead: 'One recessed plate, four gauges in a 2×2 grid.', body: 'Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState of PoolSnapshot; a ChemistryExpanded state swaps compact numbers for full range bands.' },
+          { no: '3', title: 'IWaterAnalyzer · PoolModel · one line', lead: 'The insight is a service.', body: 'IWaterAnalyzer is DI-registered and injected through the PoolModel(IWaterAnalyzer Analyzer) primary constructor. It reads the snapshot and the test strip (StripReader), then returns one sentence carrying a status tone.' },
+          { no: '4', title: 'TrendsModel · Polyline · WaterThumbnail', lead: 'History is a Polyline sparkline', body: 'fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed, so projected weeks are never drawn in the solid ink of the ones already measured.' },
+        ],
+      },
+      {
         kind: 'note', label: 'ORIGIN', title: 'It started as a shader, not an app.',
         body: 'The first build was Refraction Pixels, an Uno Platform desktop sample written to test SkiaSharp 4.148’s runtime SkSL through SKCanvasElement. Watching the caustics run, the question changed from “can the canvas do this” to “what product deserves this water.” That answer is Poolside.',
         rows: ['refraction pixels', 'skiasharp 4.148', 'runtime sksl'],
@@ -100,7 +111,7 @@ const PROJECTS: Proj[] = [
     iters: [],
     post: [
       {
-        kind: 'note', label: 'ONE PASS', title: 'Four stages, one pass.',
+        kind: 'note', label: 'ONE PASS', title: 'In the app.',
         body: 'In the app the stages are not four passes: they are one half4 main(float2 fragCoord) SkSL program, compiled once into an SKRuntimeEffect and drawn by a single SKCanvasElement. field, warp, and caustic are helper functions feeding the composite, so the whole stack resolves per pixel in a single pass. The builder is cached once, uniforms are snapshotted to plain fields, and the render loop rides CompositionTarget.Rendering.',
         rows: ['skruntimeeffect', 'one pass', 'vsync'],
       },
@@ -115,18 +126,6 @@ const PROJECTS: Proj[] = [
           { no: '02', title: 'Cache the builder', body: 'SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect, and the next render access-violates.', read: 'build once · feed uniforms' },
           { no: '03', title: 'Zero-alloc loop', body: 'The render loop rides CompositionTarget.Rendering, snapshots inputs to plain fields, and reuses uniform buffers. At 0% intensity it stops painting.', read: 'vsync · idle at 0%' },
           { no: '04', title: 'GLSL to SkSL', body: 'No varyings, no gl_FragColor. Return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.', read: 'half4 · Y-down DIPs' },
-        ],
-      },
-      {
-        /* the exhibit's exploded view closes the timeline: the four key
-           features out of the shell, x-part tags and notes verbatim */
-        kind: 'exploded', label: 'EXPLODED', title: 'The interface, exploded.',
-        body: 'Explode the interface and its key features lift out of the shell, remaining fully interactive and tethered to their original positions.',
-        items: [
-          { no: '1', title: 'WaterConditionCanvas · WaterCondition.sksl', lead: 'WaterConditionCanvas is an SKCanvasElement', body: 'running WaterCondition.sksl. Clarity, green, milky, and sediment are DependencyProperties snapshotted to fields for the render thread; the loop is vsync-aligned, capped at 30fps, and lives inside the folding IsoBasin control.' },
-          { no: '2', title: 'engraved plate · IState‹PoolSnapshot›', lead: 'One recessed plate, four gauges in a 2×2 grid.', body: 'Toolkit ShadowContainer inner shadows and engraved hairlines. Readings bind to the MVUX IState of PoolSnapshot; a ChemistryExpanded state swaps compact numbers for full range bands.' },
-          { no: '3', title: 'IWaterAnalyzer · PoolModel · one line', lead: 'The insight is a service.', body: 'IWaterAnalyzer is DI-registered and injected through the PoolModel(IWaterAnalyzer Analyzer) primary constructor. It reads the snapshot and the test strip (StripReader), then returns one sentence carrying a status tone.' },
-          { no: '4', title: 'TrendsModel · Polyline · WaterThumbnail', lead: 'History is a Polyline sparkline', body: 'fed by TrendsModel; each week on the season shelf is a WaterThumbnail rendered by the same shader. The projection stays dashed, so projected weeks are never drawn in the solid ink of the ones already measured.' },
         ],
       },
     ],
