@@ -47,6 +47,14 @@
   #motion{border-radius:3px;border-color:rgba(242,239,233,.3)}
   .hint{width:100%;text-align:center;color:rgba(242,239,233,.22);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
   @media (prefers-reduced-motion:reduce){.status{transition:none}}
+  /* billboard framing: the panel is 934x442, so the brand row and the page
+     padding are wasted height. The controls stay - they are the interaction. */
+  body.billboard header{display:none}
+  body.billboard main{padding:0}
+  body.billboard .stage{height:100%;max-width:none}
+  body.billboard footer{padding:0 18px 14px;gap:6px}
+  body.billboard .hint{margin-top:2px;font-size:9.5px}
+  body.billboard button{padding:7px 12px;font-size:9.5px}
 </style>
 </head>
 <body>
@@ -312,6 +320,7 @@
     requestAnimationFrame(frame);
   }
 
+  if (new URLSearchParams(location.search).has('billboard')) document.body.classList.add('billboard');
   fit(); statusEl.textContent=LABEL[state]; requestAnimationFrame(frame);
 })();
 </script>

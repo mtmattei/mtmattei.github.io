@@ -1254,8 +1254,16 @@ var camState = {
 function applyCamera() {
   var c = camState;
   var k = c.fitS * Math.pow(c.ZMAX, c.push);
-  var dx = (c.CENTER.x - c.FOCUS.x) * c.push * k;
-  var dy = (c.CENTER.y - c.FOCUS.y) * c.push * k;
+  // The camera scales from its top edge, not its middle, so the scene can run
+  // past the fold. That means a point at scene-y Y lands at Y*k: the billboard
+  // at y 387 would slide ~460px down the frame as the push grows. So solve for
+  // the translate that keeps the billboard where the eye already has it, and
+  // walks it to the middle of the frame as push goes 0 -> 1. Anchored, not
+  // drifting: the camera moves toward the billboard rather than under it.
+  var restY = c.FOCUS.y + (c.CENTER.y - c.FOCUS.y) * c.push;   // 387 -> 512
+  var dy = c.fitS * restY - c.FOCUS.y * k;
+  var offX = c.FOCUS.x - c.CENTER.x;                            // 46px off-centre
+  var dx = offX * (c.fitS * (1 - c.push) - k);
   cam.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
 }
 function fit() {
@@ -1269,6 +1277,17 @@ addEventListener('resize', fit); fit();
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
 var tv = document.getElementById('tv');
+// the TV carries role="button" and "Step into ..." - it has to actually do it.
+// Clicks inside an embedded prototype never reach here: an iframe is its own
+// document, so the labs stay interactive while the bezel still navigates.
+function enterFeatured() {
+  var p = PROJECTS[state.featured];
+  if (p && state.mode === 'landing') location.hash = '#/p/' + p.slug;
+}
+tv.addEventListener('click', enterFeatured);
+tv.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterFeatured(); }
+});
 
 function setFeatured(i) {
   state.featured = i;

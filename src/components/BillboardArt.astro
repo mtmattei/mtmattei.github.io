@@ -106,7 +106,7 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
     <span class="bb-braille"><pre class="braille-live" data-cols="56" data-rows="20" aria-hidden="true">{brailleStill}</pre></span>
   ) : slug === 'voice-assistant' ? (
     <span class="bb-voice">
-      <iframe class="bb-embed" data-embed="/voice-assistant/index.html" title="Voice Assistant, live" loading="lazy"></iframe>
+      <iframe class="bb-embed" data-embed="/voice-assistant/index.html?billboard=1" title="Voice Assistant, live" loading="lazy"></iframe>
     </span>
   ) : slug === 'glyph-grid' ? (
     /* the lab itself, embedded: the billboard runs the real prototype rather
@@ -224,7 +224,7 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
 .bb-spark .fc-line { fill: none; stroke: var(--bb-deep); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .bb-spark .fc-proj { stroke: var(--bb-deep); stroke-width: 2; stroke-dasharray: 2 4; opacity: .7; }
 .bb-spark .fc-ghost { fill: none; stroke: var(--bb-deep); stroke-width: 1.6; opacity: .7; }
-.bb-warn { margin-top: 8px; font-size: 11.5px; line-height: 1.45; color: var(--bb-slate); }
+.bb-warn { margin: 8px 0 4px; padding-bottom: 6px; font-size: 11.5px; line-height: 1.45; color: var(--bb-slate); }
 /* the display darkens at its perimeter and carries a light sheen */
 .vignette {
   position: absolute; inset: 0; pointer-events: none; z-index: 2;
@@ -236,4 +236,18 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
     rgba(255,255,255,.10) 0%, rgba(255,255,255,.035) 16%,
     rgba(255,255,255,0) 34%, rgba(255,255,255,0) 100%);
 }
+
+/* ---- embedded prototypes ----
+   The billboard runs the real lab rather than a port of it. src is set only
+   while the panel is selected (see setFeatured on the landing), so one embed
+   is alive at a time and a dormant panel never eats a click meant for the TV. */
+.bb-voice { position: absolute; inset: 0; overflow: hidden; background: #08080A; }
+.bb-embed {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: 0; display: block;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease-out;
+}
+.bb-embed[src] { opacity: 1; pointer-events: auto; }
+:global(.art:not(.on)) .bb-embed { pointer-events: none; }
 </style>
