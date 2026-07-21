@@ -967,10 +967,11 @@ a.viewall:hover { opacity: .65; }
 }
 .card-basin span { display: block; }
 .basin-mini {
-  position: relative; width: 164px; height: 164px; transform-style: preserve-3d;
-  /* the projected diamond sits low in its box; lift and shrink to clear
-     the card's edges (69px tall) */
-  transform: translateY(-38px) scale(.36) rotateX(55deg) rotateZ(45deg);
+  position: absolute; left: 50%; top: 50%; width: 164px; height: 164px; transform-style: preserve-3d;
+  /* the 164px box overflows the 128x69 card, so place-items:center falls back
+     to start: center it explicitly instead, then lift 2.5px so the perspective
+     foreshortening leaves an even margin top and bottom */
+  transform: translate(-50%, calc(-50% - 2.5px)) scale(.36) rotateX(55deg) rotateZ(45deg);
 }
 .b-wall {
   position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
