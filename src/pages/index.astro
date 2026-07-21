@@ -845,8 +845,11 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   to   { opacity: 1; transform: none; }
 }
 .pindex { animation: ledgerIn .34s cubic-bezier(.22,1,.36,1) both; }
-.prow { animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
-  animation-delay: calc(90ms + var(--i, 0) * 16ms); }
+/* rows hold at rest until they are approached: firing all 28 on load meant
+   the ~22 below the fold had long settled before anyone scrolled to them */
+.prow { opacity: 0; }
+.prow.in { animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: var(--d, 0ms); }
 .phdr {
   opacity: .5; font-size: 11px; letter-spacing: .12em;
   border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
@@ -867,7 +870,8 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .prow.listed .pname::after { content: none; }
 .prow.listed .ptag:empty::before { content: '—'; opacity: .35; }
 @media (prefers-reduced-motion: reduce) {
-  .pindex, .prow { animation: none; }
+  .pindex, .prow.in { animation: none; }
+  .prow { opacity: 1; }
   a.viewall, .sound, .lrail-strip { transition-duration: .01ms; }
 }
 .idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
@@ -975,7 +979,14 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 
 /* landing chrome fades while the camera pushes through the billboard */
 .scene > * { transition-property: opacity; transition-duration: .2s; transition-timing-function: ease-out; }
-.scene.pushing > :not(.tv):not(.shelf) { opacity: 0; }
+/* Entering a world, everything but the billboard and its shelf used to snap
+   to invisible in one frame while the push took 850ms - the one hard cut in
+   an otherwise continuous move. Now the surroundings recede: a short fade and
+   a 6px settle, ~30% of the push so the billboard is clearly what is left. */
+.scene > :not(.tv):not(.shelf) {
+  transition: opacity .26s cubic-bezier(.22,1,.36,1), transform .34s cubic-bezier(.22,1,.36,1);
+}
+.scene.pushing > :not(.tv):not(.shelf) { opacity: 0; transform: translateY(6px); }
 .scene.pushing > * { pointer-events: none; }
 
 .dcam { position: absolute; left: 0; top: 0; height: 1024px; transform-origin: 0 0; }
@@ -1276,6 +1287,26 @@ addEventListener('resize', fit); fit();
 
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
+// ledger rows arrive as they are approached, staggered within each batch
+(function revealLedger() {
+  var rows = [].slice.call(document.querySelectorAll('#pindex .prow'));
+  // reduceMotion is declared further down; read the query directly here
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    rows.forEach(function (r) { r.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var n = 0;
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.style.setProperty('--d', (n++ * 16) + 'ms');
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+  rows.forEach(function (r) { io.observe(r); });
+})();
+
 var tv = document.getElementById('tv');
 // the TV carries role="button" and "Step into ..." - it has to actually do it.
 // Clicks inside an embedded prototype never reach here: an iframe is its own
