@@ -50,10 +50,12 @@ function glyphFrame(cols: number, rows: number): string {
 
 type Row = {
   name: string; tag: string; meta: string;
-  href: string;
+  /* listed-only rows have no destination and no art yet: they sit in the
+     index, unlinked, until each one gets a world */
+  href?: string;
   /* whether the art behind the type is dark or light: the overlaid rows
      lighten on dark art and darken on light art, or they vanish */
-  tone: 'dark' | 'light';
+  tone?: 'dark' | 'light';
   /* art: a Plate slug, or one of the two labs that draw themselves */
   plate?: string; lab?: 'braille' | 'glyph';
 };
@@ -64,11 +66,56 @@ const ROWS: Row[] = [
   { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', tone: 'light', href: '/#/p/braille-transition', lab: 'braille' },
   { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', tone: 'dark', href: '/#/p/glyph-grid', lab: 'glyph' },
   { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', tone: 'dark', href: '/source-figure/', plate: 'source-figure' },
-  { name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP', meta: 'PENDING', tone: 'dark', href: '/#/p/unoannotation', plate: 'unoannotation' },
-  { name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', meta: 'SHIPPED', tone: 'light', href: 'https://github.com/mtmattei/design-ledger', plate: 'design-ledger' },
-  { name: 'MOMENTUI', tag: 'AN INTERFACE COMPOSED AT RUNTIME', meta: 'PENDING', tone: 'dark', href: '/program/', plate: 'momentui' },
-  { name: 'LIQUIDGLASSLAB', tag: 'REFRACTION ON THE SKIA CANVAS', meta: 'PENDING', tone: 'dark', href: '/program/', plate: 'liquidglasslab' },
 ];
+
+/* the rest of the index: every public, non-fork repo, listed only.
+   Descriptions are GitHub's own, verbatim - 30 of the 42 have none yet. */
+const LISTED: Row[] = [
+  { name: "MTMATTEI.GITHUB.IO", tag: "Personal portfolio — instrument system, Astro", meta: "2026 · Astro" },
+  { name: "APPMAP", tag: "Render an Uno Platform app's full navigation structure as an interactive canvas", meta: "2026 · C#" },
+  { name: "UNOCOMPOSER", tag: "", meta: "2026 · C#" },
+  { name: "LIQUIDGLASSLAB", tag: "", meta: "2026 · C#" },
+  { name: "DESIGN-LEDGER", tag: "A non-repetition layer for AI design generators: wrap any design skill in a persistent fingerprint ledger + collision gate so every result is provably unique across all prior generations.", meta: "2026" },
+  { name: "GRIFFIN-VISUAL-PACKAGE", tag: "Griffin Heat Shields go-to-market visual package — dealer deck, sell sheet, launch banners (MP Cutting Tools, Montreal)", meta: "2026 · HTML" },
+  { name: "UNO-BUILDS-NET10", tag: "Uno-Builds projects upgraded to Uno.Sdk 6.5.33 / .NET 10 — see UPGRADE-SPEC.md", meta: "2026 · C#" },
+  { name: "UNO-SAMPLE-GALLERY", tag: "", meta: "2026 · HTML" },
+  { name: "BUILD-2026-SELECTION", tag: "Internal selection catalog of Uno Platform apps under review for Microsoft Build 2026", meta: "2026 · HTML" },
+  { name: "UNO-BUILDS", tag: "", meta: "2026 · C#" },
+  { name: "WPF-MIGRATION-TEST", tag: "", meta: "2026 · C#" },
+  { name: "MERIDIAN", tag: "", meta: "2026 · C#" },
+  { name: "COMPOSITIONSTACK", tag: "Companion to the blog post [Composition Stack for AI-Assisted .NET Development. A starter set of the six .md files the post describes, written for a fictional field-service app called FieldKit", meta: "2026" },
+  { name: "CHEFSTEST", tag: "", meta: "2026 · C#" },
+  { name: "TEXT-GRAB.UNO", tag: "", meta: "2026 · C#" },
+  { name: "UNOPLATFORMSKILLS", tag: "Skills for Uno Platform development and WinUI 3 XAML best practices.", meta: "2026" },
+  { name: "DIGITALFIDGET", tag: "", meta: "2026 · C#" },
+  { name: "QUOTECRAFT", tag: "", meta: "2026 · C#" },
+  { name: "HIVE", tag: "", meta: "2026 · C#" },
+  { name: "SWEATHER", tag: "", meta: "2026 · C#" },
+  { name: "LIQUIDMORPH", tag: "", meta: "2026 · C#" },
+  { name: "NEXUS", tag: "", meta: "2026 · C#" },
+  { name: "FRIENDSONAR", tag: "", meta: "2026 · C#" },
+  { name: "UNOORBIT", tag: "", meta: "2026 · C#" },
+  { name: "DRIFTLINE", tag: "", meta: "2026 · C#" },
+  { name: "CONFPASS", tag: "A cross-platform neumorphic conference attendee badge built with Uno Platform", meta: "2026 · C#" },
+  { name: "CAROUSEL", tag: "", meta: "2026 · C#" },
+  { name: "UNO-TABVIEW-DOESNT-UPDATE", tag: "", meta: "2026 · JavaScript" },
+  { name: "MEMORY-DRIFT", tag: "", meta: "2026 · C#" },
+  { name: "RADIAL-ACTION-MENU", tag: "", meta: "2026 · C#" },
+  { name: "PARALLAX-INVITATION-CARDS", tag: "", meta: "2026 · C#" },
+  { name: "FIBONACCISPHERE", tag: "", meta: "2025 · C#" },
+  { name: "MATRIX", tag: "", meta: "2025 · C#" },
+  { name: "THERMOSTAT-BUILD", tag: "", meta: "2025 · C#" },
+  { name: "PUCKUP", tag: "", meta: "2025 · JavaScript" },
+  { name: "HABITS", tag: "", meta: "2025 · LLVM" },
+  { name: "EV-CHARGINGAPP", tag: "", meta: "2025 · C#" },
+  { name: "FCM-PUSH-NOTIFICATIONS-TEST", tag: "", meta: "2025 · C#" },
+  { name: "UNOEATS", tag: "", meta: "2025 · C#" },
+  { name: "SANTATRACKER", tag: "Santa Claus Sleigh Tracking", meta: "2024 · C#" },
+  { name: "CUSTOMICONBUTTON", tag: "Custom Icon button for Uno Platform", meta: "2024 · C#" },
+  { name: "MATHGAME.MTMATTEI", tag: "C# Academy Console App Math Game", meta: "2024 · C#" },
+];
+
+const ALL: Row[] = [...ROWS, ...LISTED];
 ---
 <Bare title="Index lab">
   <div class="lab" id="lab" data-mode="above" data-tone="dark">
@@ -107,18 +154,27 @@ const ROWS: Row[] = [
         <div class="row hdr" aria-hidden="true">
           <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
         </div>
-        {ROWS.map((r, i) => (
-          <a
-            class:list={['row', { on: i === 0 }]}
-            href={r.href} data-i={i} data-tone={r.tone}
-            target={r.href.startsWith('http') ? '_blank' : null}
-            rel={r.href.startsWith('http') ? 'noopener' : null}
-          >
-            <span class="no">{String(i + 1).padStart(3, '0')}</span>
-            <span class="nm">{r.name}</span>
-            <span class="tg">{r.tag}</span>
-            <span class="mt">{r.meta}</span>
-          </a>
+        {ALL.map((r, i) => (
+          r.href ? (
+            <a
+              class:list={['row', { on: i === 0 }]}
+              href={r.href} data-i={i} data-tone={r.tone}
+              target={r.href.startsWith('http') ? '_blank' : null}
+              rel={r.href.startsWith('http') ? 'noopener' : null}
+            >
+              <span class="no">{String(i + 1).padStart(3, '0')}</span>
+              <span class="nm">{r.name}</span>
+              <span class="tg">{r.tag}</span>
+              <span class="mt">{r.meta}</span>
+            </a>
+          ) : (
+            <span class="row listed">
+              <span class="no">{String(i + 1).padStart(3, '0')}</span>
+              <span class="nm">{r.name}</span>
+              <span class="tg">{r.tag}</span>
+              <span class="mt">{r.meta}</span>
+            </span>
+          )
         ))}
       </div>
 
@@ -129,8 +185,8 @@ const ROWS: Row[] = [
         <div class="row hdr">
           <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
         </div>
-        {ROWS.map((r, i) => (
-          <span class:list={['row', { on: i === 0 }]}>
+        {ALL.map((r, i) => (
+          <span class:list={['row', { on: i === 0, listed: !r.href }]}>
             <span class="no">{String(i + 1).padStart(3, '0')}</span>
             <span class="nm">{r.name}</span>
             <span class="tg">{r.tag}</span>
@@ -228,6 +284,11 @@ const ROWS: Row[] = [
     box-shadow: 0 1px 0 rgba(26,24,21,.14);
   }
   .row:hover .nm, .row.on .nm { font-weight: 700; }
+  /* listed-only: in the index, but nothing to open yet */
+  .row.listed { cursor: default; }
+  .row.listed .nm { font-weight: 400; }
+  .row.listed .nm::after { content: none; }
+  .row.listed .tg:empty::before { content: '—'; opacity: .35; }
   .hdr {
     opacity: .5; font-size: 11px; letter-spacing: .12em;
     border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
@@ -326,19 +387,24 @@ const ROWS: Row[] = [
   const lab = document.getElementById('lab')!;
   const ghost = document.getElementById('ghost')!;
   const screen = document.getElementById('tvscreen')!;
-  const rows = Array.from(document.querySelectorAll<HTMLElement>('#idx .row:not(.hdr)'));
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('#idx a.row'));
   const ghostRows = Array.from(document.querySelectorAll<HTMLElement>('#ghost .row:not(.hdr)'));
   const shots = Array.from(document.querySelectorAll<HTMLElement>('.shot'));
 
+  /* the ghost mirrors every row while only the linked rows have art, so `i`
+     is always the position in the FULL list and each linked row carries its
+     own index in data-i. Keying off array position instead would only line up
+     while the linked rows happen to sit first. */
   function show(i: number) {
-    lab.dataset.tone = rows[i].dataset.tone!;
-    rows.forEach((r, n) => r.classList.toggle('on', n === i));
+    const row = rows.find((r) => +r.dataset.i! === i);
+    if (row) lab.dataset.tone = row.dataset.tone!;
+    rows.forEach((r) => r.classList.toggle('on', +r.dataset.i! === i));
     ghostRows.forEach((r, n) => r.classList.toggle('on', n === i));
     shots.forEach((s, n) => s.classList.toggle('on', n === i));
   }
 
-  rows.forEach((row, i) => {
-    const preview = () => show(i);
+  rows.forEach((row) => {
+    const preview = () => show(+row.dataset.i!);
     row.addEventListener('pointerenter', preview);
     row.addEventListener('focus', preview);
   });
