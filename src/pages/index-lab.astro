@@ -76,7 +76,6 @@ const ROWS: Row[] = [
     <a class="home" href="/" aria-label="Back to the index"><Logo height={22} /></a>
 
     <div class="head">
-      <span class="kick">INDEX · 2023—2026</span>
       <span class="kick quiet">HOVER TO PREVIEW<br>CLICK TO OPEN</span>
     </div>
 
@@ -182,7 +181,7 @@ const ROWS: Row[] = [
   .mode.on { opacity: 1; border-color: var(--accent); color: var(--accent); }
 
   .head {
-    display: flex; justify-content: space-between; align-items: flex-start;
+    display: flex; justify-content: flex-end; align-items: flex-start;
     padding: 0 0 26px 96px; flex: none;
   }
   .kick {
@@ -207,7 +206,6 @@ const ROWS: Row[] = [
   }
   .ghost .row { opacity: 1; background: none; border-top-color: transparent; box-shadow: none; color: #CFCBC4; }
   .lab[data-tone="light"] .ghost .row { color: #74706A; }
-  .ghost .row .no, .ghost .row .tg, .ghost .row .mt { opacity: .72; }
   .row {
     position: relative;
     display: grid; align-items: center;
@@ -216,15 +214,15 @@ const ROWS: Row[] = [
     flex: none; height: 22px;
     padding: 0 0 0 4px;
     font-size: 13px; line-height: 1;
-    color: var(--ink); text-decoration: none; opacity: .55;
+    color: var(--ink); text-decoration: none; opacity: 1;
     border-top: 1px solid transparent;
-    transition-property: opacity, background-color, border-color;
-    transition-duration: .2s, .15s, .15s;
+    transition-property: background-color, border-color;
+    transition-duration: .15s, .15s;
     transition-timing-function: cubic-bezier(.22,1,.36,1);
   }
   /* the hovered row is a full-bleed band with an accent rule on top */
   .row:hover, .row:focus-visible, .row.on {
-    opacity: 1; outline: none;
+    outline: none;
     background: rgba(255,255,255,.62);
     border-top-color: var(--accent);
     box-shadow: 0 1px 0 rgba(26,24,21,.14);
@@ -234,10 +232,9 @@ const ROWS: Row[] = [
     opacity: .5; font-size: 11px; letter-spacing: .12em;
     border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
   }
-  .idx:hover .row:not(:hover):not(.hdr) { opacity: .35; }
-  .no { opacity: .6; }
+  .no { opacity: 1; }
   .nm { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tg, .mt { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tg, .mt { opacity: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mt { text-align: left; }
 
   /* ---- the preview, overlapping the rows ---- */
