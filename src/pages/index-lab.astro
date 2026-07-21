@@ -1,0 +1,284 @@
+---
+import Bare from '../layouts/Bare.astro';
+import Logo from '../components/Logo.astro';
+import Plate from '../components/Plate.astro';
+
+/* A layout test, not a shipping page: the featured index moved out of the
+   billboard band and up the left edge, running top to bottom so it keeps
+   working as the list grows. The preview overlaps it — either above the
+   rows or behind them — which is the question this page exists to answer.
+   Rows and art are the real ones: the four billboard projects, the three
+   hidden worlds, and the two registry entries that have plates but no world. */
+
+/* the lab stills, drawn with each lab's own formula (lifted from the landing) */
+const B_BASE = 0x2800;
+const B_DOTS = [0x01, 0x02, 0x04, 0x40, 0x08, 0x10, 0x20, 0x80];
+const B_ORDER = [0, 1, 2, 6, 3, 4, 5, 7];
+function bChar(fill: number): string {
+  if (fill <= 0) return String.fromCharCode(B_BASE);
+  const on = Math.round(fill * 8);
+  let code = 0;
+  for (let i = 0; i < on && i < 8; i++) code |= B_DOTS[B_ORDER[i]];
+  return String.fromCharCode(B_BASE + code);
+}
+function brailleFrame(cols: number, rows: number, phase: number, amp: number): string {
+  const cx = cols / 2, cy = rows / 2;
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const dist = Math.hypot(x - cx, y - cy);
+      const wave = Math.sin(dist * 0.25 - phase * 2) * 0.5 + 0.5;
+      const wave2 = Math.sin(x * 0.12 + y * 0.08 + phase * 1.3) * 0.5 + 0.5;
+      out += bChar(wave * wave2 * amp);
+    }
+    if (y < rows - 1) out += '\n';
+  }
+  return out;
+}
+const GG_SYMBOLS = ['<', '/', '>', '<', '/', '>', '{', '}', ';', '='];
+function glyphFrame(cols: number, rows: number): string {
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const seed = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+      out += GG_SYMBOLS[Math.floor((seed - Math.floor(seed)) * GG_SYMBOLS.length)] + ' ';
+    }
+    if (y < rows - 1) out += '\n';
+  }
+  return out;
+}
+
+type Row = {
+  name: string; tag: string; meta: string;
+  href: string;
+  /* art: a Plate slug, or one of the two labs that draw themselves */
+  plate?: string; lab?: 'braille' | 'glyph';
+};
+
+const ROWS: Row[] = [
+  { name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', meta: '4 STAGES · ONE PASS', href: '/#/p/poolside', plate: 'poolside' },
+  { name: 'XAML / UNO', tag: 'SKILLS · THE FEEL SYSTEM', meta: '3 SKILLS · ONE SHEET', href: '/#/p/xaml-uno', plate: 'xaml-uno' },
+  { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', href: '/#/p/braille-transition', lab: 'braille' },
+  { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', href: '/#/p/glyph-grid', lab: 'glyph' },
+  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', href: '/source-figure/', plate: 'source-figure' },
+  { name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP', meta: 'PENDING', href: '/#/p/unoannotation', plate: 'unoannotation' },
+  { name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', meta: 'SHIPPED', href: 'https://github.com/mtmattei/design-ledger', plate: 'design-ledger' },
+  { name: 'MOMENTUI', tag: 'AN INTERFACE COMPOSED AT RUNTIME', meta: 'PENDING', href: '/program/', plate: 'momentui' },
+  { name: 'LIQUIDGLASSLAB', tag: 'REFRACTION ON THE SKIA CANVAS', meta: 'PENDING', href: '/program/', plate: 'liquidglasslab' },
+];
+---
+<Bare title="Index lab">
+  <div class="lab" id="lab" data-mode="above">
+
+    <a class="home" href="/" aria-label="Back to the index"><Logo height={22} /></a>
+
+    <div class="head">
+      <span class="kick">INDEX · 2023—2026</span>
+      <span class="kick quiet">HOVER TO PREVIEW<br>CLICK TO OPEN</span>
+    </div>
+
+    <!-- the preview sits between the paper and the rows; the mode decides
+         which side of the rows it lands on -->
+    <div class="stage" aria-hidden="true">
+      {ROWS.map((r, i) => (
+        <div class:list={['shot', { on: i === 0 }]} data-shot={i}>
+          {r.lab === 'braille' ? (
+            <span class="lab-art braille"><pre>{brailleFrame(58, 19, 2.0, 0.9)}</pre></span>
+          ) : r.lab === 'glyph' ? (
+            <span class="lab-art glyph"><pre>{glyphFrame(30, 11)}</pre></span>
+          ) : (
+            <Plate slug={r.plate!} />
+          )}
+          <span class="shot-foot"><span>{r.name}</span><span>{String(i + 1).padStart(3, '0')}</span></span>
+        </div>
+      ))}
+    </div>
+
+    <div class="idx" id="idx">
+      <div class="row hdr" aria-hidden="true">
+        <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
+      </div>
+      {ROWS.map((r, i) => (
+        <a
+          class:list={['row', { on: i === 0 }]}
+          href={r.href} data-i={i}
+          target={r.href.startsWith('http') ? '_blank' : null}
+          rel={r.href.startsWith('http') ? 'noopener' : null}
+        >
+          <span class="no">{String(i + 1).padStart(3, '0')}</span>
+          <span class="nm">{r.name}</span>
+          <span class="tg">{r.tag}</span>
+          <span class="mt">{r.meta}</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="foot">
+      <span>MATT MATTEI © 2026</span>
+      <div class="modes" role="group" aria-label="Preview depth">
+        <button type="button" class="mode on" data-mode="above">PREVIEW ABOVE</button>
+        <button type="button" class="mode" data-mode="behind">PREVIEW BEHIND</button>
+      </div>
+      <span class="quiet">LAYOUT TEST · /index-lab/</span>
+    </div>
+  </div>
+</Bare>
+
+<style>
+  html, body { overflow: hidden; }
+  .lab {
+    position: fixed; inset: 0;
+    padding: 34px 44px 30px;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(rgba(26,24,21,.016) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,24,21,.016) 1px, transparent 1px),
+      var(--paper);
+    background-size: 34px 34px;
+    color: var(--ink);
+  }
+
+  .home { position: absolute; left: 44px; top: 30px; color: var(--ink); }
+  .home:hover { opacity: .65; }
+
+  /* ---- mode switch: the one question this page asks ---- */
+  .modes { display: flex; gap: 6px; z-index: 6; }
+  .mode {
+    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.6px;
+    padding: 5px 11px; border: 1px solid var(--line-2); border-radius: 999px;
+    background: transparent; color: var(--ink); opacity: .45; cursor: pointer;
+    transition: opacity .18s ease-out, border-color .18s ease-out;
+  }
+  .mode:hover { opacity: .8; }
+  .mode.on { opacity: 1; border-color: var(--accent); color: var(--accent); }
+
+  .head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 0 0 26px 96px; flex: none;
+  }
+  .kick {
+    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+    line-height: 16px; color: var(--ink);
+  }
+  .quiet { opacity: .45; }
+
+  /* ---- the index: top to bottom, the rows share the height ---- */
+  .idx {
+    position: relative; z-index: 3;
+    flex: 1 1 auto; min-height: 0;
+    display: flex; flex-direction: column; align-content: flex-start;
+    overflow-y: auto;
+  }
+  .row {
+    position: relative;
+    display: grid; align-items: center;
+    grid-template-columns: 58px 300px 300px 160px;
+    gap: 16px;
+    flex: none; height: 22px;
+    padding: 0 0 0 4px;
+    font-size: 13px; line-height: 1;
+    color: var(--ink); text-decoration: none; opacity: .55;
+    border-top: 1px solid transparent;
+    transition-property: opacity, background-color, border-color;
+    transition-duration: .2s, .15s, .15s;
+    transition-timing-function: cubic-bezier(.22,1,.36,1);
+  }
+  /* the hovered row is a full-bleed band with an accent rule on top */
+  .row:hover, .row:focus-visible, .row.on {
+    opacity: 1; outline: none;
+    background: rgba(255,255,255,.62);
+    border-top-color: var(--accent);
+    box-shadow: 0 1px 0 rgba(26,24,21,.14);
+  }
+  .row:hover .nm, .row.on .nm { font-weight: 700; }
+  .hdr {
+    opacity: .5; font-size: 11px; letter-spacing: .12em;
+    border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
+  }
+  .idx:hover .row:not(:hover):not(.hdr) { opacity: .35; }
+  .no { opacity: .6; }
+  .nm { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tg, .mt { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mt { text-align: left; }
+
+  /* ---- the preview, overlapping the rows ---- */
+  .stage {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(52vw, 720px); aspect-ratio: 216 / 100;
+    pointer-events: none;
+  }
+  .shot {
+    position: absolute; inset: 0; overflow: hidden;
+    background: var(--gray-1, #EFEAE2);
+    box-shadow: 0 18px 45px rgba(26,24,21,.10);
+    opacity: 0; transform: translateY(10px) scale(.99);
+    transition: opacity .28s ease-out, transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .shot.on { opacity: 1; transform: none; }
+  .shot :global(.plate) { width: 100%; height: 100%; object-fit: cover; }
+  .shot-foot {
+    position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 2;
+    display: flex; justify-content: space-between; gap: 16px;
+    font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 1.4px;
+    color: #fff; mix-blend-mode: difference;
+  }
+  .lab-art { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .lab-art pre { margin: 0; white-space: pre; }
+  .lab-art.braille { background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); }
+  .lab-art.braille pre {
+    font-family: 'JetBrains Mono', var(--mono), monospace; font-size: 12px;
+    line-height: 1.4; letter-spacing: .05em;
+    color: #3656D4; text-shadow: 0 0 8px rgba(54,86,212,.22);
+  }
+  .lab-art.glyph { background: #101013; }
+  .lab-art.glyph pre {
+    font-family: var(--mono), monospace; font-size: 13px;
+    line-height: 2.1; letter-spacing: .38em; color: #3A3A42;
+  }
+
+  /* ABOVE: the preview covers the rows it overlaps (the reference's behaviour) */
+  .lab[data-mode="above"] .stage { z-index: 4; }
+  /* BEHIND: the rows run over the art, so the list stays the primary object.
+     Difference blending was the first attempt and failed - paper on paper
+     resolves to nothing. Knocking the art back instead keeps the ink legible
+     over both the light and the near-black plates. */
+  .lab[data-mode="behind"] .stage { z-index: 1; opacity: .42; }
+  .lab[data-mode="behind"] .shot { box-shadow: none; }
+  .lab[data-mode="behind"] .row:hover,
+  .lab[data-mode="behind"] .row.on { background: rgba(246,242,238,.42); }
+
+  .foot {
+    flex: none; display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px; margin-top: 14px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.6px;
+    opacity: .5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row, .shot, .mode { transition-duration: .01ms; }
+  }
+</style>
+
+<script>
+  const lab = document.getElementById('lab')!;
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('.row:not(.hdr)'));
+  const shots = Array.from(document.querySelectorAll<HTMLElement>('.shot'));
+
+  function show(i: number) {
+    rows.forEach((r, n) => r.classList.toggle('on', n === i));
+    shots.forEach((s, n) => s.classList.toggle('on', n === i));
+  }
+
+  rows.forEach((row, i) => {
+    const preview = () => show(i);
+    row.addEventListener('pointerenter', preview);
+    row.addEventListener('focus', preview);
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.mode').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      lab.dataset.mode = btn.dataset.mode!;
+      document.querySelectorAll('.mode').forEach((b) => b.classList.toggle('on', b === btn));
+    });
+  });
+</script>
