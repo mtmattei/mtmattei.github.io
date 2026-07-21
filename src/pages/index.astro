@@ -469,27 +469,6 @@ const INDEX_ROWS = [
       </svg>
     </span>
 
-    <!-- the preview lives in the channel to the right of the ledger's columns,
-         and tracks the row under the pointer. The billboard no longer swaps:
-         it holds one hero, and this is where the index answers a hover. -->
-    <div class="ppv" id="ppv" aria-hidden="true">
-      {INDEX_ROWS.map((r, i) => (
-        <div class="ppv-card" data-card={i}>
-          {r.slug === 'poolside' || r.slug === 'xaml-uno' ? (
-            <span class="ppv-art"><Plate slug={r.slug} /></span>
-          ) : r.slug === 'braille-transition' ? (
-            <span class="ppv-art braille"><pre>{POSTER_BRAILLE}</pre></span>
-          ) : r.slug === 'glyph-grid' ? (
-            <span class="ppv-art glyph"><pre>{POSTER_GLYPH}</pre></span>
-          ) : r.name === 'SOURCE / FIGURE' ? (
-            <span class="ppv-art"><Plate slug="source-figure" /></span>
-          ) : null}
-          <span class="ppv-name">{r.name}</span>
-          {r.tag && <span class="ppv-tag">{r.tag}</span>}
-          <span class="ppv-meta">{r.no} · {r.meta}</span>
-        </div>
-      ))}
-    </div>
 
     <div class="pindex" id="pindex">
       <div class="prow phdr" aria-hidden="true">
@@ -562,6 +541,30 @@ const INDEX_ROWS = [
       <a class="lnav-i" href="/contact/"><span class="ltick"></span>Contact</a>
     </div>
   </nav>
+</div>
+
+<!-- the previewer: lifted out of the scaled stage so its size is real px,
+     not camera-scaled. A large 4:5 card anchored lower-right that cross-fades
+     to the row under the pointer - the prototype's behaviour verbatim. -->
+<div class="ppv" id="ppv" aria-hidden="true">
+  {INDEX_ROWS.map((r, i) => (
+    <div class="ppv-card" data-card={i}>
+      <span class="ppv-art">
+        {r.slug === 'poolside' || r.slug === 'xaml-uno' ? (
+          <Plate slug={r.slug} />
+        ) : r.slug === 'braille-transition' ? (
+          <span class="ppv-fill braille"><pre>{POSTER_BRAILLE}</pre></span>
+        ) : r.slug === 'glyph-grid' ? (
+          <span class="ppv-fill glyph"><pre>{POSTER_GLYPH}</pre></span>
+        ) : r.name === 'SOURCE / FIGURE' ? (
+          <Plate slug="source-figure" />
+        ) : (
+          <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
+        )}
+      </span>
+      <span class="ppv-info"><span>{r.name}</span><span>{r.no}</span></span>
+    </div>
+  ))}
 </div>
 
 <div id="detail" role="region" aria-label="Project detail">
@@ -841,46 +844,48 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
 }
 .tv .art.on { opacity: 1; transform: none; }
-/* ---- hover preview: the negative space to the right of the ledger ---- */
+/* ---- hover previewer (prototype-exact) ----
+   A large 4:5 card fixed in the lower-right, outside the scaled stage so its
+   size is true px. Cards stack; the hovered row's card cross-fades in. */
 .ppv {
-  position: absolute; left: 1196px; top: 802px; width: 254px;
-  pointer-events: none; z-index: 4;
-  transition: top .34s cubic-bezier(.22,1,.36,1);
+  position: fixed; z-index: 7; pointer-events: none;
+  right: clamp(24px, 3vw, 46px); bottom: clamp(56px, 8vh, 96px);
+  width: min(31vw, 500px); aspect-ratio: 4 / 5;
 }
 .ppv-card {
-  position: absolute; left: 0; top: 0; right: 0;
-  display: flex; flex-direction: column; gap: 6px;
-  opacity: 0; transform: translateY(6px);
-  transition: opacity .22s ease-out, transform .34s cubic-bezier(.22,1,.36,1);
+  position: absolute; inset: 0; overflow: hidden;
+  opacity: 0; transform: translateY(12px) scale(.985);
+  transition: opacity .28s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 18px 45px rgba(15,15,10,.12), 0 0 0 1px rgba(0,0,0,.08);
+  background: #ddd8cf;
 }
-.ppv-card.on { opacity: 1; transform: none; }
-.ppv-art {
-  display: block; position: relative; width: 100%; aspect-ratio: 216 / 100;
-  border-radius: 10px; overflow: hidden; margin-bottom: 2px;
-  box-shadow: 0 10px 22px -12px rgba(26,24,21,.5), 0 0 0 1px rgba(0,0,0,.06);
+.ppv-card.on { opacity: 1; transform: translateY(0) scale(1); }
+.ppv-art { position: absolute; inset: 0; display: block; }
+.ppv-art :global(.plate) { width: 100%; height: 100%; display: block; }
+.ppv-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ppv-fill.braille { background: linear-gradient(180deg, #F6F2EE, #E9E3D6); }
+.ppv-fill.braille pre { margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
+  font-size: 17px; line-height: 1.28; letter-spacing: .12em; color: #3656D4;
+  text-shadow: 0 0 10px rgba(54,86,212,.2); }
+.ppv-fill.glyph { background: #101013; }
+.ppv-fill.glyph pre { margin: 0; white-space: pre; font-family: var(--mono), monospace;
+  font-size: 18px; line-height: 2.0; letter-spacing: .5em; color: #3A3A42; }
+.ppv-fill.wordmark {
+  background: hsl(var(--hue, 40) 14% 88%);
+  font-family: var(--sans); font-weight: 600; font-size: 30px; letter-spacing: -.02em;
+  color: rgba(26,24,21,.28); text-align: center; padding: 0 8%; line-height: 1.05;
 }
-.ppv-art :global(.plate) { display: block; width: 100%; height: 100%; }
-.ppv-art.braille, .ppv-art.glyph {
-  display: flex; align-items: center; justify-content: center;
+/* name + number, bottom, difference-blended so it reads on any art */
+.ppv-info {
+  position: absolute; z-index: 3; left: 18px; right: 18px; bottom: 16px;
+  display: flex; justify-content: space-between; gap: 16px;
+  color: #fff; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
+  font-variant-numeric: tabular-nums lining-nums; mix-blend-mode: difference;
 }
-.ppv-art.braille { background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); }
-.ppv-art.braille pre {
-  margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
-  font-size: 5.2px; line-height: 1.15; letter-spacing: .05em; color: #3656D4;
-}
-.ppv-art.glyph { background: #101013; }
-.ppv-art.glyph pre {
-  margin: 0; white-space: pre; font-family: var(--mono), monospace;
-  font-size: 6px; line-height: 1.6; letter-spacing: .2em; color: #45454D;
-}
-.ppv-name { font-size: 13px; font-weight: 600; letter-spacing: .01em; }
-.ppv-tag { font-size: 10.5px; line-height: 1.45; opacity: .62; }
-.ppv-meta {
-  font-size: 10px; letter-spacing: 1.4px; opacity: .45;
-  font-variant-numeric: tabular-nums lining-nums;
-}
+@media (max-width: 1080px) { .ppv { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ppv-card { transition-duration: .01ms; } }
 
-/* ---- featured index ----
+/* ---- featured index/* ---- featured index ----
    the lab's ledger, fitted to the band under the shelf: the four billboard
    projects drive the TV on hover, everything below is listed only. 33 rows
    do not fit 130px, so the list scrolls inside the band. */
@@ -1413,16 +1418,13 @@ function setFeatured(i) {
   bbWake();
 }
 
-/* The billboard holds one hero now. Hovering the index answers in the channel
-   beside it instead: the card fades in and the stack slides to the row under
-   the pointer, so the preview reads as belonging to that line. */
+/* The billboard holds one hero now; the index answers a hover in the fixed
+   previewer, lower-right. The card cross-fades to the row under the pointer. */
 var ppv = document.getElementById('ppv');
 var ppvCards = ppv ? [].slice.call(ppv.querySelectorAll('.ppv-card')) : [];
-var scene0 = document.getElementById('scene');
 function showPreview(row) {
   if (!ppv || !row) return;
   var n = +row.dataset.n;
-  ppv.style.top = (row.offsetTop + document.getElementById('pindex').offsetTop - 2) + 'px';
   ppvCards.forEach(function (c, k) { c.classList.toggle('on', k === n); });
 }
 function clearPreview() { ppvCards.forEach(function (c) { c.classList.remove('on'); }); }
