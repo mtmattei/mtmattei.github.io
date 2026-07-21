@@ -13,7 +13,6 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | UNOCOMPOSER |  | 2026 · C# | 1 |
 | [ ] | LIQUIDGLASSLAB |  | 2026 · C# | 1 |
 | [ ] | DESIGN-LEDGER | A non-repetition layer for AI design generators: wrap any design skill in a persistent fingerprint ledger + collision gate so every result is provably unique across all prior generations. | 2026 · - |  |
-| [ ] | GRIFFIN-VISUAL-PACKAGE | Griffin Heat Shields go-to-market visual package — dealer deck, sell sheet, launch banners (MP Cutting Tools, Montreal) | 2026 · HTML |  |
 | [ ] | UNO-BUILDS-NET10 | Uno-Builds projects upgraded to Uno.Sdk 6.5.33 / .NET 10 — see UPGRADE-SPEC.md | 2026 · C# |  |
 | [ ] | UNO-SAMPLE-GALLERY |  | 2026 · HTML |  |
 | [ ] | BUILD-2026-SELECTION | Internal selection catalog of Uno Platform apps under review for Microsoft Build 2026 | 2026 · HTML |  |
@@ -24,7 +23,6 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | UNOPLATFORMSKILLS | Skills for Uno Platform development and WinUI 3 XAML best practices. | 2026 · - | 5 |
 | [ ] | DIGITALFIDGET |  | 2026 · C# |  |
 | [ ] | QUOTECRAFT |  | 2026 · C# |  |
-| [ ] | HIVE |  | 2026 · C# | 1 |
 | [ ] | SWEATHER |  | 2026 · C# |  |
 | [ ] | LIQUIDMORPH |  | 2026 · C# | 1 |
 | [ ] | NEXUS |  | 2026 · C# |  |
