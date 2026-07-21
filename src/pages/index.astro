@@ -371,11 +371,15 @@ const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, href, linkLabel, deep, acc
   slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
-/* landing card positions: centered on the stage for however many are shown */
-const CARD_W = 128;
-const CARD_H = 69;
-const CARD_PITCH = CARD_W + 10;
-const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH - 10) / 2 + i * CARD_PITCH));
+/* the featured index: one row per shown project, every column its own field.
+   Hovering a row is what drives the billboard above it. */
+const INDEX_ROWS = SHOWN.map((p, i) => ({
+  slug: p.slug,
+  no: String(i + 1).padStart(3, '0'),
+  name: p.name,
+  tag: p.tag,
+  meta: p.meta || `${p.iters.length} ITERATIONS`,
+}));
 ---
 <Bare
   title="Index"
@@ -506,41 +510,32 @@ const CARD_X = SHOWN.map((_, i) => Math.round(768 - (SHOWN.length * CARD_PITCH -
       </a>
     </div>
 
-    <div class="t lbl" style="left:86px; top:808px;">FEATURED WORK</div>
-    <div class="hrule" style="left:210px; top:810px; width:55px; height:1.5px;"></div>
+    <div class="t lbl" style="left:86px; top:772px;">FEATURED WORK</div>
+    <div class="hrule" style="left:210px; top:774px; width:55px; height:1.5px;"></div>
+    <div class="t lbl idxhint" style="left:86px; top:806px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
 
-    <div class="hrule" style="left:1234px; top:813px; width:84px; height:2px;"></div>
-    <a class="t lbl viewall" href="/program/" style="left:1332px; top:806px;">VIEW ALL WORK</a>
-    <span class="ne-arrow" style="left:1433px; top:806px;">
+    <div class="hrule" style="left:1234px; top:779px; width:84px; height:2px;"></div>
+    <a class="t lbl viewall" href="/program/" style="left:1332px; top:772px;">VIEW ALL WORK</a>
+    <span class="ne-arrow" style="left:1433px; top:772px;">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M2.5 11.5 L11 3 M4.5 3 H11 V9.5" stroke="#3656D4" stroke-width="1.6"/>
       </svg>
     </span>
 
-    {SHOWN.map((p, i) => (
-      <a
-        class:list={['pcard', { selected: i === 0 }]}
-        href={`#/p/${p.slug}`} data-slug={p.slug}
-        style={`left:${CARD_X[i]}px; top:772px; width:${CARD_W}px; height:${CARD_H}px;`}
-        aria-label={p.name}
-      >{p.slug === 'poolside' ? (
-        /* the app's own IsoBasin (construction from /poolside/), shader on top */
-        <span class="card-basin">
-          <span class="basin-mini">
-            <span class="b-wall n"></span><span class="b-wall s"></span>
-            <span class="b-wall w"></span><span class="b-wall e"></span>
-            <span class="b-floor"></span>
-            <span class="b-surf"><Plate slug="poolside" /><canvas data-fig="water" aria-hidden="true"></canvas></span>
-          </span>
-        </span>
-      ) : p.slug === 'braille-transition' ? (
-        <span class="card-braille"><pre class="braille-live" data-cols="26" data-rows="9" aria-hidden="true"></pre></span>
-      ) : p.slug === 'glyph-grid' ? (
-        <span class="card-glyph"><pre class="glyph-still" aria-hidden="true">{POSTER_GLYPH}</pre></span>
-      ) : (
-        <Plate slug={p.slug} />
-      )}</a>
-    ))}
+    <div class="pindex" id="pindex">
+      {INDEX_ROWS.map((r, i) => (
+        <a
+          class:list={['prow', { selected: i === 0 }]}
+          href={`#/p/${r.slug}`} data-slug={r.slug} data-i={i}
+          aria-label={r.name}
+        >
+          <span class="pno">{r.no}</span>
+          <span class="pname">{r.name}</span>
+          <span class="ptag">{r.tag}</span>
+          <span class="pmeta">{r.meta}</span>
+        </a>
+      ))}
+    </div>
 
     <span class="sig-mark"><Logo height={30} /></span>
 
@@ -949,30 +944,38 @@ a.viewall:hover { opacity: .65; }
 .swipe svg { display: block; transition-property: transform; transition-duration: .12s; transition-timing-function: ease-out; }
 .swipe a:active svg { transform: scale(.9); }
 
-/* ---- featured cards ---- */
-.pcard {
-  position: absolute; display: block; border-radius: 16px; overflow: hidden;
-  background: var(--ink);
-  transition-property: transform, opacity; transition-duration: .12s, .2s; transition-timing-function: ease-out;
-  box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,.1),
-    0 2px 3px rgba(95,85,72,.16),
-    0 5px 9px -4px rgba(95,85,72,.42);
+/* ---- featured index ---- */
+/* the list replaces the thumbnail row: hovering a row is what swaps the
+   billboard above, so the art lives at full size instead of four times over */
+.pindex { position: absolute; left: 300px; top: 802px; width: 1150px; border-top: 1.5px solid #BCB8B4; }
+.prow {
+  position: relative; display: grid; align-items: center;
+  grid-template-columns: 60px 260px 1fr 280px;
+  height: 31px; padding-left: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink); text-decoration: none; opacity: .5;
+  transition-property: opacity, padding-left;
+  transition-duration: .2s, .22s;
+  transition-timing-function: cubic-bezier(.22,1,.36,1);
 }
-.pcard:active { transform: scale(.96); }
-/* the poolside card: the IsoBasin, rules reused from /poolside/ (poolside.css) */
-.card-basin {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  perspective: 900px; background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
+.prow.selected { opacity: 1; }
+/* the reference's dim-the-rest: the row under the pointer is the only lit one */
+.pindex:hover .prow:not(:hover) { opacity: .3; }
+.prow:hover, .prow:focus-visible { opacity: 1; padding-left: 8px; outline: none; }
+.prow.selected::before {
+  content: ''; position: absolute; left: -14px; top: 50%; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--accent); transform: translateY(-50%);
 }
-.card-basin span { display: block; }
-.basin-mini {
-  position: absolute; left: 50%; top: 50%; width: 164px; height: 164px; transform-style: preserve-3d;
-  /* the 164px box overflows the 128x69 card, so place-items:center falls back
-     to start: center it explicitly instead, then lift 2.5px so the perspective
-     foreshortening leaves an even margin top and bottom */
-  transform: translate(-50%, calc(-50% - 2.5px)) scale(.36) rotateX(55deg) rotateZ(45deg);
-}
+.pno { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .55; }
+.pname { font-size: 15px; font-weight: 600; letter-spacing: .06em; }
+.pname::after { content: ' ↗'; opacity: 0; transition: opacity .18s ease-out; }
+.prow:hover .pname::after, .prow:focus-visible .pname::after { opacity: 1; }
+.ptag, .pmeta { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .55; }
+.pmeta { text-align: right; }
+.idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
+
+/* the IsoBasin construction, now only for the phone cloned into the
+   Poolside world (rules reused from /poolside/) */
 .b-wall {
   position: absolute; background: linear-gradient(180deg, #e3f0f2, #bcdadf);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -8px 12px -8px rgba(0,30,40,.35);
@@ -987,13 +990,6 @@ a.viewall:hover { opacity: .65; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -18px 26px -18px rgba(0,20,30,.5), 0 22px 34px -26px rgba(9,80,102,.75);
 }
 .b-surf .plate, .b-surf canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.pcard.selected {
-  box-shadow:
-    0 0 0 1.5px var(--paper),
-    0 0 0 4px var(--accent),
-    0 2px 3px rgba(95,85,72,.16),
-    0 5px 9px -4px rgba(95,85,72,.42);
-}
 
 /* ---- xaml billboard hero: the EasingDemo figure at billboard scale ---- */
 .bb-ease {
@@ -1020,26 +1016,24 @@ a.viewall:hover { opacity: .65; }
 .bbe-foot { font-family: var(--mono); font-size: 14px; letter-spacing: .03em; color: var(--muted); margin-top: 2px; }
 
 /* ---- lab art: each lab shown in its own medium ---- */
-.card-braille, .bb-braille, .braille-poster {
+.bb-braille, .braille-poster {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); overflow: hidden;
 }
-.card-braille pre, .bb-braille pre, .braille-poster pre {
+.bb-braille pre, .braille-poster pre {
   margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
   line-height: 1.15; letter-spacing: .05em;
   color: #3656D4; text-shadow: 0 0 8px rgba(54,86,212,.22), 0 0 2px rgba(54,86,212,.22);
 }
-.card-braille pre { font-size: 4.6px; }
 .bb-braille pre { font-size: 16px; }
 .braille-poster pre { font-size: 6.5px; }
-.card-glyph, .bb-glyph, .glyph-poster {
+.bb-glyph, .glyph-poster {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   background: #101013; overflow: hidden;
 }
-.card-glyph pre, .bb-glyph pre, .glyph-poster pre {
+.bb-glyph pre, .glyph-poster pre {
   margin: 0; white-space: pre; font-family: var(--mono), monospace; color: #45454D;
 }
-.card-glyph pre { font-size: 5.5px; line-height: 1.6; letter-spacing: .2em; }
 .bb-glyph pre { font-size: 19px; line-height: 1.9; letter-spacing: .5em; color: #3A3A42; }
 .glyph-poster pre { font-size: 9px; line-height: 1.7; letter-spacing: .18em; }
 
@@ -1379,8 +1373,8 @@ var tv = document.getElementById('tv');
 function setFeatured(i) {
   state.featured = i;
   var p = PROJECTS[i];
-  document.querySelectorAll('.pcard').forEach(function (c) {
-    c.classList.toggle('selected', c.dataset.slug === p.slug);
+  document.querySelectorAll('.prow').forEach(function (r) {
+    r.classList.toggle('selected', r.dataset.slug === p.slug);
   });
   document.querySelectorAll('.tv .art').forEach(function (a) {
     a.classList.toggle('on', a.dataset.art === p.slug);
@@ -1388,6 +1382,14 @@ function setFeatured(i) {
   tv.setAttribute('aria-label', 'Step into ' + p.name);
   bbWake();
 }
+
+// pointing at a row is what loads the billboard; the click still walks in
+document.querySelectorAll('.prow').forEach(function (row) {
+  var i = +row.dataset.i;
+  function preview() { if (state.mode === 'landing' && state.featured !== i) setFeatured(i); }
+  row.addEventListener('pointerenter', preview);
+  row.addEventListener('focus', preview);
+});
 
 // ---- shared WebGL: the Poolside shaders (ported from /poolside/) ----
 var GL_VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
@@ -1486,15 +1488,7 @@ if (bbCv) {
   if (bbDraw) { bbCv.width = 1868; bbCv.height = 884; }  // 2x: crisp through the push
   else bbCv = null;
 }
-// the featured card's basin runs the live surface
-var cardFigs = [];
-document.querySelectorAll('.pcard canvas[data-fig]').forEach(function (cv) {
-  var draw = glSetup(cv, GL_FRAGS[cv.dataset.fig]);
-  if (!draw) return;
-  cv.width = 328; cv.height = 328;
-  cardFigs.push(draw);
-});
-// the braille lab's idle shimmer, running on its card and billboard art
+// the braille lab's idle shimmer, running on the billboard art
 // (formula and constants from /braille-transition/)
 var BR_BASE = 0x2800;
 var BR_DOTS = [0x01, 0x02, 0x04, 0x40, 0x08, 0x10, 0x20, 0x80];
@@ -1550,22 +1544,20 @@ function easeHeroTick(now) {
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return state.mode !== 'detail' && (bbOn() || cardFigs.length > 0 || brailleEls.length > 0 || !!easeParts);
+  return state.mode !== 'detail' && (bbOn() || brailleEls.length > 0 || !!easeParts);
 }
 function bbTick(now) {
   bbRaf = null;
   if (!bbActive()) return;                            // parks; bbWake() restarts it
   if (bbOn()) bbDraw(now / 1000);
-  cardFigs.forEach(function (d) { d(now / 1000); });
   brailleTick();
   easeHeroTick(now);
   bbRaf = requestAnimationFrame(bbTick);
 }
 function bbWake() {
-  if (!bbDraw && !cardFigs.length && !brailleEls.length) return;
+  if (!bbDraw && !brailleEls.length) return;
   if (reduceMotion) {                                 // a still frame, no loop
     if (bbOn()) bbDraw(3);
-    cardFigs.forEach(function (d) { d(3); });
     brailleTick();
     easeHeroTick(2000);                               // settled
     return;
@@ -2190,8 +2182,8 @@ function animExit() {
     scene.classList.remove('pushing');
     detail.classList.remove('on');
     detail.style.willChange = '';
-    var card = document.querySelector('.pcard.selected');
-    if (card) card.focus({ preventScroll: true });
+    var row = document.querySelector('.prow.selected');
+    if (row) row.focus({ preventScroll: true });
     route();
     bbWake();
   }
