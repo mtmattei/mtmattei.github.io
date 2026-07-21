@@ -466,6 +466,28 @@ const INDEX_ROWS = [
       </svg>
     </span>
 
+    <!-- the preview lives in the channel to the right of the ledger's columns,
+         and tracks the row under the pointer. The billboard no longer swaps:
+         it holds one hero, and this is where the index answers a hover. -->
+    <div class="ppv" id="ppv" aria-hidden="true">
+      {INDEX_ROWS.map((r, i) => (
+        <div class="ppv-card" data-card={i}>
+          {r.slug === 'poolside' || r.slug === 'xaml-uno' ? (
+            <span class="ppv-art"><Plate slug={r.slug} /></span>
+          ) : r.slug === 'braille-transition' ? (
+            <span class="ppv-art braille"><pre>{POSTER_BRAILLE}</pre></span>
+          ) : r.slug === 'glyph-grid' ? (
+            <span class="ppv-art glyph"><pre>{POSTER_GLYPH}</pre></span>
+          ) : r.name === 'SOURCE / FIGURE' ? (
+            <span class="ppv-art"><Plate slug="source-figure" /></span>
+          ) : null}
+          <span class="ppv-name">{r.name}</span>
+          {r.tag && <span class="ppv-tag">{r.tag}</span>}
+          <span class="ppv-meta">{r.no} · {r.meta}</span>
+        </div>
+      ))}
+    </div>
+
     <div class="pindex" id="pindex">
       <div class="prow phdr" aria-hidden="true">
         <span class="pno">N.</span><span class="pname">P.</span><span class="ptag">T.</span><span class="pmeta">M.</span>
@@ -475,7 +497,7 @@ const INDEX_ROWS = [
           <a
             class:list={['prow', { selected: i === 0, listed: !r.preview }]}
             href={r.href} data-slug={r.slug} data-i={r.preview ? i : null}
-            style={`--i:${i}`} aria-label={r.name}
+            style={`--i:${i}`} data-n={i} aria-label={r.name}
           >
             <span class="pno">{r.no}</span>
             <span class="pname">{r.name}</span>
@@ -483,7 +505,7 @@ const INDEX_ROWS = [
             <span class="pmeta">{r.meta}</span>
           </a>
         ) : (
-          <span class="prow listed" style={`--i:${i}`}>
+          <span class="prow listed" style={`--i:${i}`} data-n={i}>
             <span class="pno">{r.no}</span>
             <span class="pname">{r.name}</span>
             <span class="ptag">{r.tag}</span>
@@ -808,6 +830,45 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
 }
 .tv .art.on { opacity: 1; transform: none; }
+/* ---- hover preview: the negative space to the right of the ledger ---- */
+.ppv {
+  position: absolute; left: 1196px; top: 802px; width: 254px;
+  pointer-events: none; z-index: 4;
+  transition: top .34s cubic-bezier(.22,1,.36,1);
+}
+.ppv-card {
+  position: absolute; left: 0; top: 0; right: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .22s ease-out, transform .34s cubic-bezier(.22,1,.36,1);
+}
+.ppv-card.on { opacity: 1; transform: none; }
+.ppv-art {
+  display: block; position: relative; width: 100%; aspect-ratio: 216 / 100;
+  border-radius: 10px; overflow: hidden; margin-bottom: 2px;
+  box-shadow: 0 10px 22px -12px rgba(26,24,21,.5), 0 0 0 1px rgba(0,0,0,.06);
+}
+.ppv-art :global(.plate) { display: block; width: 100%; height: 100%; }
+.ppv-art.braille, .ppv-art.glyph {
+  display: flex; align-items: center; justify-content: center;
+}
+.ppv-art.braille { background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); }
+.ppv-art.braille pre {
+  margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
+  font-size: 5.2px; line-height: 1.15; letter-spacing: .05em; color: #3656D4;
+}
+.ppv-art.glyph { background: #101013; }
+.ppv-art.glyph pre {
+  margin: 0; white-space: pre; font-family: var(--mono), monospace;
+  font-size: 6px; line-height: 1.6; letter-spacing: .2em; color: #45454D;
+}
+.ppv-name { font-size: 13px; font-weight: 600; letter-spacing: .01em; }
+.ppv-tag { font-size: 10.5px; line-height: 1.45; opacity: .62; }
+.ppv-meta {
+  font-size: 10px; letter-spacing: 1.4px; opacity: .45;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
 /* ---- featured index ----
    the lab's ledger, fitted to the band under the shelf: the four billboard
    projects drive the TV on hover, everything below is listed only. 33 rows
@@ -848,6 +909,8 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 /* rows hold at rest until they are approached: firing all 28 on load meant
    the ~22 below the fold had long settled before anyone scrolled to them */
 .prow { opacity: 0; }
+/* an unrevealed row is invisible; it must not be hoverable either */
+.prow:not(.in) { pointer-events: none; }
 .prow.in { animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
   animation-delay: var(--d, 0ms); }
 .phdr {
@@ -1303,7 +1366,7 @@ var state = { mode: 'landing', featured: 0 };
       e.target.classList.add('in');
       io.unobserve(e.target);
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+  }, { rootMargin: '0px 0px 12% 0px', threshold: 0.01 });
   rows.forEach(function (r) { io.observe(r); });
 })();
 
@@ -1326,27 +1389,36 @@ function setFeatured(i) {
   document.querySelectorAll('.prow').forEach(function (r) {
     r.classList.toggle('selected', r.dataset.slug === p.slug);
   });
-  document.querySelectorAll('.tv .art').forEach(function (a) {
-    a.classList.toggle('on', a.dataset.art === p.slug);
-  });
   tv.setAttribute('aria-label', 'Step into ' + p.name);
-  // embedded prototypes run only while their panel is the selected one:
-  // loading on selection and unloading on leave keeps one loop alive, not four
-  document.querySelectorAll('.bb-embed').forEach(function (f) {
-    var on = !!f.closest('.art') && f.closest('.art').classList.contains('on');
-    if (on && !f.getAttribute('src')) f.setAttribute('src', f.dataset.embed);
-    else if (!on && f.getAttribute('src')) f.removeAttribute('src');
-  });
   bbWake();
 }
 
+/* The billboard holds one hero now. Hovering the index answers in the channel
+   beside it instead: the card fades in and the stack slides to the row under
+   the pointer, so the preview reads as belonging to that line. */
+var ppv = document.getElementById('ppv');
+var ppvCards = ppv ? [].slice.call(ppv.querySelectorAll('.ppv-card')) : [];
+var scene0 = document.getElementById('scene');
+function showPreview(row) {
+  if (!ppv || !row) return;
+  var n = +row.dataset.n;
+  ppv.style.top = (row.offsetTop + document.getElementById('pindex').offsetTop - 2) + 'px';
+  ppvCards.forEach(function (c, k) { c.classList.toggle('on', k === n); });
+}
+function clearPreview() { ppvCards.forEach(function (c) { c.classList.remove('on'); }); }
+
 // pointing at a row is what loads the billboard; the click still walks in
-document.querySelectorAll('.prow[data-i]').forEach(function (row) {
-  var i = +row.dataset.i;
-  function preview() { if (state.mode === 'landing' && state.featured !== i) setFeatured(i); }
-  row.addEventListener('pointerenter', preview);
-  row.addEventListener('focus', preview);
+document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
+  function enter() {
+    if (state.mode !== 'landing') return;
+    showPreview(row);
+    var i = row.dataset.i === undefined ? -1 : +row.dataset.i;
+    if (i >= 0 && state.featured !== i) setFeatured(i);
+  }
+  row.addEventListener('pointerenter', enter);
+  row.addEventListener('focus', enter);
 });
+document.getElementById('pindex').addEventListener('pointerleave', clearPreview);
 
 // ---- shared WebGL: the Poolside shaders (ported from /poolside/) ----
 var GL_VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
