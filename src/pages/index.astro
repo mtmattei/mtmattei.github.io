@@ -472,7 +472,7 @@ const INDEX_ROWS = [
         <rect x="29.4" y="11" width="2" height="2"/>
       </svg>
     </span>
-    <div class="t lbl" style="left:1381px; top:949px; font-size:9.5px; line-height:13px; letter-spacing:1.3px;">SOUND<br><b id="sndState">OFF</b></div>
+    <div class="t lbl" style="left:1381px; top:1587px; font-size:9.5px; line-height:13px; letter-spacing:1.3px;">SOUND<br><b id="sndState">OFF</b></div>
     <button class="sound" id="sound" role="switch" aria-checked="false" aria-label="Room tone"><span class="knob"></span></button>
 
   </div>
@@ -638,14 +638,18 @@ const INDEX_ROWS = [
 
 /* the pushed-in camera's transformed bounds overflow the document; clip (not
    hide) so no scrollable region exists at all — not even programmatically */
-html, body { overflow: clip; }
+/* the pushed-in camera overflows sideways, so x stays clipped; y scrolls,
+   because the index runs past the hero */
+html, body { overflow-x: clip; }
 /* the stage's own type metrics; the ground itself comes from global.css.
    Astro leaves body selectors unscoped, so a background here would silently
    override the site ground - it did, until this was split out. */
 body { font-size: 16px; line-height: normal; }
-#fit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: clip; }
-.camera { width: 1536px; height: 1024px; flex: none; transform-origin: center center; }
-.scene { position: relative; width: 1536px; height: 1024px; }
+#fit { position: relative; display: flex; align-items: flex-start; justify-content: center; }
+/* 1024 of hero, then the index: the camera scales from the top edge so the
+   hero still meets the viewport exactly and the rest falls below the fold */
+.camera { width: 1536px; height: 1640px; flex: none; transform-origin: top center; }
+.scene { position: relative; width: 1536px; height: 1640px; }
 .t { position: absolute; color: var(--ink); white-space: nowrap; }
 /* the mockup ran on a global margin reset; scope it to the stage */
 .scene h1, .scene p, #detail h2, #detail p { margin: 0; }
@@ -766,9 +770,7 @@ a.viewall:hover { opacity: .65; }
    projects drive the TV on hover, everything below is listed only. 33 rows
    do not fit 130px, so the list scrolls inside the band. */
 .pindex {
-  position: absolute; left: 300px; top: 792px; width: 1150px; height: 142px;
-  overflow-y: auto; overscroll-behavior: contain;
-  scrollbar-width: thin; scrollbar-color: #CFC9C1 transparent;
+  position: absolute; left: 300px; top: 792px; width: 1150px;
 }
 .prow {
   position: relative; display: grid; align-items: center;
@@ -791,7 +793,6 @@ a.viewall:hover { opacity: .65; }
 .phdr {
   opacity: .5; font-size: 11px; letter-spacing: .12em;
   border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
-  position: sticky; top: 0; z-index: 2;
 }
 .phdr:hover { background: none; border-top-color: transparent; box-shadow: none; }
 .pno { opacity: .6; }
@@ -870,12 +871,12 @@ a.viewall:hover { opacity: .65; }
 .glyph-poster pre { font-size: 9px; line-height: 1.7; letter-spacing: .18em; }
 
 /* ---- signature mark ---- */
-.sig-mark { position: absolute; left: 753px; top: 938px; color: var(--ink); opacity: .8; }
+.sig-mark { position: absolute; left: 753px; top: 1576px; color: var(--ink); opacity: .8; }
 
 /* ---- sound: room tone, off until asked ---- */
-.wave { position: absolute; left: 1344px; top: 952px; }
+.wave { position: absolute; left: 1344px; top: 1590px; }
 .sound {
-  position: absolute; left: 1431px; top: 952px; width: 38px; height: 23px;
+  position: absolute; left: 1431px; top: 1590px; width: 38px; height: 23px;
   border-radius: 11.5px; display: block; border: 0; cursor: pointer; background: #FAFAF9;
   box-shadow:
     inset 0 0 0 1px rgba(80,68,56,.05),
@@ -1193,7 +1194,9 @@ function applyCamera() {
   cam.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
 }
 function fit() {
+  // the hero is what has to fit the viewport; the scene continues past it
   camState.fitS = Math.min(innerWidth / 1536, innerHeight / 1024);
+  document.getElementById('fit').style.height = (1640 * camState.fitS) + 'px';
   applyCamera();
 }
 addEventListener('resize', fit); fit();
@@ -1970,6 +1973,7 @@ var scene = document.getElementById('scene');
 
 function animEnter(i) {
   state.mode = 'entering';
+  scrollTo({ top: 0, behavior: 'instant' });   // the push is composed on the hero
   setFeatured(i);
   buildDetail(i);
   clearTransTimers();
