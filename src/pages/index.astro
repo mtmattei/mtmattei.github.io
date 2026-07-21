@@ -444,6 +444,9 @@ const INDEX_ROWS = [
     <div class="shelf"><img src="/landing/shelf.png" alt=""></div>
     <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
       <div class="screen">
+        <video class="bb-hero" id="bbHero" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="/videos/hero-window.mp4" type="video/mp4" />
+        </video>
         {SHOWN.map((p, i) => (
           <span class:list={['art', { on: i === 0 }]} data-art={p.slug}>
             <BillboardArt slug={p.slug} glyphStill={glyphFrame(34, 15)} brailleStill={brailleFrame(56, 20, 2.0, 0.9)} />
@@ -824,7 +827,15 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   box-shadow: inset 0 0 0 1px rgba(10,9,8,.92);
   transition-property: transform; transition-duration: .2s; transition-timing-function: ease-out;
 }
+/* the permanent hero: the window-at-dusk loop, in colour. object-fit cover
+   fills the 934x442 screen; the source is already cropped to that aspect so
+   there is almost nothing to trim. */
+.bb-hero {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block; z-index: 0;
+}
 .tv .art {
+  display: none;
   position: absolute; inset: 0;
   opacity: 0; transform: scale(1.02);
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
