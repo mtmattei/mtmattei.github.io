@@ -104,6 +104,10 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
     </span>
   ) : slug === 'braille-transition' ? (
     <span class="bb-braille"><pre class="braille-live" data-cols="56" data-rows="20" aria-hidden="true">{brailleStill}</pre></span>
+  ) : slug === 'voice-assistant' ? (
+    <span class="bb-voice">
+      <iframe class="bb-embed" data-embed="/voice-assistant/index.html" title="Voice Assistant, live" loading="lazy"></iframe>
+    </span>
   ) : slug === 'glyph-grid' ? (
     /* the lab itself, embedded: the billboard runs the real prototype rather
        than a port of it, so the two cannot drift. src is set only while this

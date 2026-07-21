@@ -333,6 +333,39 @@ const PROJECTS: Proj[] = [
     ],
   },
   {
+    /* lab: the voice assistant's two motion models, the prototype embedded */
+    slug: 'voice-assistant', name: 'VOICE ASSISTANT', tag: 'LAB · MACHINE MOTION',
+    href: '/voice-assistant/index.html', linkLabel: 'OPEN FULL SCREEN',
+    deep: '#0E0E12', accent: '#F5D8A6', ink: '#F2EFE9', base: '#08080A',
+    meta: '4 STATES · 12 HZ CLOCK',
+    lede: 'A speaking interface drawn as 31 bars, running two motion models against each other. Organic eases continuously with jaw inertia and round caps; machine lands everything on a 12 Hz transport, quantised, sample-and-held, with squared ends. Same states, same phrases, two different machines.',
+    facts: [
+      '31 bars · 10 visemes · 4 states',
+      'organic: continuous easing, jaw inertia',
+      'machine: 12 Hz clock · 7 levels · 9-row grid',
+      'live mic input, or simulated',
+    ],
+    iters: [],
+    pre: [
+      {
+        kind: 'frame', label: 'ENGINE', title: 'Both motion models, live',
+        body: 'Space cycles the states, 1 to 4 jumps directly, M switches the motion model. Watch the same phrase read as speech under one model and as a transport under the other.',
+        src: '/voice-assistant/index.html',
+      },
+    ],
+    post: [
+      {
+        kind: 'parts', label: 'NOTES', title: 'What separates the two',
+        items: [
+          { no: '01', title: 'Inertia against a clock', body: 'Organic lerps the mouth shape toward each viseme, and closes faster than it opens. Machine snaps to a quantised target and holds it until the next tick, so nothing is ever between two values.', read: 'lerp .19/.42 vs q(v, 7)' },
+          { no: '02', title: 'Sample and hold', body: 'The bars are read at 20 Hz in machine mode and held; in organic mode they chase their target every frame. The bar heights also snap to a nine-row grid, so the silhouette steps instead of sliding.', read: 'SAMPLE 1000/20 · ROWS 9' },
+          { no: '03', title: 'The artefact is deliberate', body: 'Every 1.8 to 4.4 seconds machine mode scrambles its bar addressing for one clock step. A transport that never glitches reads as an imitation of a machine rather than a machine.', read: 'glitch 1 × CLOCK' },
+          { no: '04', title: 'Colour carries the model', body: 'Organic runs warm — a filament, 245/216/166. Machine runs cool and dimmer, 214/232/245 at 70% bloom, with butt caps. The palette says which machine you are watching before the motion does.', read: 'warm 1.0 vs 0.28' },
+        ],
+      },
+    ],
+  },
+  {
     /* lab: the magnetic glyph grid, the prototype itself embedded */
     slug: 'glyph-grid', name: 'MAGNETIC SPRING-MASS', tag: 'LAB · POINTER FIELD',
     href: '/glyph-grid/index.html', linkLabel: 'OPEN FULL SCREEN',
@@ -377,12 +410,14 @@ const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, href, linkLabel, deep, acc
    then Source / Figure, which has a page but no billboard panel, then every
    public repo, listed only until each one gets a world. */
 const INDEX_ROWS = [
+  /* M. is the year for every row, so the column reads as one thing. The
+     descriptor lines (4 STAGES - ONE PASS) still head each detail world. */
   ...SHOWN.map((p) => ({
-    name: p.name, tag: p.tag, meta: p.meta || `${p.iters.length} ITERATIONS`,
+    name: p.name, tag: p.tag, meta: '2026',
     href: `#/p/${p.slug}`, slug: p.slug, preview: true,
   })),
   { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION',
-    meta: '7 STUDIES · TWO INKS', href: '/source-figure/', slug: '', preview: false },
+    meta: '2026', href: '/source-figure/', slug: '', preview: false },
   ...WORK_ROWS.map((r) => ({ ...r, href: '', slug: '', preview: false })),
 ].map((r, i) => ({ ...r, no: String(i + 1).padStart(3, '0') }));
 ---
@@ -513,7 +548,7 @@ const INDEX_ROWS = [
 </div>
 
 <!-- plates for the detail worlds: cloned into posters when a world is built -->
-{SHOWN.filter((p) => !['braille-transition', 'glyph-grid'].includes(p.slug)).map((p) => (
+{SHOWN.filter((p) => !['braille-transition', 'glyph-grid', 'voice-assistant'].includes(p.slug)).map((p) => (
   <template id={`plate-${p.slug}`}><Plate slug={p.slug} /></template>
 ))}
 
