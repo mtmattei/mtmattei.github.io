@@ -9,6 +9,7 @@ import '@fontsource/fraunces/400.css';
 /* the Poolside phone build's own styles, scoped under .pworld */
 import '../styles/poolside-app.css';
 import { highlightSource, SKILLS } from '../data/portfolio';
+import { WORK_ROWS } from '../data/work-index';
 /* Source / Figure's own sheet styles (namespaced .sf) + its serif */
 import '@fontsource/radley/400.css';
 import '@fontsource/radley/400-italic.css';
@@ -372,15 +373,18 @@ const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, href, linkLabel, deep, acc
   slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
-/* the featured index: one row per shown project, every column its own field.
-   Hovering a row is what drives the billboard above it. */
-const INDEX_ROWS = SHOWN.map((p, i) => ({
-  slug: p.slug,
-  no: String(i + 1).padStart(3, '0'),
-  name: p.name,
-  tag: p.tag,
-  meta: p.meta || `${p.iters.length} ITERATIONS`,
-}));
+/* the index: the billboard projects first - those drive the TV on hover -
+   then Source / Figure, which has a page but no billboard panel, then every
+   public repo, listed only until each one gets a world. */
+const INDEX_ROWS = [
+  ...SHOWN.map((p) => ({
+    name: p.name, tag: p.tag, meta: p.meta || `${p.iters.length} ITERATIONS`,
+    href: `#/p/${p.slug}`, slug: p.slug, preview: true,
+  })),
+  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION',
+    meta: '7 STUDIES · TWO INKS', href: '/source-figure/', slug: '', preview: false },
+  ...WORK_ROWS.map((r) => ({ ...r, href: '', slug: '', preview: false })),
+].map((r, i) => ({ ...r, no: String(i + 1).padStart(3, '0') }));
 ---
 <Bare
   title="Index"
@@ -428,17 +432,29 @@ const INDEX_ROWS = SHOWN.map((p, i) => ({
     </span>
 
     <div class="pindex" id="pindex">
+      <div class="prow phdr" aria-hidden="true">
+        <span class="pno">N.</span><span class="pname">P.</span><span class="ptag">T.</span><span class="pmeta">M.</span>
+      </div>
       {INDEX_ROWS.map((r, i) => (
-        <a
-          class:list={['prow', { selected: i === 0 }]}
-          href={`#/p/${r.slug}`} data-slug={r.slug} data-i={i}
-          aria-label={r.name}
-        >
-          <span class="pno">{r.no}</span>
-          <span class="pname">{r.name}</span>
-          <span class="ptag">{r.tag}</span>
-          <span class="pmeta">{r.meta}</span>
-        </a>
+        r.href ? (
+          <a
+            class:list={['prow', { selected: i === 0, listed: !r.preview }]}
+            href={r.href} data-slug={r.slug} data-i={r.preview ? i : null}
+            aria-label={r.name}
+          >
+            <span class="pno">{r.no}</span>
+            <span class="pname">{r.name}</span>
+            <span class="ptag">{r.tag}</span>
+            <span class="pmeta">{r.meta}</span>
+          </a>
+        ) : (
+          <span class="prow listed">
+            <span class="pno">{r.no}</span>
+            <span class="pname">{r.name}</span>
+            <span class="ptag">{r.tag}</span>
+            <span class="pmeta">{r.meta}</span>
+          </span>
+        )
       ))}
     </div>
 
@@ -746,34 +762,49 @@ a.viewall:hover { opacity: .65; }
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
 }
 .tv .art.on { opacity: 1; transform: none; }
-/* ---- featured index ---- */
-/* the list replaces the thumbnail row: hovering a row is what swaps the
-   billboard above, so the art lives at full size instead of four times over */
-.pindex { position: absolute; left: 300px; top: 802px; width: 1150px; border-top: 1.5px solid #BCB8B4; }
+/* ---- featured index ----
+   the lab's ledger, fitted to the band under the shelf: the four billboard
+   projects drive the TV on hover, everything below is listed only. 33 rows
+   do not fit 130px, so the list scrolls inside the band. */
+.pindex {
+  position: absolute; left: 300px; top: 792px; width: 1150px; height: 142px;
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: #CFC9C1 transparent;
+}
 .prow {
   position: relative; display: grid; align-items: center;
-  grid-template-columns: 60px 260px 1fr 280px;
-  height: 31px; padding-left: 0;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink); text-decoration: none; opacity: .5;
-  transition-property: opacity, padding-left;
-  transition-duration: .2s, .22s;
+  grid-template-columns: 58px 300px 300px 160px; gap: 16px;
+  height: 22px; padding: 0 0 0 4px;
+  font-size: 13px; line-height: 1;
+  color: var(--ink); text-decoration: none;
+  border-top: 1px solid transparent;
+  transition-property: background-color, border-color;
+  transition-duration: .15s;
   transition-timing-function: cubic-bezier(.22,1,.36,1);
 }
-.prow.selected { opacity: 1; }
-/* the reference's dim-the-rest: the row under the pointer is the only lit one */
-.pindex:hover .prow:not(:hover) { opacity: .3; }
-.prow:hover, .prow:focus-visible { opacity: 1; padding-left: 8px; outline: none; }
-.prow.selected::before {
-  content: ''; position: absolute; left: -14px; top: 50%; width: 5px; height: 5px;
-  border-radius: 50%; background: var(--accent); transform: translateY(-50%);
+.prow:hover, .prow:focus-visible, .prow.selected {
+  outline: none;
+  background: rgba(255,255,255,.62);
+  border-top-color: var(--accent);
+  box-shadow: 0 1px 0 rgba(26,24,21,.14);
 }
-.pno { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .55; }
-.pname { font-size: 15px; font-weight: 600; letter-spacing: .06em; }
-.pname::after { content: ' ↗'; opacity: 0; transition: opacity .18s ease-out; }
+.prow:hover .pname, .prow.selected .pname { font-weight: 700; }
+.phdr {
+  opacity: .5; font-size: 11px; letter-spacing: .12em;
+  border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
+  position: sticky; top: 0; z-index: 2;
+}
+.phdr:hover { background: none; border-top-color: transparent; box-shadow: none; }
+.pno { opacity: .6; }
+.pname { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pname::after { content: ' ↗'; font-size: .8em; opacity: 0; transition: opacity .18s ease-out; }
 .prow:hover .pname::after, .prow:focus-visible .pname::after { opacity: 1; }
-.ptag, .pmeta { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .55; }
-.pmeta { text-align: right; }
+.ptag, .pmeta { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* listed only: in the index, nothing to open yet */
+.prow.listed { cursor: default; }
+.prow.listed .pname { font-weight: 400; }
+.prow.listed .pname::after { content: none; }
+.prow.listed .ptag:empty::before { content: '—'; opacity: .35; }
 .idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
 
 /* the IsoBasin construction, now only for the phone cloned into the
@@ -1186,7 +1217,7 @@ function setFeatured(i) {
 }
 
 // pointing at a row is what loads the billboard; the click still walks in
-document.querySelectorAll('.prow').forEach(function (row) {
+document.querySelectorAll('.prow[data-i]').forEach(function (row) {
   var i = +row.dataset.i;
   function preview() { if (state.mode === 'landing' && state.featured !== i) setFeatured(i); }
   row.addEventListener('pointerenter', preview);
