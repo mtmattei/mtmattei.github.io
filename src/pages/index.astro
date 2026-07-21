@@ -400,7 +400,6 @@ const INDEX_ROWS = SHOWN.map((p, i) => ({
     <div class="t lbl" style="left:86px; top:608px; line-height:17px;">SCROLL<br>TO EXPLORE</div>
     <div class="scroll-arrow"></div>
 
-    <div class="t lbl" style="left:1383px; top:405px; line-height:18px;">SWIPE<br>TO CHANGE</div>
 
     <div class="shelf"><img src="/landing/shelf.png" alt=""></div>
     <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
@@ -499,15 +498,6 @@ const INDEX_ROWS = SHOWN.map((p, i) => ({
         <span class="vignette" aria-hidden="true"></span>
         <span class="sheen" aria-hidden="true"></span>
       </div>
-    </div>
-
-    <div class="swipe">
-      <a class="prev" href="#prev" aria-label="Previous project">
-        <svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M8 1 L1.5 7.5 L8 14" stroke="#1A1815" stroke-width="2.4"/></svg>
-      </a>
-      <a class="next" href="#next" aria-label="Next project">
-        <svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1 1 L7.5 7.5 L1 14" stroke="#1A1815" stroke-width="2.4"/></svg>
-      </a>
     </div>
 
     <div class="t lbl" style="left:86px; top:772px;">FEATURED WORK</div>
@@ -927,22 +917,6 @@ a.viewall:hover { opacity: .65; }
     rgba(255,255,255,.10) 0%, rgba(255,255,255,.035) 16%,
     rgba(255,255,255,0) 34%, rgba(255,255,255,0) 100%);
 }
-
-/* ---- swipe control ---- */
-.swipe {
-  position: absolute; left: 1377px; top: 457px; width: 76px; height: 76px;
-  border-radius: 50%;
-  background: radial-gradient(120% 120% at 50% 28%, #FAF7F4 0%, #F6F2EF 58%, #F1ECE8 100%);
-  box-shadow:
-    0 2px 3px rgba(80,68,56,.08),
-    0 10px 16px -6px rgba(80,68,56,.16),
-    0 24px 32px -18px rgba(80,68,56,.15);
-}
-.swipe a { position: absolute; top: 0; width: 38px; height: 76px; display: flex; align-items: center; }
-.swipe a.prev { left: 0; border-radius: 38px 0 0 38px; justify-content: flex-end; padding-right: 7px; }
-.swipe a.next { right: 0; border-radius: 0 38px 38px 0; justify-content: flex-start; padding-left: 7px; }
-.swipe svg { display: block; transition-property: transform; transition-duration: .12s; transition-timing-function: ease-out; }
-.swipe a:active svg { transform: scale(.9); }
 
 /* ---- featured index ---- */
 /* the list replaces the thumbnail row: hovering a row is what swaps the
