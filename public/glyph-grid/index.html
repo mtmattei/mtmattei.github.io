@@ -83,6 +83,12 @@
   .cta:hover { border-color: var(--coral); color: var(--coral); }
   .cta:focus-visible { outline: 1px solid var(--coral); outline-offset: 3px; }
 
+  /* billboard framing: on the 934x442 panel the headline, the paragraph, the
+     placeholder action and the footer are chrome around the field. All go;
+     the grid takes the whole screen. The lab page keeps them at full size. */
+  body.billboard .content,
+  body.billboard .foot { display: none; }
+
   .foot {
     position: fixed;
     bottom: 20px; left: clamp(24px, 8vw, 120px);
@@ -307,6 +313,7 @@
   window.addEventListener('pointerdown', e => shockwave(e.clientX, e.clientY));
   window.addEventListener('resize', build);
 
+  if (new URLSearchParams(location.search).has('billboard')) document.body.classList.add('billboard');
   const start = () => { build(); requestAnimationFrame(frame); };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
 })();

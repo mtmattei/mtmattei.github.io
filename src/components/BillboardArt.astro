@@ -114,7 +114,7 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
        panel is the selected one - see setFeatured on the landing. */
     <span class="bb-glyph">
       <pre class="glyph-still big" aria-hidden="true">{glyphStill}</pre>
-      <iframe class="bb-embed" data-embed="/glyph-grid/index.html" title="Magnetic Spring-Mass, live" loading="lazy"></iframe>
+      <iframe class="bb-embed" data-embed="/glyph-grid/index.html?billboard=1" title="Magnetic Spring-Mass, live" loading="lazy"></iframe>
     </span>
   ) : (
     <Plate slug={slug} />
