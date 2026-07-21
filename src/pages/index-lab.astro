@@ -116,7 +116,7 @@ const ALL: Row[] = [...ROWS, ...LISTED];
     <!-- the hero is the landing's billboard: the TV on its shelf, its
          proportions, radii and shadow stack lifted from index.astro and
          scaled off --hw so the object stays the same object -->
-    <div class="stage" aria-hidden="true">
+    <div class="hero" aria-hidden="true">
       <img class="shelf" src="/landing/shelf.png" alt="" />
       <div class="tv">
         <div class="screen" id="tvscreen">
@@ -193,15 +193,11 @@ const ALL: Row[] = [...ROWS, ...LISTED];
 <style>
   html, body { overflow: hidden; }
   .lab {
-    --hw: min(54vw, 760px);          /* the billboard's outer width */
+    --hw: min(62vw, 874px);          /* the billboard's outer width */
     position: fixed; inset: 0;
     padding: 34px 44px 30px;
     display: flex; flex-direction: column;
-    background:
-      linear-gradient(rgba(26,24,21,.016) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(26,24,21,.016) 1px, transparent 1px),
-      var(--paper);
-    background-size: 34px 34px;
+    background: var(--paper);
     color: var(--ink);
   }
 
@@ -270,7 +266,10 @@ const ALL: Row[] = [...ROWS, ...LISTED];
   .mt { text-align: left; }
 
   /* ---- the preview, overlapping the rows ---- */
-  .stage {
+  /* named .hero, not .stage: global.css already owns .stage for a framed
+     capability box and its border, radius and --gray-1 background were
+     landing behind the billboard */
+  .hero {
     position: absolute; left: 50%; top: 50%;
     /* centre the whole object, not just the TV: the shelf hangs 0.636*hw
        below the TV top while the TV is 0.479*hw tall, so lift by half the
@@ -333,7 +332,7 @@ const ALL: Row[] = [...ROWS, ...LISTED];
      full strength and the ghost copy re-draws the covered type in grey on top
      of it. Difference blending was the first attempt and failed - paper on
      paper resolves to nothing. */
-  .stage { z-index: 4; }
+  .hero { z-index: 4; }
   .ghost { display: flex; }
 
   .foot {
