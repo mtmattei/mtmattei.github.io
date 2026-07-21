@@ -51,24 +51,27 @@ function glyphFrame(cols: number, rows: number): string {
 type Row = {
   name: string; tag: string; meta: string;
   href: string;
+  /* whether the art behind the type is dark or light: the overlaid rows
+     lighten on dark art and darken on light art, or they vanish */
+  tone: 'dark' | 'light';
   /* art: a Plate slug, or one of the two labs that draw themselves */
   plate?: string; lab?: 'braille' | 'glyph';
 };
 
 const ROWS: Row[] = [
-  { name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', meta: '4 STAGES · ONE PASS', href: '/#/p/poolside', plate: 'poolside' },
-  { name: 'XAML / UNO', tag: 'SKILLS · THE FEEL SYSTEM', meta: '3 SKILLS · ONE SHEET', href: '/#/p/xaml-uno', plate: 'xaml-uno' },
-  { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', href: '/#/p/braille-transition', lab: 'braille' },
-  { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', href: '/#/p/glyph-grid', lab: 'glyph' },
-  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', href: '/source-figure/', plate: 'source-figure' },
-  { name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP', meta: 'PENDING', href: '/#/p/unoannotation', plate: 'unoannotation' },
-  { name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', meta: 'SHIPPED', href: 'https://github.com/mtmattei/design-ledger', plate: 'design-ledger' },
-  { name: 'MOMENTUI', tag: 'AN INTERFACE COMPOSED AT RUNTIME', meta: 'PENDING', href: '/program/', plate: 'momentui' },
-  { name: 'LIQUIDGLASSLAB', tag: 'REFRACTION ON THE SKIA CANVAS', meta: 'PENDING', href: '/program/', plate: 'liquidglasslab' },
+  { name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', meta: '4 STAGES · ONE PASS', tone: 'dark', href: '/#/p/poolside', plate: 'poolside' },
+  { name: 'XAML / UNO', tag: 'SKILLS · THE FEEL SYSTEM', meta: '3 SKILLS · ONE SHEET', tone: 'dark', href: '/#/p/xaml-uno', plate: 'xaml-uno' },
+  { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', tone: 'light', href: '/#/p/braille-transition', lab: 'braille' },
+  { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', tone: 'dark', href: '/#/p/glyph-grid', lab: 'glyph' },
+  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', tone: 'dark', href: '/source-figure/', plate: 'source-figure' },
+  { name: 'UNOANNOTATION', tag: 'TOOLING / AGENT MCP', meta: 'PENDING', tone: 'dark', href: '/#/p/unoannotation', plate: 'unoannotation' },
+  { name: 'DESIGN-LEDGER', tag: 'OSS / DESIGN DNA', meta: 'SHIPPED', tone: 'light', href: 'https://github.com/mtmattei/design-ledger', plate: 'design-ledger' },
+  { name: 'MOMENTUI', tag: 'AN INTERFACE COMPOSED AT RUNTIME', meta: 'PENDING', tone: 'dark', href: '/program/', plate: 'momentui' },
+  { name: 'LIQUIDGLASSLAB', tag: 'REFRACTION ON THE SKIA CANVAS', meta: 'PENDING', tone: 'dark', href: '/program/', plate: 'liquidglasslab' },
 ];
 ---
 <Bare title="Index lab">
-  <div class="lab" id="lab" data-mode="above">
+  <div class="lab" id="lab" data-mode="above" data-tone="dark">
 
     <a class="home" href="/" aria-label="Back to the index"><Logo height={22} /></a>
 
@@ -77,21 +80,27 @@ const ROWS: Row[] = [
       <span class="kick quiet">HOVER TO PREVIEW<br>CLICK TO OPEN</span>
     </div>
 
-    <!-- the preview sits between the paper and the rows; the mode decides
-         which side of the rows it lands on -->
+    <!-- the hero is the landing's billboard: the TV on its shelf, its
+         proportions, radii and shadow stack lifted from index.astro and
+         scaled off --hw so the object stays the same object -->
     <div class="stage" aria-hidden="true">
-      {ROWS.map((r, i) => (
-        <div class:list={['shot', { on: i === 0 }]} data-shot={i}>
-          {r.lab === 'braille' ? (
-            <span class="lab-art braille"><pre>{brailleFrame(58, 19, 2.0, 0.9)}</pre></span>
-          ) : r.lab === 'glyph' ? (
-            <span class="lab-art glyph"><pre>{glyphFrame(30, 11)}</pre></span>
-          ) : (
-            <Plate slug={r.plate!} />
-          )}
-          <span class="shot-foot"><span>{r.name}</span><span>{String(i + 1).padStart(3, '0')}</span></span>
+      <img class="shelf" src="/landing/shelf.png" alt="" />
+      <div class="tv">
+        <div class="screen" id="tvscreen">
+          {ROWS.map((r, i) => (
+            <div class:list={['shot', { on: i === 0 }]} data-shot={i}>
+              {r.lab === 'braille' ? (
+                <span class="lab-art braille"><pre>{brailleFrame(58, 19, 2.0, 0.9)}</pre></span>
+              ) : r.lab === 'glyph' ? (
+                <span class="lab-art glyph"><pre>{glyphFrame(30, 11)}</pre></span>
+              ) : (
+                <Plate slug={r.plate!} />
+              )}
+              <span class="shot-foot"><span>{r.name}</span><span>{String(i + 1).padStart(3, '0')}</span></span>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
 
     <div class="idxwrap">
@@ -102,7 +111,7 @@ const ROWS: Row[] = [
         {ROWS.map((r, i) => (
           <a
             class:list={['row', { on: i === 0 }]}
-            href={r.href} data-i={i}
+            href={r.href} data-i={i} data-tone={r.tone}
             target={r.href.startsWith('http') ? '_blank' : null}
             rel={r.href.startsWith('http') ? 'noopener' : null}
           >
@@ -146,6 +155,7 @@ const ROWS: Row[] = [
 <style>
   html, body { overflow: hidden; }
   .lab {
+    --hw: min(54vw, 760px);          /* the billboard's outer width */
     position: fixed; inset: 0;
     padding: 34px 44px 30px;
     display: flex; flex-direction: column;
@@ -196,6 +206,7 @@ const ROWS: Row[] = [
     display: none;
   }
   .ghost .row { opacity: 1; background: none; border-top-color: transparent; box-shadow: none; color: #CFCBC4; }
+  .lab[data-tone="light"] .ghost .row { color: #74706A; }
   .ghost .row .no, .ghost .row .tg, .ghost .row .mt { opacity: .72; }
   .row {
     position: relative;
@@ -231,16 +242,46 @@ const ROWS: Row[] = [
 
   /* ---- the preview, overlapping the rows ---- */
   .stage {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    width: min(52vw, 720px); aspect-ratio: 216 / 100;
+    position: absolute; left: 50%; top: 50%;
+    /* centre the whole object, not just the TV: the shelf hangs 0.636*hw
+       below the TV top while the TV is 0.479*hw tall, so lift by half the
+       difference to put the billboard's own centre on the screen's */
+    transform: translate(-50%, calc(-50% - var(--hw) * 0.079));
+    width: var(--hw); aspect-ratio: 944 / 452;
     pointer-events: none;
+  }
+  /* shelf geometry, in the landing's own proportions:
+     1055/944 wide, offset -57/944, top 445/452 down the TV */
+  .shelf {
+    position: absolute; z-index: 0;
+    left: calc(var(--hw) * -0.0604);
+    top: calc(var(--hw) * 0.4714);
+    width: calc(var(--hw) * 1.1176);
+    height: auto; display: block;
+  }
+  .tv {
+    position: absolute; inset: 0; z-index: 1;
+    border-radius: calc(var(--hw) * 0.0583);
+    padding: calc(var(--hw) * 0.0053);
+    background: linear-gradient(180deg, #E7E1DB 0%, #EEE9E4 55%, #F3F0EB 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.55),
+      0 0 0 1px rgba(70,62,54,.10),
+      0 14px 22px -10px rgba(70,58,46,.26),
+      30px 22px 44px -16px rgba(88,76,64,.42),
+      0 34px 54px -26px rgba(70,58,46,.20);
+  }
+  .tv .screen {
+    position: relative; width: 100%; height: 100%;
+    border-radius: calc(var(--hw) * 0.053);
+    overflow: hidden; background: var(--ink);
+    box-shadow: inset 0 0 0 1px rgba(10,9,8,.92);
   }
   .shot {
     position: absolute; inset: 0; overflow: hidden;
-    background: var(--gray-1, #EFEAE2);
-    box-shadow: 0 18px 45px rgba(26,24,21,.10);
-    opacity: 0; transform: translateY(10px) scale(.99);
-    transition: opacity .28s ease-out, transform .5s cubic-bezier(.22,1,.36,1);
+    background: var(--ink);
+    opacity: 0; transform: scale(1.02);
+    transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
   }
   .shot.on { opacity: 1; transform: none; }
   .shot :global(.plate) { width: 100%; height: 100%; object-fit: cover; }
@@ -287,12 +328,13 @@ const ROWS: Row[] = [
 <script>
   const lab = document.getElementById('lab')!;
   const ghost = document.getElementById('ghost')!;
-  const stage = document.querySelector<HTMLElement>('.stage')!;
+  const screen = document.getElementById('tvscreen')!;
   const rows = Array.from(document.querySelectorAll<HTMLElement>('#idx .row:not(.hdr)'));
   const ghostRows = Array.from(document.querySelectorAll<HTMLElement>('#ghost .row:not(.hdr)'));
   const shots = Array.from(document.querySelectorAll<HTMLElement>('.shot'));
 
   function show(i: number) {
+    lab.dataset.tone = rows[i].dataset.tone!;
     rows.forEach((r, n) => r.classList.toggle('on', n === i));
     ghostRows.forEach((r, n) => r.classList.toggle('on', n === i));
     shots.forEach((s, n) => s.classList.toggle('on', n === i));
@@ -308,7 +350,7 @@ const ROWS: Row[] = [
      measured rather than guessed so it survives any resize */
   function clipGhost() {
     const g = ghost.getBoundingClientRect();
-    const s = stage.getBoundingClientRect();
+    const s = screen.getBoundingClientRect();
     const top = Math.max(0, s.top - g.top);
     const left = Math.max(0, s.left - g.left);
     const right = Math.max(0, g.right - s.right);
