@@ -558,6 +558,8 @@ const INDEX_ROWS = [
           <span class="ppv-fill glyph"><pre>{POSTER_GLYPH}</pre></span>
         ) : r.name === 'SOURCE / FIGURE' ? (
           <Plate slug="source-figure" />
+        ) : r.name === 'MATRIX' ? (
+          <video class="ppv-vid" data-vid="/videos/prev-matrix.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
         ) : (
           <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
         )}
@@ -836,6 +838,9 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .bb-hero {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; display: block; z-index: 0;
+  /* black-and-white by filter, so the colour source stays intact and this is
+     one line to drop. contrast/brightness recover the range grayscale flattens. */
+  filter: grayscale(1) contrast(1.08) brightness(1.04);
 }
 .tv .art {
   display: none;
@@ -850,7 +855,7 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .ppv {
   position: fixed; z-index: 7; pointer-events: none;
   right: clamp(24px, 3vw, 46px); bottom: clamp(56px, 8vh, 96px);
-  width: min(31vw, 500px); aspect-ratio: 4 / 5;
+  width: min(38vw, 560px); aspect-ratio: 3 / 2;
 }
 .ppv-card {
   position: absolute; inset: 0; overflow: hidden;
@@ -862,6 +867,7 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .ppv-card.on { opacity: 1; transform: translateY(0) scale(1); }
 .ppv-art { position: absolute; inset: 0; display: block; }
 .ppv-art :global(.plate) { width: 100%; height: 100%; display: block; }
+.ppv-img, .ppv-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .ppv-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .ppv-fill.braille { background: linear-gradient(180deg, #F6F2EE, #E9E3D6); }
 .ppv-fill.braille pre { margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
@@ -1425,9 +1431,23 @@ var ppvCards = ppv ? [].slice.call(ppv.querySelectorAll('.ppv-card')) : [];
 function showPreview(row) {
   if (!ppv || !row) return;
   var n = +row.dataset.n;
-  ppvCards.forEach(function (c, k) { c.classList.toggle('on', k === n); });
+  ppvCards.forEach(function (c, k) {
+    var on = k === n;
+    c.classList.toggle('on', on);
+    var v = c.querySelector('.ppv-vid');
+    if (v) {
+      if (on && !v.getAttribute('src')) { v.src = v.dataset.vid; v.play().catch(function(){}); }
+      else if (!on && v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); }
+    }
+  });
 }
-function clearPreview() { ppvCards.forEach(function (c) { c.classList.remove('on'); }); }
+function clearPreview() {
+  ppvCards.forEach(function (c) {
+    c.classList.remove('on');
+    var v = c.querySelector('.ppv-vid');
+    if (v && v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); }
+  });
+}
 
 // pointing at a row is what loads the billboard; the click still walks in
 document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
