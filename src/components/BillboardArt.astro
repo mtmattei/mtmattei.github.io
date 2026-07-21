@@ -105,7 +105,13 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
   ) : slug === 'braille-transition' ? (
     <span class="bb-braille"><pre class="braille-live" data-cols="56" data-rows="20" aria-hidden="true">{brailleStill}</pre></span>
   ) : slug === 'glyph-grid' ? (
-    <span class="bb-glyph"><pre class="glyph-still big" aria-hidden="true">{glyphStill}</pre></span>
+    /* the lab itself, embedded: the billboard runs the real prototype rather
+       than a port of it, so the two cannot drift. src is set only while this
+       panel is the selected one - see setFeatured on the landing. */
+    <span class="bb-glyph">
+      <pre class="glyph-still big" aria-hidden="true">{glyphStill}</pre>
+      <iframe class="bb-embed" data-embed="/glyph-grid/index.html" title="Magnetic Spring-Mass, live" loading="lazy"></iframe>
+    </span>
   ) : (
     <Plate slug={slug} />
   )}

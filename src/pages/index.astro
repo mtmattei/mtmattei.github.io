@@ -334,7 +334,7 @@ const PROJECTS: Proj[] = [
   },
   {
     /* lab: the magnetic glyph grid, the prototype itself embedded */
-    slug: 'glyph-grid', name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD',
+    slug: 'glyph-grid', name: 'MAGNETIC SPRING-MASS', tag: 'LAB · POINTER FIELD',
     href: '/glyph-grid/index.html', linkLabel: 'OPEN FULL SCREEN',
     deep: '#181216', accent: '#FF6B57', ink: '#C9C9CF', base: '#101013',
     meta: 'FIELD 170 · ORBIT 42',
@@ -1219,6 +1219,13 @@ function setFeatured(i) {
     a.classList.toggle('on', a.dataset.art === p.slug);
   });
   tv.setAttribute('aria-label', 'Step into ' + p.name);
+  // embedded prototypes run only while their panel is the selected one:
+  // loading on selection and unloading on leave keeps one loop alive, not four
+  document.querySelectorAll('.bb-embed').forEach(function (f) {
+    var on = !!f.closest('.art') && f.closest('.art').classList.contains('on');
+    if (on && !f.getAttribute('src')) f.setAttribute('src', f.dataset.embed);
+    else if (!on && f.getAttribute('src')) f.removeAttribute('src');
+  });
   bbWake();
 }
 
