@@ -639,11 +639,10 @@ const INDEX_ROWS = [
 /* the pushed-in camera's transformed bounds overflow the document; clip (not
    hide) so no scrollable region exists at all — not even programmatically */
 html, body { overflow: clip; }
-body {
-  background: radial-gradient(115% 115% at 50% 46%, #EFE9E2 0%, #F2EDE8 52%, #F6F2EE 82%, #F8F6F3 100%) fixed;
-  font-size: 16px;
-  line-height: normal;
-}
+/* the stage's own type metrics; the ground itself comes from global.css.
+   Astro leaves body selectors unscoped, so a background here would silently
+   override the site ground - it did, until this was split out. */
+body { font-size: 16px; line-height: normal; }
 #fit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: clip; }
 .camera { width: 1536px; height: 1024px; flex: none; transform-origin: center center; }
 .scene { position: relative; width: 1536px; height: 1024px; }
