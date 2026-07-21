@@ -938,6 +938,15 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .pname::after { content: ' ↗'; font-size: .8em; opacity: 0; transition: opacity .18s ease-out; }
 .prow:hover .pname::after, .prow:focus-visible .pname::after { opacity: 1; }
 .ptag, .pmeta { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the descriptor is clipped to its column at rest; the row under the pointer
+   lets it run over the year and the empty space to its right, on a solid
+   ground so it stays legible. The very longest still clip at the row edge -
+   the full text lives in the preview card. */
+.prow:hover .ptag, .prow:focus-visible .ptag {
+  overflow: visible; text-overflow: clip; position: relative; z-index: 2;
+  padding-right: 14px; width: max-content; max-width: 760px;
+  background: linear-gradient(90deg, #FBFAF7 0 92%, transparent);
+}
 /* listed only: in the index, nothing to open yet */
 .prow.listed { cursor: default; }
 .prow.listed .pname { font-weight: 400; }
