@@ -1,6 +1,7 @@
 :root {
   /* Surface — warm off-white ground and a warm neutral ramp */
-  --paper:   #F6F2EE;   /* warm off-white */
+  --paper:   #F8F7F3;   /* warm-neutral off-white, the light end of the ground */
+  --paper-2: #F7F6F2;   /* one step down, the ground's lower-right edge */
   --gray-1:  #F0EAE3;   /* panel tint */
   --gray-2:  #E7E0D7;   /* fills */
   --line:    #E4DDD3;   /* hairline border */
@@ -45,11 +46,28 @@ body {
   margin: 0;
   font-family: var(--serif);
   color: var(--ink);
-  background: var(--paper);
+  /* the ground: light held through the upper-left and centre, falling one
+     step to the lower-right edges. The two tones differ by 1/255 per channel,
+     so it reads as depth rather than as a gradient. Fixed, so it belongs to
+     the viewport and never slides or repeats under a scrolling page. */
+  background: radial-gradient(125% 125% at 24% 16%,
+              var(--paper) 0%, var(--paper) 46%, var(--paper-2) 100%) fixed;
   font-size: 17px;
   line-height: 1.55;
   font-variant-numeric: oldstyle-nums;   /* running text: oldstyle figures */
   -webkit-font-smoothing: antialiased;
+}
+
+/* fine monochromatic grain over the whole surface: at 1/255 of gradient
+   range the ground would band without it, and flat colour reads dead.
+   feTurbulence at 0.9 keeps the speckle below a pixel; alpha 0.055 keeps it
+   under the text. Sits below the detail worlds (z-index 10), as it did when
+   it lived on the landing. */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.055'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 a { color: inherit; }

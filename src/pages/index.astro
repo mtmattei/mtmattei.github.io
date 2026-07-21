@@ -462,7 +462,6 @@ const INDEX_ROWS = SHOWN.map((p, i) => ({
   </div>
   </div>
 </div>
-<div class="grain"></div>
 
 <!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
 <div class="lrail" id="lrail">
@@ -632,7 +631,6 @@ body {
 #fit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: clip; }
 .camera { width: 1536px; height: 1024px; flex: none; transform-origin: center center; }
 .scene { position: relative; width: 1536px; height: 1024px; }
-.grain { position: fixed; inset: 0; z-index: 5; pointer-events: none; background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.055'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"); }
 .t { position: absolute; color: var(--ink); white-space: nowrap; }
 /* the mockup ran on a global margin reset; scope it to the stage */
 .scene h1, .scene p, #detail h2, #detail p { margin: 0; }
