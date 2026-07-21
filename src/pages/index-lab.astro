@@ -94,23 +94,42 @@ const ROWS: Row[] = [
       ))}
     </div>
 
-    <div class="idx" id="idx">
-      <div class="row hdr" aria-hidden="true">
-        <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
+    <div class="idxwrap">
+      <div class="idx" id="idx">
+        <div class="row hdr" aria-hidden="true">
+          <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
+        </div>
+        {ROWS.map((r, i) => (
+          <a
+            class:list={['row', { on: i === 0 }]}
+            href={r.href} data-i={i}
+            target={r.href.startsWith('http') ? '_blank' : null}
+            rel={r.href.startsWith('http') ? 'noopener' : null}
+          >
+            <span class="no">{String(i + 1).padStart(3, '0')}</span>
+            <span class="nm">{r.name}</span>
+            <span class="tg">{r.tag}</span>
+            <span class="mt">{r.meta}</span>
+          </a>
+        ))}
       </div>
-      {ROWS.map((r, i) => (
-        <a
-          class:list={['row', { on: i === 0 }]}
-          href={r.href} data-i={i}
-          target={r.href.startsWith('http') ? '_blank' : null}
-          rel={r.href.startsWith('http') ? 'noopener' : null}
-        >
-          <span class="no">{String(i + 1).padStart(3, '0')}</span>
-          <span class="nm">{r.name}</span>
-          <span class="tg">{r.tag}</span>
-          <span class="mt">{r.meta}</span>
-        </a>
-      ))}
+
+      {/* the same rows again, in light grey, drawn over the hero and clipped
+          to its rect — so the type lightens exactly where it crosses the art
+          and stays ink everywhere else. The hero itself keeps full opacity. */}
+      <div class="idx ghost" id="ghost" aria-hidden="true">
+        <div class="row hdr">
+          <span class="no">N.</span><span class="nm">P.</span><span class="tg">T.</span><span class="mt">M.</span>
+        </div>
+        {ROWS.map((r, i) => (
+          <span class:list={['row', { on: i === 0 }]}>
+            <span class="no">{String(i + 1).padStart(3, '0')}</span>
+            <span class="nm">{r.name}</span>
+            <span class="tg">{r.tag}</span>
+            <span class="mt">{r.meta}</span>
+          </span>
+        ))}
+      </div>
     </div>
 
     <div class="foot">
@@ -163,12 +182,21 @@ const ROWS: Row[] = [
   .quiet { opacity: .45; }
 
   /* ---- the index: top to bottom, the rows share the height ---- */
+  .idxwrap { position: relative; flex: 1 1 auto; min-height: 0; }
   .idx {
     position: relative; z-index: 3;
-    flex: 1 1 auto; min-height: 0;
+    height: 100%;
     display: flex; flex-direction: column; align-content: flex-start;
     overflow-y: auto;
   }
+  /* the light-grey copy: same box, above the hero, clipped to it by script */
+  .ghost {
+    position: absolute; inset: 0; z-index: 5;
+    pointer-events: none; overflow: hidden;
+    display: none;
+  }
+  .ghost .row { opacity: 1; background: none; border-top-color: transparent; box-shadow: none; color: #CFCBC4; }
+  .ghost .row .no, .ghost .row .tg, .ghost .row .mt { opacity: .72; }
   .row {
     position: relative;
     display: grid; align-items: center;
@@ -238,14 +266,11 @@ const ROWS: Row[] = [
 
   /* ABOVE: the preview covers the rows it overlaps (the reference's behaviour) */
   .lab[data-mode="above"] .stage { z-index: 4; }
-  /* BEHIND: the rows run over the art, so the list stays the primary object.
-     Difference blending was the first attempt and failed - paper on paper
-     resolves to nothing. Knocking the art back instead keeps the ink legible
-     over both the light and the near-black plates. */
-  .lab[data-mode="behind"] .stage { z-index: 1; opacity: .42; }
-  .lab[data-mode="behind"] .shot { box-shadow: none; }
-  .lab[data-mode="behind"] .row:hover,
-  .lab[data-mode="behind"] .row.on { background: rgba(246,242,238,.42); }
+  /* BEHIND: the hero sits over the rows at full strength and the ghost copy
+     re-draws the covered type in light grey on top of it. Difference blending
+     was the first attempt and failed - paper on paper resolves to nothing. */
+  .lab[data-mode="behind"] .stage { z-index: 4; }
+  .lab[data-mode="behind"] .ghost { display: flex; }
 
   .foot {
     flex: none; display: flex; justify-content: space-between; align-items: center;
@@ -261,11 +286,15 @@ const ROWS: Row[] = [
 
 <script>
   const lab = document.getElementById('lab')!;
-  const rows = Array.from(document.querySelectorAll<HTMLElement>('.row:not(.hdr)'));
+  const ghost = document.getElementById('ghost')!;
+  const stage = document.querySelector<HTMLElement>('.stage')!;
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('#idx .row:not(.hdr)'));
+  const ghostRows = Array.from(document.querySelectorAll<HTMLElement>('#ghost .row:not(.hdr)'));
   const shots = Array.from(document.querySelectorAll<HTMLElement>('.shot'));
 
   function show(i: number) {
     rows.forEach((r, n) => r.classList.toggle('on', n === i));
+    ghostRows.forEach((r, n) => r.classList.toggle('on', n === i));
     shots.forEach((s, n) => s.classList.toggle('on', n === i));
   }
 
@@ -275,10 +304,25 @@ const ROWS: Row[] = [
     row.addEventListener('focus', preview);
   });
 
+  /* the ghost is only visible where the hero is: clip it to the hero's rect,
+     measured rather than guessed so it survives any resize */
+  function clipGhost() {
+    const g = ghost.getBoundingClientRect();
+    const s = stage.getBoundingClientRect();
+    const top = Math.max(0, s.top - g.top);
+    const left = Math.max(0, s.left - g.left);
+    const right = Math.max(0, g.right - s.right);
+    const bottom = Math.max(0, g.bottom - s.bottom);
+    ghost.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+  }
+  clipGhost();
+  addEventListener('resize', clipGhost);
+
   document.querySelectorAll<HTMLButtonElement>('.mode').forEach((btn) => {
     btn.addEventListener('click', () => {
       lab.dataset.mode = btn.dataset.mode!;
       document.querySelectorAll('.mode').forEach((b) => b.classList.toggle('on', b === btn));
+      clipGhost();
     });
   });
 </script>
