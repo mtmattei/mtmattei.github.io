@@ -15,9 +15,6 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | DESIGN-LEDGER | A non-repetition layer for AI design generators: wrap any design skill in a persistent fingerprint ledger + collision gate so every result is provably unique across all prior generations. | 2026 · - |  |
 | [ ] | UNO-BUILDS-NET10 | Uno-Builds projects upgraded to Uno.Sdk 6.5.33 / .NET 10 — see UPGRADE-SPEC.md | 2026 · C# |  |
 | [ ] | UNO-SAMPLE-GALLERY |  | 2026 · HTML |  |
-| [ ] | BUILD-2026-SELECTION | Internal selection catalog of Uno Platform apps under review for Microsoft Build 2026 | 2026 · HTML |  |
-| [ ] | UNO-BUILDS |  | 2026 · C# |  |
-| [ ] | WPF-MIGRATION-TEST |  | 2026 · C# |  |
 | [ ] | MERIDIAN |  | 2026 · C# | 1 |
 | [ ] | COMPOSITIONSTACK | Companion to the blog post [Composition Stack for AI-Assisted .NET Development. A starter set of the six .md files the post describes, written for a fictional field-service app called FieldKit | 2026 · - | 1 |
 | [ ] | UNOPLATFORMSKILLS | Skills for Uno Platform development and WinUI 3 XAML best practices. | 2026 · - | 5 |
