@@ -475,7 +475,7 @@ const INDEX_ROWS = [
           <a
             class:list={['prow', { selected: i === 0, listed: !r.preview }]}
             href={r.href} data-slug={r.slug} data-i={r.preview ? i : null}
-            aria-label={r.name}
+            style={`--i:${i}`} aria-label={r.name}
           >
             <span class="pno">{r.no}</span>
             <span class="pname">{r.name}</span>
@@ -483,7 +483,7 @@ const INDEX_ROWS = [
             <span class="pmeta">{r.meta}</span>
           </a>
         ) : (
-          <span class="prow listed">
+          <span class="prow listed" style={`--i:${i}`}>
             <span class="pno">{r.no}</span>
             <span class="pname">{r.name}</span>
             <span class="ptag">{r.tag}</span>
@@ -759,6 +759,14 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 .lbl b { font-weight: 600; }
 a.viewall { text-decoration: none; }
 a.viewall:hover { opacity: .65; }
+/* tactile press on the controls that are actually button-sized. Deliberately
+   not on the ledger rows or the TV: 0.96 of a 1150px row is a 46px lurch,
+   which reads as a glitch rather than a press. Those keep the step-right. */
+a.viewall, .sound, .lrail-strip {
+  transition-property: transform, opacity, background-color;
+  transition-duration: .12s; transition-timing-function: ease-out;
+}
+a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 
 /* scroll arrow */
 .scroll-arrow { position: absolute; left: 89px; top: 646px; width: 1.5px; height: 40px; background: var(--ink); }
@@ -829,12 +837,26 @@ a.viewall:hover { opacity: .65; }
   box-shadow: 0 1px 0 rgba(26,24,21,.14);
 }
 .prow:hover .pname, .prow.selected .pname { font-weight: 700; }
+/* one staged sequence on load: the header rule, then the rows in order.
+   Keyframes rather than transitions because it runs once and is not a
+   response to input. 16ms a row - 100ms would take 2.8s across 28 of them. */
+@keyframes ledgerIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+.pindex { animation: ledgerIn .34s cubic-bezier(.22,1,.36,1) both; }
+.prow { animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: calc(90ms + var(--i, 0) * 16ms); }
 .phdr {
   opacity: .5; font-size: 11px; letter-spacing: .12em;
   border-top: 0; background: none; pointer-events: none; margin-bottom: 4px;
 }
 .phdr:hover { background: none; border-top-color: transparent; box-shadow: none; }
 .pno { opacity: .6; }
+/* body sets oldstyle figures for running text; an index column needs lining
+   and tabular ones or 001 / 028 / 2026 sit at different heights and ragged
+   widths, and the column stops reading as a column */
+.pno, .pmeta { font-variant-numeric: tabular-nums lining-nums; }
 .pname { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pname::after { content: ' ↗'; font-size: .8em; opacity: 0; transition: opacity .18s ease-out; }
 .prow:hover .pname::after, .prow:focus-visible .pname::after { opacity: 1; }
@@ -844,6 +866,10 @@ a.viewall:hover { opacity: .65; }
 .prow.listed .pname { font-weight: 400; }
 .prow.listed .pname::after { content: none; }
 .prow.listed .ptag:empty::before { content: '—'; opacity: .35; }
+@media (prefers-reduced-motion: reduce) {
+  .pindex, .prow { animation: none; }
+  a.viewall, .sound, .lrail-strip { transition-duration: .01ms; }
+}
 .idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
 
 /* the IsoBasin construction, now only for the phone cloned into the
