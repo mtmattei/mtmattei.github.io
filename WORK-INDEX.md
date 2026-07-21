@@ -8,16 +8,13 @@ verbatim - where it is blank you fill it, I will not write one for you.
 
 | keep | P. | T. | M. | stars |
 |---|---|---|---|---|
-| [ ] | MTMATTEI.GITHUB.IO | Personal portfolio — instrument system, Astro | 2026 · Astro |  |
 | [ ] | APPMAP | Render an Uno Platform app's full navigation structure as an interactive canvas | 2026 · C# | 1 |
 | [ ] | UNOCOMPOSER |  | 2026 · C# | 1 |
-| [ ] | LIQUIDGLASSLAB |  | 2026 · C# | 1 |
 | [ ] | DESIGN-LEDGER | A non-repetition layer for AI design generators: wrap any design skill in a persistent fingerprint ledger + collision gate so every result is provably unique across all prior generations. | 2026 · - |  |
 | [ ] | UNO-BUILDS-NET10 | Uno-Builds projects upgraded to Uno.Sdk 6.5.33 / .NET 10 — see UPGRADE-SPEC.md | 2026 · C# |  |
 | [ ] | UNO-SAMPLE-GALLERY |  | 2026 · HTML |  |
 | [ ] | MERIDIAN |  | 2026 · C# | 1 |
 | [ ] | COMPOSITIONSTACK | Companion to the blog post [Composition Stack for AI-Assisted .NET Development. A starter set of the six .md files the post describes, written for a fictional field-service app called FieldKit | 2026 · - | 1 |
-| [ ] | UNOPLATFORMSKILLS | Skills for Uno Platform development and WinUI 3 XAML best practices. | 2026 · - | 5 |
 | [ ] | DIGITALFIDGET |  | 2026 · C# |  |
 | [ ] | QUOTECRAFT |  | 2026 · C# |  |
 | [ ] | SWEATHER |  | 2026 · C# |  |

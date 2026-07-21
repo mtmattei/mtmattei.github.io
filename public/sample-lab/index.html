@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sample Lab — demo-instrument style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Surface */
+    --paper:   #FFFFFF;
+    --gray-1:  #F6F7F8;   /* panel tint */
+    --gray-2:  #EDEEF1;   /* fills */
+    --line:    #E2E4E8;   /* hairline border */
+    --line-2:  #C9CCD2;   /* stronger rule */
+    --ink:     #14161A;   /* near-black ink */
+    --muted:   #6B7077;   /* supporting text / labels */
+
+    /* One functional accent — state + measurement only */
+    --accent:  #3656D4;
+    --accent-soft: rgba(54,86,212,0.10);
+
+    /* Geometry */
+    --radius: 4px;
+    --bw: 1px;
+
+    /* Spacing scale */
+    --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+    --s6: 24px; --s8: 32px; --s12: 48px; --s16: 64px;
+
+    /* Type */
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Mono label utility ---- */
+  .mono {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ================= App shell ================= */
+  .app {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    grid-template-rows: 49px 1fr;
+    grid-template-areas:
+      "brand topbar"
+      "nav   main";
+    height: 100vh;
+  }
+
+  /* ---- Top bar ---- */
+  .brand {
+    grid-area: brand;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    padding: 0 var(--s4);
+    border-right: var(--bw) solid var(--line);
+    border-bottom: var(--bw) solid var(--line);
+  }
+  .mark {
+    width: 18px; height: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    flex: none;
+  }
+  .mark i { background: var(--ink); border-radius: 1px; }
+  .mark i:nth-child(2), .mark i:nth-child(3) { background: var(--line-2); }
+  .brand-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .topbar {
+    grid-area: topbar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--s4);
+    border-bottom: var(--bw) solid var(--line);
+    gap: var(--s4);
+  }
+  .crumb { display: flex; align-items: center; gap: var(--s2); }
+  .crumb .sep { color: var(--line-2); }
+  .crumb .here { color: var(--ink); font-weight: 500; }
+
+  .controls { display: flex; align-items: center; gap: var(--s2); }
+  .toggle {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: var(--paper);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    padding: 5px var(--s3);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .toggle:hover { border-color: var(--line-2); color: var(--ink); }
+  .toggle[aria-pressed="true"] {
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .toggle .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); }
+  .toggle[aria-pressed="true"] .dot { background: var(--accent); }
+  .build {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--line-2);
+    letter-spacing: 0.04em;
+  }
+
+  /* ---- Sidebar nav ---- */
+  .nav {
+    grid-area: nav;
+    border-right: var(--bw) solid var(--line);
+    padding: var(--s4) 0;
+    overflow-y: auto;
+  }
+  .nav-group { padding: 0 var(--s3); margin-bottom: var(--s6); }
+  .nav-group > .kicker { padding: 0 var(--s2) var(--s2); display: block; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--muted);
+    padding: 7px var(--s2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    position: relative;
+    transition: color .15s, background .15s;
+  }
+  .nav-item:hover { color: var(--ink); background: var(--gray-1); }
+  .nav-item .tick {
+    width: 2px; height: 14px; border-radius: 1px;
+    background: transparent; flex: none;
+    transition: background .15s;
+  }
+  .nav-item.is-active { color: var(--ink); font-weight: 500; background: var(--gray-1); }
+  .nav-item.is-active .tick { background: var(--accent); }
+
+  /* ---- Main / content ---- */
+  .main {
+    grid-area: main;
+    overflow-y: auto;
+    position: relative;
+  }
+  .main-inner {
+    max-width: 760px;
+    padding: var(--s12) var(--s12) var(--s16);
+  }
+  @media (max-width: 1180px) { .main-inner { max-width: none; } }
+
+  .section { display: none; }
+  .section.is-active { display: block; animation: rise .18s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .page-head { margin-bottom: var(--s8); }
+  .page-head .kicker { display: block; margin-bottom: var(--s3); }
+  h1.title {
+    font-size: 32px; line-height: 1.15; font-weight: 600;
+    letter-spacing: -0.015em; margin: 0 0 var(--s3);
+  }
+  .lede { font-size: 16px; color: var(--muted); margin: 0; max-width: 52ch; }
+
+  .rule { height: var(--bw); background: var(--line); border: none; margin: var(--s8) 0; }
+
+  /* ---- Cards / grid ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s3);
+  }
+  @media (max-width: 640px){ .grid { grid-template-columns: 1fr; } }
+  .card {
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--s4);
+    background: var(--paper);
+    transition: border-color .15s;
+  }
+  .card:hover { border-color: var(--line-2); }
+  .card .kicker { display:block; margin-bottom: var(--s3); }
+  .card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+  .card p { margin: 0; font-size: 14px; color: var(--muted); }
+
+  /* ---- Demo frame (single-capability stage) ---- */
+  .stage {
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray-1);
+    padding: var(--s8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    position: relative;
+  }
+  .stage .stamp {
+    position: absolute; top: var(--s3); left: var(--s3);
+  }
+  .panel-demo {
+    width: 100%; max-width: 460px;
+    border: var(--bw) solid var(--line-2);
+    border-radius: var(--radius);
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .panel-demo header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: var(--s3) var(--s4);
+    border-bottom: var(--bw) solid var(--line);
+  }
+  .panel-demo header b { font-size: 14px; font-weight: 600; }
+  .seg {
+    display: inline-flex; border: var(--bw) solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .seg button {
+    font: inherit; font-size: 12px; font-family: var(--mono);
+    border: none; background: var(--paper); color: var(--muted);
+    padding: 4px 10px; cursor: pointer; border-right: var(--bw) solid var(--line);
+    transition: background .15s, color .15s;
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.on { background: var(--ink); color: var(--paper); }
+  .panel-demo .body { padding: var(--s4); display: grid; gap: var(--s3); transition: grid-template-columns .25s ease; }
+  .panel-demo .body.cols-1 { grid-template-columns: 1fr; }
+  .panel-demo .body.cols-2 { grid-template-columns: 1fr 1fr; }
+  .cell {
+    border: var(--bw) dashed var(--line-2);
+    border-radius: var(--radius);
+    height: 52px; display:flex; align-items:center; justify-content:center;
+  }
+  .cell span { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .annotate {
+    margin-top: var(--s4);
+    font-size: 14px; color: var(--muted);
+    display: flex; gap: var(--s2); align-items: baseline;
+  }
+  .annotate .q { color: var(--ink); font-weight: 500; }
+
+  /* ---- Specimen rows ---- */
+  .specimen {
+    display: grid;
+    grid-template-columns: 1fr 168px;
+    gap: var(--s4);
+    align-items: center;
+    padding: var(--s4) 0;
+    border-top: var(--bw) solid var(--line);
+  }
+  .specimen:last-child { border-bottom: var(--bw) solid var(--line); }
+  .specimen .read { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+  @media (max-width: 560px){
+    .specimen { grid-template-columns: 1fr; }
+    .specimen .read { text-align: left; }
+  }
+
+  /* ---- Buttons (component specimens) ---- */
+  .btn {
+    font: inherit; font-size: 14px; font-weight: 500;
+    border-radius: var(--radius); padding: 7px var(--s4);
+    cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn-ghost { background: var(--paper); border: var(--bw) solid var(--line-2); color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-solid { background: var(--ink); border: var(--bw) solid var(--ink); color: var(--paper); }
+  .btn-solid:hover { background: #000; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; }
+
+  .input {
+    font: inherit; font-size: 14px;
+    border: var(--bw) solid var(--line-2); border-radius: var(--radius);
+    padding: 7px var(--s3); background: var(--paper); color: var(--ink);
+    width: 100%; max-width: 280px;
+  }
+  .input::placeholder { color: var(--line-2); }
+
+  .list { border: var(--bw) solid var(--line); border-radius: var(--radius); overflow: hidden; max-width: 320px; }
+  .list .row {
+    padding: var(--s3) var(--s4); font-size: 14px;
+    border-bottom: var(--bw) solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .list .row:last-child { border-bottom: none; }
+  .list .row .mono { color: var(--line-2); }
+  .list .row.sel { background: var(--accent-soft); }
+  .list .row.sel .mono { color: var(--accent); }
+
+  /* ---- Type scale specimens ---- */
+  .type-row {
+    display:flex; align-items: baseline; gap: var(--s6);
+    padding: var(--s4) 0; border-top: var(--bw) solid var(--line);
+  }
+  .type-row:last-child { border-bottom: var(--bw) solid var(--line); }
+  .type-row .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 150px; flex: none; }
+
+  /* ---- Foundations: swatches / scale ---- */
+  .ramp { display:flex; border: var(--bw) solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .ramp .sw { flex: 1; height: 56px; display:flex; align-items:flex-end; }
+  .ramp .sw span { font-family: var(--mono); font-size: 10px; padding: 3px 4px; }
+  .space-scale { display:flex; align-items:flex-end; gap: var(--s3); }
+  .space-scale .bar { background: var(--ink); width: 14px; border-radius: 1px 1px 0 0; }
+  .space-scale .col { display:flex; flex-direction: column; align-items:center; gap: 6px; }
+  .space-scale .col .mono { font-size: 10px; }
+
+  .swatch-accent {
+    display:flex; align-items:center; gap: var(--s4);
+    border: var(--bw) solid var(--line); border-radius: var(--radius); padding: var(--s4);
+  }
+  .swatch-accent .chip { width: 40px; height: 40px; border-radius: var(--radius); background: var(--accent); flex:none; }
+
+  /* ---- Inspector (signature: the UI measures itself) ---- */
+  .inspector {
+    position: fixed; top: 49px; right: 0; bottom: 0; width: 272px;
+    background: var(--paper); border-left: var(--bw) solid var(--line);
+    transform: translateX(100%); transition: transform .2s ease;
+    overflow-y: auto; z-index: 30;
+  }
+  .inspector.open { transform: none; }
+  .insp-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: var(--s3) var(--s4); border-bottom: var(--bw) solid var(--line);
+  }
+  .insp-head .kicker { display:block; }
+  .insp-close { border:none; background:none; cursor:pointer; color: var(--muted); font-family: var(--mono); font-size: 14px; }
+  .insp-body { padding: var(--s4); }
+  .insp-body .grp { margin-bottom: var(--s6); }
+  .insp-body .grp .kicker { display:block; margin-bottom: var(--s2); }
+  .tok { display:flex; justify-content:space-between; font-family: var(--mono); font-size: 12px; padding: 5px 0; border-bottom: var(--bw) solid var(--line); }
+  .tok:last-child { border-bottom: none; }
+  .tok .k { color: var(--muted); }
+  .tok .v { color: var(--ink); }
+
+  /* ---- Grid / measurement overlay (signature) ---- */
+  .overlay {
+    position: fixed; inset: 49px 0 0 232px; pointer-events: none; z-index: 20;
+    display: none;
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0, transparent 7px, var(--accent-soft) 7px, var(--accent-soft) 8px),
+      repeating-linear-gradient(to right, transparent 0, transparent 7px, var(--accent-soft) 7px, var(--accent-soft) 8px);
+  }
+  .overlay.on { display: block; }
+  .overlay .col-guide {
+    position:absolute; top:0; bottom:0; left: 0; width: 760px; margin: 0 48px;
+    border-left: var(--bw) solid var(--accent); border-right: var(--bw) solid var(--accent);
+    opacity: .35;
+  }
+  .overlay .dim {
+    position:absolute; top: 16px; left: 48px;
+    font-family: var(--mono); font-size: 10px; color: var(--accent);
+    letter-spacing: .04em;
+  }
+  @media (max-width: 1180px){ .overlay .col-guide, .overlay .dim { display:none; } }
+
+  /* keyboard focus — visible, accent ring */
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  /* ---- Mobile: collapse nav + hide inspector affordances ---- */
+  .nav-toggle { display: none; }
+  @media (max-width: 820px){
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: 49px auto 1fr;
+      grid-template-areas: "brand" "topbar" "main";
+    }
+    .nav {
+      position: fixed; top: 98px; left: 0; bottom: 0; width: 232px; z-index: 40;
+      background: var(--paper); transform: translateX(-100%); transition: transform .2s ease;
+    }
+    .nav.open { transform: none; box-shadow: 1px 0 0 var(--line); }
+    .brand { border-right: none; }
+    .nav-toggle { display: inline-flex; }
+    .build { display: none; }
+    .overlay { inset: 98px 0 0 0; }
+    .overlay .col-guide { display:none; }
+    .main-inner { padding: var(--s8) var(--s6) var(--s12); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Brand -->
+  <div class="brand">
+    <button class="toggle nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-pressed="false"><span class="dot"></span>MENU</button>
+    <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <span class="brand-name">SAMPLE&nbsp;LAB</span>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="crumb mono">
+      <span>lab</span><span class="sep">/</span><span class="here" id="crumb">overview</span>
+    </div>
+    <div class="controls">
+      <span class="build">v0.1 · monochrome</span>
+      <button class="toggle" id="gridToggle" aria-pressed="false"><span class="dot"></span>GRID</button>
+      <button class="toggle" id="inspToggle" aria-pressed="false"><span class="dot"></span>INSPECT</button>
+    </div>
+  </div>
+
+  <!-- Sidebar nav -->
+  <nav class="nav" id="nav" aria-label="Sections">
+    <div class="nav-group">
+      <span class="kicker">Overview</span>
+      <button class="nav-item is-active" data-target="overview"><span class="tick"></span>Index</button>
+    </div>
+    <div class="nav-group">
+      <span class="kicker">Demos</span>
+      <button class="nav-item" data-target="adaptive"><span class="tick"></span>Adaptive Layout</button>
+      <button class="nav-item" data-target="navigation"><span class="tick"></span>Navigation</button>
+      <button class="nav-item" data-target="binding"><span class="tick"></span>Data Binding</button>
+      <button class="nav-item" data-target="rendering"><span class="tick"></span>Rendering</button>
+    </div>
+    <div class="nav-group">
+      <span class="kicker">Reference</span>
+      <button class="nav-item" data-target="components"><span class="tick"></span>Components</button>
+      <button class="nav-item" data-target="typography"><span class="tick"></span>Typography</button>
+      <button class="nav-item" data-target="foundations"><span class="tick"></span>Foundations</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-inner">
+
+      <!-- OVERVIEW -->
+      <section class="section is-active" id="overview">
+        <div class="page-head">
+          <span class="kicker">Reference implementation</span>
+          <h1 class="title">The interface disappears so the capability can be read.</h1>
+          <p class="lede">Each sample answers one question about the framework. The chrome is monochrome and measured, so nothing competes with the thing being demonstrated.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><span class="kicker">Demo</span><h3>Adaptive Layout</h3><p>How the same content reflows across width breakpoints.</p></div>
+          <div class="card"><span class="kicker">Demo</span><h3>Navigation</h3><p>How a NavigationView routes between sections and keeps state.</p></div>
+          <div class="card"><span class="kicker">Demo</span><h3>Data Binding</h3><p>How a view updates when its bound source changes.</p></div>
+          <div class="card"><span class="kicker">Demo</span><h3>Rendering</h3><p>How the Skia renderer draws identical output across targets.</p></div>
+        </div>
+        <hr class="rule" />
+        <p class="mono">Toggle GRID to see the baseline and column the layout is built on. Toggle INSPECT to read the tokens of the active view.</p>
+      </section>
+
+      <!-- ADAPTIVE -->
+      <section class="section" id="adaptive">
+        <div class="page-head">
+          <span class="kicker">Demo · single capability</span>
+          <h1 class="title">Adaptive Layout</h1>
+          <p class="lede">One control, two widths. Switch the target and watch the same content reflow.</p>
+        </div>
+        <div class="stage">
+          <span class="stamp kicker">fig.01</span>
+          <div class="panel-demo">
+            <header>
+              <b>Content region</b>
+              <div class="seg" id="widthSeg" role="group" aria-label="Width">
+                <button class="on" data-cols="1">narrow</button>
+                <button data-cols="2">wide</button>
+              </div>
+            </header>
+            <div class="body cols-1" id="adaptiveBody">
+              <div class="cell"><span>A</span></div>
+              <div class="cell"><span>B</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="annotate"><span class="q">Question:</span> at what width does the single column become two?</p>
+      </section>
+
+      <!-- NAVIGATION -->
+      <section class="section" id="navigation">
+        <div class="page-head">
+          <span class="kicker">Demo · single capability</span>
+          <h1 class="title">Navigation</h1>
+          <p class="lede">Selecting a destination moves the active marker and swaps the region. State is preserved per destination.</p>
+        </div>
+        <div class="stage">
+          <span class="stamp kicker">fig.02</span>
+          <div class="panel-demo" style="max-width:340px">
+            <div class="list" style="max-width:none;border:none;border-radius:0">
+              <div class="row sel" data-dest="A">Destination A <span class="mono">active</span></div>
+              <div class="row" data-dest="B">Destination B <span class="mono">·</span></div>
+              <div class="row" data-dest="C">Destination C <span class="mono">·</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="annotate"><span class="q">Question:</span> where does the active state live when you leave and return?</p>
+      </section>
+
+      <!-- BINDING -->
+      <section class="section" id="binding">
+        <div class="page-head">
+          <span class="kicker">Demo · single capability</span>
+          <h1 class="title">Data Binding</h1>
+          <p class="lede">The readout below is bound to the field. Type, and the view updates on each change.</p>
+        </div>
+        <div class="stage">
+          <span class="stamp kicker">fig.03</span>
+          <div class="panel-demo" style="max-width:420px">
+            <div class="body cols-1">
+              <input class="input" id="bindInput" placeholder="Type a value" style="max-width:none" aria-label="Bound source" />
+              <div class="cell" style="border-style:solid;border-color:var(--line)">
+                <span id="bindOut" style="color:var(--ink)">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="annotate"><span class="q">Question:</span> what is the path from source change to rendered output?</p>
+      </section>
+
+      <!-- RENDERING -->
+      <section class="section" id="rendering">
+        <div class="page-head">
+          <span class="kicker">Demo · single capability</span>
+          <h1 class="title">Rendering</h1>
+          <p class="lede">The same draw call produces identical geometry on every target. No platform-native controls in the path.</p>
+        </div>
+        <div class="stage">
+          <span class="stamp kicker">fig.04</span>
+          <svg width="220" height="140" viewBox="0 0 220 140" fill="none" stroke="#14161A" stroke-width="1.25">
+            <rect x="20" y="20" width="180" height="100" rx="4" />
+            <line x1="20" y1="60" x2="200" y2="60" stroke="#C9CCD2" />
+            <circle cx="70" cy="90" r="18" />
+            <rect x="120" y="74" width="60" height="32" rx="4" stroke="#3656D4" />
+          </svg>
+        </div>
+        <p class="annotate"><span class="q">Question:</span> which pixels are drawn by the framework versus the OS?</p>
+      </section>
+
+      <!-- COMPONENTS -->
+      <section class="section" id="components">
+        <div class="page-head">
+          <span class="kicker">Reference · specimens</span>
+          <h1 class="title">Components</h1>
+          <p class="lede">Each control is annotated with its tokens. Active states use ink inversion; the accent is held for focus and selection only.</p>
+        </div>
+
+        <div class="specimen">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-ghost">Run demo</button>
+            <button class="btn btn-solid">Active</button>
+            <button class="btn btn-ghost" disabled>Disabled</button>
+          </div>
+          <div class="read">button · 14/500 · pad 7×16</div>
+        </div>
+
+        <div class="specimen">
+          <input class="input" placeholder="Search samples" aria-label="Search samples" />
+          <div class="read">input · 1px border · r4</div>
+        </div>
+
+        <div class="specimen">
+          <div class="list">
+            <div class="row sel">Adaptive Layout <span class="mono">sel</span></div>
+            <div class="row">Data Binding <span class="mono">·</span></div>
+            <div class="row">Navigation <span class="mono">·</span></div>
+          </div>
+          <div class="read">list · divider 1px · sel = accent 10%</div>
+        </div>
+
+        <div class="specimen">
+          <div class="seg" role="group" aria-label="Mode">
+            <button class="on">source</button><button>preview</button><button>split</button>
+          </div>
+          <div class="read">segmented · mono 12 · on = ink</div>
+        </div>
+      </section>
+
+      <!-- TYPOGRAPHY -->
+      <section class="section" id="typography">
+        <div class="page-head">
+          <span class="kicker">Reference · scale</span>
+          <h1 class="title">Typography</h1>
+          <p class="lede">Inter for the interface, JetBrains Mono for labels and readouts. Hierarchy comes from scale and rhythm, not weight or color.</p>
+        </div>
+        <div class="type-row"><span class="meta">32 / 600 · title</span><span style="font-size:32px;font-weight:600;letter-spacing:-.015em">Section title</span></div>
+        <div class="type-row"><span class="meta">24 / 600 · proposed</span><span style="font-size:24px;font-weight:600">Subsection (fills 20→32 gap)</span></div>
+        <div class="type-row"><span class="meta">20 / 600 · page</span><span style="font-size:20px;font-weight:600">Page title</span></div>
+        <div class="type-row"><span class="meta">16 / 400 · body</span><span style="font-size:16px">Body copy and descriptions</span></div>
+        <div class="type-row"><span class="meta">14 / 400 · support</span><span style="font-size:14px;color:var(--muted)">Supporting text</span></div>
+        <div class="type-row"><span class="meta">12 / 500 · label</span><span class="mono" style="font-size:12px">MONO LABEL · 0.04EM</span></div>
+      </section>
+
+      <!-- FOUNDATIONS -->
+      <section class="section" id="foundations">
+        <div class="page-head">
+          <span class="kicker">Reference · tokens</span>
+          <h1 class="title">Foundations</h1>
+          <p class="lede">The smallest set that holds the system together. These become the formal token sheet once the look is settled.</p>
+        </div>
+
+        <span class="kicker" style="display:block;margin-bottom:12px">Ink &amp; neutrals</span>
+        <div class="ramp">
+          <div class="sw" style="background:#14161A"><span style="color:#fff">ink</span></div>
+          <div class="sw" style="background:#6B7077"><span style="color:#fff">muted</span></div>
+          <div class="sw" style="background:#C9CCD2"><span>line-2</span></div>
+          <div class="sw" style="background:#E2E4E8"><span>line</span></div>
+          <div class="sw" style="background:#EDEEF1"><span>gray-2</span></div>
+          <div class="sw" style="background:#F6F7F8"><span>gray-1</span></div>
+          <div class="sw" style="background:#FFFFFF;border-left:1px solid #E2E4E8"><span>paper</span></div>
+        </div>
+
+        <div style="height:24px"></div>
+        <span class="kicker" style="display:block;margin-bottom:12px">Accent — state only</span>
+        <div class="swatch-accent">
+          <div class="chip"></div>
+          <div>
+            <div style="font-weight:500">#3656D4</div>
+            <div class="mono">focus · active · selection · measurement guides</div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+        <span class="kicker" style="display:block;margin-bottom:14px">Spacing scale (8px base)</span>
+        <div class="space-scale">
+          <div class="col"><div class="bar" style="height:4px"></div><span class="mono">4</span></div>
+          <div class="col"><div class="bar" style="height:8px"></div><span class="mono">8</span></div>
+          <div class="col"><div class="bar" style="height:12px"></div><span class="mono">12</span></div>
+          <div class="col"><div class="bar" style="height:16px"></div><span class="mono">16</span></div>
+          <div class="col"><div class="bar" style="height:24px"></div><span class="mono">24</span></div>
+          <div class="col"><div class="bar" style="height:32px"></div><span class="mono">32</span></div>
+          <div class="col"><div class="bar" style="height:48px"></div><span class="mono">48</span></div>
+          <div class="col"><div class="bar" style="height:64px"></div><span class="mono">64</span></div>
+        </div>
+
+        <div style="height:28px"></div>
+        <div class="specimen" style="border-top:1px solid var(--line)">
+          <span style="font-size:14px">Radius</span><div class="read">--radius · 4px · all corners</div>
+        </div>
+        <div class="specimen">
+          <span style="font-size:14px">Border</span><div class="read">--bw · 1px · no shadows</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Inspector -->
+<aside class="inspector" id="inspector" aria-label="Token inspector" aria-hidden="true">
+  <div class="insp-head">
+    <span class="kicker">Inspector</span>
+    <button class="insp-close" id="inspClose" aria-label="Close inspector">✕</button>
+  </div>
+  <div class="insp-body" id="inspBody"></div>
+</aside>
+
+<!-- Grid / measurement overlay -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="col-guide"></div>
+  <div class="dim">content · 760px · margin 48px · baseline 8px</div>
+</div>
+
+<script>
+  // ---- Token sets per view (the UI measures itself) ----
+  const TOKENS = {
+    overview:    [['type.title','32 / 600'],['layout.col','760px'],['surface','paper'],['accent.use','none']],
+    adaptive:    [['stage.pad','32px'],['transition','250ms ease'],['cols','1 → 2'],['accent.use','none']],
+    navigation:  [['list.divider','1px'],['sel.bg','accent 10%'],['sel.text','accent'],['transition','150ms']],
+    binding:     [['input.border','1px line-2'],['out.update','on change'],['radius','4px']],
+    rendering:   [['stroke','1.25px ink'],['accent.shape','1 of 4'],['surface','gray-1']],
+    components:  [['button','14 / 500'],['pad','7 × 16'],['active','ink invert'],['focus','accent ring']],
+    typography:  [['family.ui','Inter'],['family.mono','JetBrains Mono'],['scale','12·14·16·20·(24)·32'],['weights','400 / 500 / 600']],
+    foundations: [['ink','#14161A'],['accent','#3656D4'],['base','8px'],['radius','4px'],['border','1px']]
+  };
+
+  const sections = [...document.querySelectorAll('.section')];
+  const items = [...document.querySelectorAll('.nav-item')];
+  const crumb = document.getElementById('crumb');
+  const inspBody = document.getElementById('inspBody');
+
+  function renderInspector(id){
+    const rows = TOKENS[id] || [];
+    inspBody.innerHTML =
+      '<div class="grp"><span class="kicker">'+id+'</span>' +
+      rows.map(r => '<div class="tok"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>').join('') +
+      '</div>';
+  }
+
+  function go(id){
+    sections.forEach(s => s.classList.toggle('is-active', s.id === id));
+    items.forEach(b => b.classList.toggle('is-active', b.dataset.target === id));
+    crumb.textContent = id;
+    renderInspector(id);
+    document.querySelector('.main').scrollTop = 0;
+  }
+
+  items.forEach(b => b.addEventListener('click', () => {
+    go(b.dataset.target);
+    nav.classList.remove('open');           // close mobile drawer
+  }));
+
+  // ---- Toggles ----
+  const overlay = document.getElementById('overlay');
+  const gridToggle = document.getElementById('gridToggle');
+  gridToggle.addEventListener('click', () => {
+    const on = gridToggle.getAttribute('aria-pressed') === 'true';
+    gridToggle.setAttribute('aria-pressed', String(!on));
+    overlay.classList.toggle('on', !on);
+  });
+
+  const inspector = document.getElementById('inspector');
+  const inspToggle = document.getElementById('inspToggle');
+  function setInsp(open){
+    inspToggle.setAttribute('aria-pressed', String(open));
+    inspector.classList.toggle('open', open);
+    inspector.setAttribute('aria-hidden', String(!open));
+  }
+  inspToggle.addEventListener('click', () => setInsp(inspToggle.getAttribute('aria-pressed') !== 'true'));
+  document.getElementById('inspClose').addEventListener('click', () => setInsp(false));
+
+  const nav = document.getElementById('nav');
+  document.getElementById('navToggle').addEventListener('click', (e) => {
+    const t = e.currentTarget;
+    const open = t.getAttribute('aria-pressed') === 'true';
+    t.setAttribute('aria-pressed', String(!open));
+    nav.classList.toggle('open', !open);
+  });
+
+  // ---- Demo interactions ----
+  // Adaptive: reflow columns
+  const adaptiveBody = document.getElementById('adaptiveBody');
+  document.querySelectorAll('#widthSeg button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#widthSeg button').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      adaptiveBody.className = 'body cols-' + btn.dataset.cols;
+    });
+  });
+
+  // Navigation: move active marker
+  document.querySelectorAll('#navigation .row').forEach(row => {
+    row.addEventListener('click', () => {
+      document.querySelectorAll('#navigation .row').forEach(r => {
+        r.classList.remove('sel');
+        r.querySelector('.mono').textContent = '·';
+      });
+      row.classList.add('sel');
+      row.querySelector('.mono').textContent = 'active';
+    });
+  });
+
+  // Binding: live readout
+  const bindInput = document.getElementById('bindInput');
+  const bindOut = document.getElementById('bindOut');
+  bindInput.addEventListener('input', () => {
+    bindOut.textContent = bindInput.value.trim() === '' ? '—' : bindInput.value;
+  });
+
+  // init
+  renderInspector('overview');
+</script>
+</body>
+</html>
