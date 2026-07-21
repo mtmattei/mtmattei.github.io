@@ -38,14 +38,12 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
         </span>
       </span>
       <span class="bb-side">
-        <span class="bb-card">
-          <span class="bb-chemhead">Chemistry<em>Tested 2h ago</em></span>
-          <span class="bb-gauges">
-            <span class="bb-gauge"><span class="bb-grow"><i>pH</i><b>7.4</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:35%;width:40%"></span><span class="bb-gmark" style="left:55%"></span></span></span>
-            <span class="bb-gauge"><span class="bb-grow"><i>Chlorine</i><b>2.4</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:25%;width:45%"></span><span class="bb-gmark" style="left:48%"></span></span></span>
-            <span class="bb-gauge"><span class="bb-grow"><i>Alkalinity</i><b>100</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:30%;width:50%"></span><span class="bb-gmark" style="left:50%"></span></span></span>
-            <span class="bb-gauge"><span class="bb-grow"><i>Stabilizer</i><b>40</b><u></u></span><span class="bb-gtrack"><span class="bb-gband" style="left:28%;width:37%"></span><span class="bb-gmark" style="left:45%"></span></span></span>
-          </span>
+        <span class="bb-chemhead">Chemistry<em>Tested 2h ago</em></span>
+        <span class="bb-plate">
+            <span class="bb-gauge"><span class="bb-glabel">pH</span><span class="bb-grow"><span class="bb-gval">7.4</span><span class="bb-gdot"></span></span><span class="bb-gtrack"><span class="bb-gband" style="left:35%;width:40%"></span><span class="bb-gmark" style="left:55%"></span></span><span class="bb-gnote">ideal 7.2–7.6</span></span>
+            <span class="bb-gauge"><span class="bb-glabel">Chlorine</span><span class="bb-grow"><span class="bb-gval">2.4</span><span class="bb-gdot"></span></span><span class="bb-gtrack"><span class="bb-gband" style="left:25%;width:45%"></span><span class="bb-gmark" style="left:48%"></span></span><span class="bb-gnote">1–3 ppm</span></span>
+            <span class="bb-gauge"><span class="bb-glabel">Alkalinity</span><span class="bb-grow"><span class="bb-gval">100</span><span class="bb-gdot"></span></span><span class="bb-gtrack"><span class="bb-gband" style="left:30%;width:50%"></span><span class="bb-gmark" style="left:50%"></span></span><span class="bb-gnote">80–120 ppm</span></span>
+            <span class="bb-gauge"><span class="bb-glabel">Stabilizer</span><span class="bb-grow"><span class="bb-gval">40</span><span class="bb-gdot"></span></span><span class="bb-gtrack"><span class="bb-gband" style="left:28%;width:37%"></span><span class="bb-gmark" style="left:45%"></span></span><span class="bb-gnote">30–50 ppm</span></span>
         </span>
         <span class="bb-card bb-fc">
           <span class="bb-fchip"><svg viewBox="0 0 24 24"><path d="M3.5 16.5 9 11l4 4 7-7.5M15.5 7.5H20V12"/></svg>Forecast</span>
@@ -103,7 +101,7 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
    numbers. The water surface runs the app's WebGL shader; the plate
    underneath it is the no-WebGL fallback. */
 .bb-app {
-  --bb-ink: #12333D; --bb-slate: #5F7B85; --bb-slate2: #93A8B0;
+  --bb-ink: #12333D; --bb-slate: #5F7B85; --bb-slate2: #8AA2AB;
   --bb-deep: #0A6C88; --bb-sage: #57B394; --bb-line: rgba(60,52,40,.11);
   position: absolute; inset: 0; display: flex;
   background: linear-gradient(170deg, #F2EDE3, #E9E3D6);
@@ -125,8 +123,9 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
 .bb-gname { display: block; font-family: 'Fraunces', serif; font-weight: 400; font-size: 30px; line-height: 1.1; letter-spacing: -.3px; }
 .bb-wpill {
   display: inline-flex; align-items: center; gap: 7px; margin-top: 4px;
-  font-size: 12px; font-weight: 600; color: var(--bb-slate);
-  background: rgba(255,255,255,.6); border: 1px solid var(--bb-line);
+  font-size: 12.5px; font-weight: 500; color: var(--bb-slate);
+  background: rgba(60,52,40,.05); border: 0;
+  box-shadow: inset 0 1px 3px rgba(60,52,40,.13), 0 1px 0 rgba(255,255,255,.6);
   border-radius: 999px; padding: 6px 12px;
 }
 .bb-wpill svg { width: 15px; height: 15px; display: block; }
@@ -147,22 +146,51 @@ const { slug, glyphStill = '', brailleStill = '' } = Astro.props;
   box-shadow: 0 8px 16px -8px rgba(10,58,74,.7);
 }
 .bb-fab svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.bb-side { width: 292px; flex: none; display: flex; flex-direction: column; gap: 14px; padding: 24px 24px 26px 0; }
+.bb-side { width: 340px; flex: none; display: flex; flex-direction: column; gap: 10px; padding: 24px 24px 26px 0; }
 .bb-card {
   background: rgba(255,255,255,.55); border: 1px solid var(--bb-line);
   border-radius: 16px; padding: 14px 16px;
 }
-.bb-chemhead { display: flex; align-items: baseline; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--bb-slate); }
-.bb-chemhead em { font-style: normal; font-size: 10.5px; font-weight: 500; letter-spacing: .2px; text-transform: none; color: var(--bb-slate2); }
-.bb-gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 12px; }
-.bb-grow { display: flex; align-items: baseline; gap: 6px; }
-.bb-grow i { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--bb-slate); }
-.bb-grow b { margin-left: auto; font-family: 'Fraunces', serif; font-weight: 400; font-size: 19px; }
-.bb-grow u { width: 6px; height: 6px; border-radius: 50%; background: var(--bb-sage); }
-.bb-gtrack { position: relative; display: block; margin-top: 7px; height: 5px; border-radius: 3px; background: rgba(60,52,40,.1); }
+.bb-chemhead { display: flex; align-items: baseline; justify-content: space-between; padding: 0 2px 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--bb-slate2); }
+.bb-chemhead em { font-style: normal; font-size: 11.5px; font-weight: 500; letter-spacing: .2px; text-transform: none; color: var(--bb-slate2); }
+/* the plate is engraved into the surface, not laid on it: the app's own
+   stack - inner shadow from above, a white lip along the bottom, a white
+   halo outside - plus the hairline cross between the four gauges */
+.bb-plate {
+  position: relative; flex: none; display: grid; grid-template-columns: 1fr 1fr;
+  border-radius: 22px; padding: 4px;
+  background: linear-gradient(180deg, rgba(60,52,40,.06), rgba(255,255,255,.14));
+  box-shadow:
+    inset 0 2px 7px rgba(60,52,40,.16),
+    inset 0 -1px 0 rgba(255,255,255,.7),
+    0 1px 0 rgba(255,255,255,.55);
+}
+.bb-plate::before {
+  content: ''; position: absolute; top: 16%; bottom: 16%; left: 50%; width: 1px; z-index: 1;
+  background: rgba(60,52,40,.1); box-shadow: 1px 0 0 rgba(255,255,255,.55);
+}
+.bb-plate::after {
+  content: ''; position: absolute; left: 9%; right: 9%; top: 50%; height: 1px; z-index: 1;
+  background: rgba(60,52,40,.1); box-shadow: 0 1px 0 rgba(255,255,255,.55);
+}
+.bb-gauge { position: relative; z-index: 2; display: block; padding: 10px 14px 9px; }
+.bb-glabel { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--bb-slate2); }
+.bb-grow { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
+/* the numerals are embossed: a white edge under the glyph, as on the plate */
+.bb-gval { font-family: 'Fraunces', serif; font-weight: 300; font-size: 24px; line-height: 1;
+  letter-spacing: -.5px; color: var(--bb-ink); text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+.bb-gdot { width: 8px; height: 8px; border-radius: 50%; background: var(--bb-sage); box-shadow: 0 0 6px rgba(0,0,0,.06); }
+/* the track is a carved channel, the knob sits above it */
+.bb-gtrack { position: relative; display: block; margin-top: 8px; height: 6px; border-radius: 3px;
+  background: rgba(60,52,40,.1);
+  box-shadow: inset 0 1px 2px rgba(60,52,40,.22), 0 1px 0 rgba(255,255,255,.6); }
 .bb-gband { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: rgba(87,179,148,.4); }
-.bb-gmark { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%,-50%); background: var(--bb-sage); box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
-.bb-fc { flex: 1 1 auto; display: flex; flex-direction: column; }
+.bb-gmark { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%;
+  transform: translate(-50%,-50%); background: var(--bb-sage);
+  box-shadow: 0 2px 4px rgba(0,0,0,.28), 0 0 0 2px rgba(255,255,255,.85); }
+.bb-gnote { display: block; margin-top: 6px; font-size: 10px; font-weight: 500; letter-spacing: .2px; color: var(--bb-slate2); }
+.bb-fc { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 12px 14px 12px; }
 .bb-fchip { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--bb-deep); }
 .bb-fchip svg { width: 13px; height: 13px; stroke: var(--bb-deep); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bb-spark { display: block; width: 100%; flex: 1 1 auto; min-height: 0; margin-top: 8px; }
