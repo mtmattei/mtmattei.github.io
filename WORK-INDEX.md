@@ -44,9 +44,3 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | THERMOSTAT-BUILD |  | 2025 · C# | 1 |
 | [ ] | PUCKUP |  | 2025 · JavaScript |  |
 | [ ] | HABITS |  | 2025 · LLVM | 5 |
-| [ ] | EV-CHARGINGAPP |  | 2025 · C# | 6 |
-| [ ] | FCM-PUSH-NOTIFICATIONS-TEST |  | 2025 · C# |  |
-| [ ] | UNOEATS |  | 2025 · C# | 2 |
-| [ ] | SANTATRACKER | Santa Claus Sleigh Tracking | 2024 · C# | 2 |
-| [ ] | CUSTOMICONBUTTON | Custom Icon button for Uno Platform | 2024 · C# |  |
-| [ ] | MATHGAME.MTMATTEI | C# Academy Console App Math Game | 2024 · C# |  |
