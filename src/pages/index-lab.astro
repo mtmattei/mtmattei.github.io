@@ -1,7 +1,7 @@
 ---
 import Bare from '../layouts/Bare.astro';
 import Logo from '../components/Logo.astro';
-import Plate from '../components/Plate.astro';
+import BillboardArt from '../components/BillboardArt.astro';
 
 /* A layout test, not a shipping page: the featured index moved out of the
    billboard band and up the left edge, running top to bottom so it keeps
@@ -53,19 +53,20 @@ type Row = {
   /* listed-only rows have no destination and no art yet: they sit in the
      index, unlinked, until each one gets a world */
   href?: string;
-  /* whether the art behind the type is dark or light: the overlaid rows
-     lighten on dark art and darken on light art, or they vanish */
+  /* whether the billboard art behind the type is dark or light: the overlaid
+     rows lighten on dark art and darken on light art, or they vanish. These
+     describe the real billboard panels, not the flat plates. */
   tone?: 'dark' | 'light';
-  /* art: a Plate slug, or one of the two labs that draw themselves */
-  plate?: string; lab?: 'braille' | 'glyph';
+  /* which billboard art plays for this row */
+  slug?: string;
 };
 
 const ROWS: Row[] = [
-  { name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', meta: '4 STAGES · ONE PASS', tone: 'dark', href: '/#/p/poolside', plate: 'poolside' },
-  { name: 'XAML / UNO', tag: 'SKILLS · THE FEEL SYSTEM', meta: '3 SKILLS · ONE SHEET', tone: 'dark', href: '/#/p/xaml-uno', plate: 'xaml-uno' },
-  { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', tone: 'light', href: '/#/p/braille-transition', lab: 'braille' },
-  { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', tone: 'dark', href: '/#/p/glyph-grid', lab: 'glyph' },
-  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', tone: 'dark', href: '/source-figure/', plate: 'source-figure' },
+  { name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', meta: '4 STAGES · ONE PASS', tone: 'light', slug: 'poolside', href: '/#/p/poolside' },
+  { name: 'XAML / UNO', tag: 'SKILLS · THE FEEL SYSTEM', meta: '3 SKILLS · ONE SHEET', tone: 'light', slug: 'xaml-uno', href: '/#/p/xaml-uno' },
+  { name: 'BRAILLE TRANSITION', tag: 'LAB · UNICODE U+2800', meta: '5 MODES · 256 GLYPHS', tone: 'light', slug: 'braille-transition', href: '/#/p/braille-transition' },
+  { name: 'GLYPH GRID', tag: 'LAB · MAGNETIC FIELD', meta: 'FIELD 170 · ORBIT 42', tone: 'dark', slug: 'glyph-grid', href: '/#/p/glyph-grid' },
+  { name: 'SOURCE / FIGURE', tag: 'DESIGN · STUDY · SELF-REFERENTIAL NOTATION', meta: '7 STUDIES · TWO INKS', tone: 'dark', slug: 'source-figure', href: '/source-figure/' },
 ];
 
 /* the rest of the index: every public, non-fork repo, listed only.
@@ -104,7 +105,7 @@ const LISTED: Row[] = [
 const ALL: Row[] = [...ROWS, ...LISTED];
 ---
 <Bare title="Index lab">
-  <div class="lab" id="lab" data-mode="above" data-tone="dark">
+  <div class="lab" id="lab" data-tone="dark">
 
     <a class="home" href="/" aria-label="Back to the index"><Logo height={22} /></a>
 
@@ -121,13 +122,13 @@ const ALL: Row[] = [...ROWS, ...LISTED];
         <div class="screen" id="tvscreen">
           {ROWS.map((r, i) => (
             <div class:list={['shot', { on: i === 0 }]} data-shot={i}>
-              {r.lab === 'braille' ? (
-                <span class="lab-art braille"><pre>{brailleFrame(58, 19, 2.0, 0.9)}</pre></span>
-              ) : r.lab === 'glyph' ? (
-                <span class="lab-art glyph"><pre>{glyphFrame(30, 11)}</pre></span>
-              ) : (
-                <Plate slug={r.plate!} />
-              )}
+              <span class="fit">
+                <BillboardArt
+                  slug={r.slug!}
+                  glyphStill={glyphFrame(34, 15)}
+                  brailleStill={brailleFrame(56, 20, 2.0, 0.9)}
+                />
+              </span>
               <span class="shot-foot"><span>{r.name}</span><span>{String(i + 1).padStart(3, '0')}</span></span>
             </div>
           ))}
@@ -184,10 +185,6 @@ const ALL: Row[] = [...ROWS, ...LISTED];
 
     <div class="foot">
       <span>MATT MATTEI © 2026</span>
-      <div class="modes" role="group" aria-label="Preview depth">
-        <button type="button" class="mode on" data-mode="above">PREVIEW ABOVE</button>
-        <button type="button" class="mode" data-mode="behind">PREVIEW BEHIND</button>
-      </div>
       <span class="quiet">LAYOUT TEST · /index-lab/</span>
     </div>
   </div>
@@ -211,17 +208,6 @@ const ALL: Row[] = [...ROWS, ...LISTED];
   .home { position: absolute; left: 44px; top: 30px; color: var(--ink); }
   .home:hover { opacity: .65; }
 
-  /* ---- mode switch: the one question this page asks ---- */
-  .modes { display: flex; gap: 6px; z-index: 6; }
-  .mode {
-    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.6px;
-    padding: 5px 11px; border: 1px solid var(--line-2); border-radius: 999px;
-    background: transparent; color: var(--ink); opacity: .45; cursor: pointer;
-    transition: opacity .18s ease-out, border-color .18s ease-out;
-  }
-  .mode:hover { opacity: .8; }
-  .mode.on { opacity: 1; border-color: var(--accent); color: var(--accent); }
-
   .head {
     display: flex; justify-content: flex-end; align-items: flex-start;
     padding: 0 0 26px 96px; flex: none;
@@ -244,7 +230,6 @@ const ALL: Row[] = [...ROWS, ...LISTED];
   .ghost {
     position: absolute; inset: 0; z-index: 5;
     pointer-events: none; overflow: hidden;
-    display: none;
   }
   .ghost .row { opacity: 1; background: none; border-top-color: transparent; box-shadow: none; color: #CFCBC4; }
   .lab[data-tone="light"] .ghost .row { color: #74706A; }
@@ -328,6 +313,13 @@ const ALL: Row[] = [...ROWS, ...LISTED];
     transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
   }
   .shot.on { opacity: 1; transform: none; }
+  /* the billboard art is authored at the landing's 934x442; --artScale is
+     measured from the real screen so the same markup fits any size */
+  .fit {
+    position: absolute; left: 0; top: 0; width: 934px; height: 442px;
+    transform-origin: 0 0; transform: scale(var(--artScale, 1));
+  }
+  .fit > :global(*) { position: absolute; inset: 0; }
   .shot :global(.plate) { width: 100%; height: 100%; object-fit: cover; }
   .shot-foot {
     position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 2;
@@ -335,27 +327,14 @@ const ALL: Row[] = [...ROWS, ...LISTED];
     font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 1.4px;
     color: #fff; mix-blend-mode: difference;
   }
-  .lab-art { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .lab-art pre { margin: 0; white-space: pre; }
-  .lab-art.braille { background: linear-gradient(180deg, #F6F2EE 0%, #F0EAE3 100%); }
-  .lab-art.braille pre {
-    font-family: 'JetBrains Mono', var(--mono), monospace; font-size: 12px;
-    line-height: 1.4; letter-spacing: .05em;
-    color: #3656D4; text-shadow: 0 0 8px rgba(54,86,212,.22);
-  }
-  .lab-art.glyph { background: #101013; }
-  .lab-art.glyph pre {
-    font-family: var(--mono), monospace; font-size: 13px;
-    line-height: 2.1; letter-spacing: .38em; color: #3A3A42;
-  }
 
   /* ABOVE: the preview covers the rows it overlaps (the reference's behaviour) */
-  .lab[data-mode="above"] .stage { z-index: 4; }
-  /* BEHIND: the hero sits over the rows at full strength and the ghost copy
-     re-draws the covered type in light grey on top of it. Difference blending
-     was the first attempt and failed - paper on paper resolves to nothing. */
-  .lab[data-mode="behind"] .stage { z-index: 4; }
-  .lab[data-mode="behind"] .ghost { display: flex; }
+  /* the index reads on top of the hero: the billboard sits over the rows at
+     full strength and the ghost copy re-draws the covered type in grey on top
+     of it. Difference blending was the first attempt and failed - paper on
+     paper resolves to nothing. */
+  .stage { z-index: 4; }
+  .ghost { display: flex; }
 
   .foot {
     flex: none; display: flex; justify-content: space-between; align-items: center;
@@ -365,7 +344,7 @@ const ALL: Row[] = [...ROWS, ...LISTED];
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .row, .shot, .mode { transition-duration: .01ms; }
+    .row, .shot { transition-duration: .01ms; }
   }
 </style>
 
@@ -405,15 +384,9 @@ const ALL: Row[] = [...ROWS, ...LISTED];
     const right = Math.max(0, g.right - s.right);
     const bottom = Math.max(0, g.bottom - s.bottom);
     ghost.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+    screen.style.setProperty('--artScale', String(s.width / 934));
   }
   clipGhost();
   addEventListener('resize', clipGhost);
 
-  document.querySelectorAll<HTMLButtonElement>('.mode').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      lab.dataset.mode = btn.dataset.mode!;
-      document.querySelectorAll('.mode').forEach((b) => b.classList.toggle('on', b === btn));
-      clipGhost();
-    });
-  });
 </script>
