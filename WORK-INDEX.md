@@ -21,8 +21,6 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | WPF-MIGRATION-TEST |  | 2026 · C# |  |
 | [ ] | MERIDIAN |  | 2026 · C# | 1 |
 | [ ] | COMPOSITIONSTACK | Companion to the blog post [Composition Stack for AI-Assisted .NET Development. A starter set of the six .md files the post describes, written for a fictional field-service app called FieldKit | 2026 · - | 1 |
-| [ ] | CHEFSTEST |  | 2026 · C# |  |
-| [ ] | TEXT-GRAB.UNO |  | 2026 · C# |  |
 | [ ] | UNOPLATFORMSKILLS | Skills for Uno Platform development and WinUI 3 XAML best practices. | 2026 · - | 5 |
 | [ ] | DIGITALFIDGET |  | 2026 · C# |  |
 | [ ] | QUOTECRAFT |  | 2026 · C# |  |
@@ -35,12 +33,8 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | DRIFTLINE |  | 2026 · C# | 1 |
 | [ ] | CONFPASS | A cross-platform neumorphic conference attendee badge built with Uno Platform | 2026 · C# | 3 |
 | [ ] | CAROUSEL |  | 2026 · C# |  |
-| [ ] | UNO-TABVIEW-DOESNT-UPDATE |  | 2026 · JavaScript |  |
 | [ ] | MEMORY-DRIFT |  | 2026 · C# |  |
 | [ ] | RADIAL-ACTION-MENU |  | 2026 · C# | 1 |
 | [ ] | PARALLAX-INVITATION-CARDS |  | 2026 · C# |  |
 | [ ] | FIBONACCISPHERE |  | 2025 · C# |  |
 | [ ] | MATRIX |  | 2025 · C# | 2 |
-| [ ] | THERMOSTAT-BUILD |  | 2025 · C# | 1 |
-| [ ] | PUCKUP |  | 2025 · JavaScript |  |
-| [ ] | HABITS |  | 2025 · LLVM | 5 |
