@@ -2429,11 +2429,12 @@ function initScratch() {
   function layout() {
     // the canvas is exactly the heading's bounding box, so it only catches the
     // pointer where the letters are - never over the billboard or the rail.
-    var l = 1e9, t = 1e9, r = -1e9, bt = -1e9, pad = 12;
+    var l = 1e9, t = 1e9, r = -1e9, bt = -1e9, pad = 12, CAP = 60;
     lines.forEach(function (el) {
-      l = Math.min(l, el.offsetLeft); t = Math.min(t, el.offsetTop);
-      r = Math.max(r, el.offsetLeft + el.offsetWidth);
-      bt = Math.max(bt, el.offsetTop + el.offsetHeight);
+      var tx = +el.dataset.x, tw = +el.dataset.w, tcap = +el.dataset.captop;
+      l = Math.min(l, tx); t = Math.min(t, tcap);
+      r = Math.max(r, tx + tw);
+      bt = Math.max(bt, tcap + CAP + 12);          // + a little descender room
     });
     ox = l - pad; oy = t - pad; W = (r - l) + pad * 2; H = (bt - t) + pad * 2;
     cv.style.left = ox + 'px'; cv.style.top = oy + 'px';
@@ -2451,24 +2452,30 @@ function initScratch() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     ctx.globalAlpha = alpha == null ? 1 : alpha;
+    // paint each line to the SAME target box calibrate fits the DOM line to
+    // (data-w wide, data-captop down, cap-height 60) - so the coat matches the
+    // heading exactly and there is no size jump when the DOM swaps for canvas.
+    var CAP = 60;
     lines.forEach(function (el) {
-      var b = el.getBoundingClientRect(), cs = getComputedStyle(el);
-      var fs = parseFloat(cs.fontSize) * (b.height / el.offsetHeight);
-      var x = el.offsetLeft - ox, y = el.offsetTop - oy;
-      ctx.font = "800 " + fs + "px 'BigShoulders', sans-serif";
+      var tx = +el.dataset.x, tw = +el.dataset.w, tcap = +el.dataset.captop;
+      var base = 100;
+      ctx.font = "800 " + base + "px 'BigShoulders', sans-serif";
       ctx.textBaseline = 'alphabetic';
-      var mm = ctx.measureText(el.textContent), asc = mm.actualBoundingBoxAscent;
-      var tw = mm.width, th = asc + mm.actualBoundingBoxDescent;
-      // a paper-toned slab hugging the line: a genuine solid surface to rub
-      // off, but the colour of the ground, so at rest it reads as the normal
-      // black-on-paper heading with no visible block.
+      var mm = ctx.measureText(el.textContent);
+      var asc = mm.actualBoundingBoxAscent, desc = mm.actualBoundingBoxDescent;
+      var inkW = mm.actualBoundingBoxLeft + mm.actualBoundingBoxRight;
+      var sx = tw / inkW, sy = CAP / asc;
+      ctx.save();
+      ctx.translate(tx - ox, tcap - oy);          // ink-top of the line
+      ctx.scale(sx, sy);
+      // paper slab hugging the glyphs (ground colour, invisible at rest)
       ctx.fillStyle = paper;
-      roundRect(x - 8, y - 4, tw + 16, th + 8, 8); ctx.fill();
-      // the heading letters sit on the slab in ink - the words you read
-      ctx.fillStyle = ink;
-      ctx.strokeStyle = ink; ctx.lineWidth = 1.4 * (b.height / el.offsetHeight);
-      ctx.fillText(el.textContent, x, y + asc);
-      ctx.strokeText(el.textContent, x, y + asc);
+      roundRect(-mm.actualBoundingBoxLeft - 8, -8, inkW + 16, asc + desc + 16, 8); ctx.fill();
+      // the letters, in ink, drawn from the same baseline as the DOM
+      ctx.fillStyle = ink; ctx.strokeStyle = ink; ctx.lineWidth = 1.4 / sx;
+      ctx.fillText(el.textContent, mm.actualBoundingBoxLeft, asc);
+      ctx.strokeText(el.textContent, mm.actualBoundingBoxLeft, asc);
+      ctx.restore();
     });
     ctx.globalAlpha = 1;
   }
