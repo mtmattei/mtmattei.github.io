@@ -21,9 +21,7 @@ verbatim - where it is blank you fill it, I will not write one for you.
 | [ ] | NEXUS |  | 2026 · C# |  |
 | [ ] | FRIEND SONAR |  | 2026 · C# |  |
 | [ ] | UNOORBIT |  | 2026 · C# |  |
-| [ ] | DRIFTLINE |  | 2026 · C# | 1 |
 | [ ] | CONFERENCE PASS | Neumorphic | 2026 · C# | 3 |
-| [ ] | CAROUSEL |  | 2026 · C# |  |
 | [ ] | MEMORY-DRIFT |  | 2026 · C# |  |
 | [ ] | RADIAL-ACTION-MENU |  | 2026 · C# | 1 |
 | [ ] | PARALLAX-INVITATION-CARDS |  | 2026 · C# |  |
