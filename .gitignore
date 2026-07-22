@@ -22,3 +22,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# working/source files (kept locally, not versioned):
+# raw phone/screen captures - the encoded clips the site uses live in public/videos/
+*.mp4
+!public/videos/*.mp4
+# the landing mockup working dir (has its own .git) and loose session artifacts
+mockup-landing/
+272d0759-96b2-48c1-ad3f-96b92033e83b.png
+fibonacci-sphere-demo.png
