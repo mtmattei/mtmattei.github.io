@@ -2400,12 +2400,18 @@ function initScratch() {
   // the words still read; scratching removes slab + text together, and the
   // quiet line shows through.
   function layout() {
-    var top = lines[0].offsetTop;
-    var last = lines[lines.length - 1];
-    var pitch = (last.offsetTop - lines[0].offsetTop) / (lines.length - 1) || 71;
-    H = Math.ceil(last.offsetTop + last.offsetHeight + 16);
+    var first = lines[0], last = lines[lines.length - 1];
+    var blockTop = first.offsetTop, blockBot = last.offsetTop + last.offsetHeight;
+    H = Math.ceil(blockBot + 16);
     wrap.style.height = H + 'px'; cv.style.height = H + 'px';
-    if (under) { under.style.top = top + 'px'; under.style.lineHeight = pitch + 'px'; }
+    if (under) {
+      // tight line-height, and the whole quiet block centred in the heading
+      // span so a rub anywhere across the middle reveals it
+      var lh = Math.round(parseFloat(getComputedStyle(under).fontSize) * 1.16);
+      under.style.lineHeight = lh + 'px';
+      var underH = lh * (under.querySelectorAll('br').length + 1);
+      under.style.top = Math.round(blockTop + (blockBot - blockTop - underH) / 2) + 'px';
+    }
   }
 
   function paint(alpha) {
@@ -2466,10 +2472,9 @@ function initScratch() {
     return [(e.clientX - b.left) / b.width * W, (e.clientY - b.top) / b.height * H];
   }
 
-  var armed = false, restoreT = null, restoreRAF = null;
+  var armed = false;
   function arm() {
     if (armed) return;
-    cancelAnimationFrame(restoreRAF); clearTimeout(restoreT);
     armed = true; layout(); wrap.classList.add('armed'); paint(1); lastX = lastY = null;
   }
   function onMove(e) {
@@ -2478,28 +2483,11 @@ function initScratch() {
     if (lastX == null) { rub(p2[0], p2[1]); } else { rubLine(lastX, lastY, p2[0], p2[1]); }
     lastX = p2[0]; lastY = p2[1];
   }
-  // a generous keep-alive box: only restore once the pointer is well clear, and
-  // cancel the instant it returns. Small moves never trigger a restore.
-  function scheduleRestore() {
-    clearTimeout(restoreT);
-    restoreT = setTimeout(restore, 1100);
-  }
-  function restore() {
-    var a = 0, t0 = null;
-    cancelAnimationFrame(restoreRAF);
-    (function step(now) {
-      if (t0 == null) t0 = now;
-      a = Math.min(1, (now - t0) / 420);
-      paint(a);                                 // coat fades back in
-      if (a < 1) restoreRAF = requestAnimationFrame(step);
-      else { armed = false; wrap.classList.remove('armed'); }
-    })(performance.now());
-  }
 
   cv.addEventListener('pointermove', onMove);
   cv.addEventListener('pointerdown', onMove);
-  wrap.addEventListener('pointerenter', function () { clearTimeout(restoreT); cancelAnimationFrame(restoreRAF); if (armed) { /* keep */ } });
-  wrap.addEventListener('pointerleave', scheduleRestore);
+  // once scratched it stays scratched: no restore on leave. A fresh page load
+  // (navigate away and back) repaints the coat, which is the only reset.
   layout();
   addEventListener('resize', function () { layout(); if (armed) paint(1); });
 }
