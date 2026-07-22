@@ -1,0 +1,341 @@
+---
+/* The name, as the site's opening.
+
+   A sticky scene the page scrolls through before the landing: cyan MATT
+   enters top-left, red MATTEI enters bottom-right, they meet on one
+   baseline where the shared MATT registers as an anaglyph, then the
+   overlap rises and reduces until it docks at the top edge. The stage
+   then releases and the landing scrolls up underneath it.
+
+   Ported from the scroll prototype (variant 01, Anaglyph Rise) with the
+   prototype's own instrumentation dropped - the variant switcher, the
+   01/04 counter, the study copy, the phase captions and the progress
+   bar were there to compare variants, not to ship. What stays is the
+   choreography, the registration guide and the pulse.
+
+   Type is BigShoulders 800, the landing's own display face, so the name
+   hands off to IDEAS, EXPERIMENTS, AND LESSONS in the same voice. The
+   red and cyan are true anaglyph channels, not the house accent: the
+   effect is the two channels failing to register, so it needs both. */
+---
+
+<div id="tstage" aria-hidden="false">
+  <div class="tscene">
+
+    <div class="tguide" aria-hidden="true"></div>
+    <div class="tpulse" aria-hidden="true"></div>
+
+    <div class="tname" role="img" aria-label="Matt Mattei">
+      <p class="tword tw-cyan" id="twGiven" aria-hidden="true">MATT</p>
+      <p class="tword tw-red" id="twShared" aria-hidden="true">MATT</p>
+      <p class="tword tw-red" id="twTail" aria-hidden="true">EI</p>
+    </div>
+
+    <div class="tcue" id="tcue">
+      <span class="tcue-line" aria-hidden="true"></span>SCROLL
+    </div>
+
+  </div>
+</div>
+
+<style is:global>
+/* the scroll budget of the whole sequence. 300vh = 200vh of choreography
+   (the scene is stuck for that) + 100vh of release, where the scene slides
+   up and the landing rises into the frame. One number to retune. */
+#tstage { position: relative; height: 300vh; }
+
+.tscene {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  /* the words register by multiplying against each other, so the blend
+     needs a group of its own and an opaque ground under it. This is the
+     site ground from global.css, unfixed: while the scene is stuck it is
+     viewport-anchored anyway, and the two tones differ by 1/255. */
+  isolation: isolate;
+  background: radial-gradient(125% 125% at 24% 16%,
+              var(--paper) 0%, var(--paper) 46%, var(--paper-2) 100%);
+}
+
+/* measurement field: near-invisible at rest, firming up as the name
+   resolves. Masked top and bottom so it has no edge of its own. */
+.tscene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: calc(.02 + var(--tp, 0) * .05);
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: min(9vw, 118px) min(9vw, 118px);
+  transform: translateY(calc(var(--tp, 0) * -4vh));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 2%, #000 18%, #000 82%, transparent 98%);
+  mask-image: linear-gradient(to bottom, transparent 2%, #000 18%, #000 82%, transparent 98%);
+}
+
+/* ---- the name ---- */
+.tname { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+
+.tword {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  font-family: 'BigShoulders', 'Arial Narrow', sans-serif;
+  font-weight: 800;
+  font-size: clamp(84px, 16vw, 250px);
+  line-height: .76;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform-origin: left top;
+  will-change: transform, opacity, filter;
+  user-select: none;
+  -webkit-user-select: none;
+  font-kerning: none;
+  /* JS writes the transform on first frame; until then it stays off-frame
+     rather than stacked at the origin */
+  opacity: 0;
+}
+
+.tw-cyan { z-index: 4; color: #00A9D6; mix-blend-mode: multiply; }
+.tw-red  { z-index: 3; color: #EF3E35; mix-blend-mode: multiply; }
+
+/* ---- registration marks ---- */
+.tguide {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(72vw, 1040px);
+  height: 1px;
+  background: var(--ink);
+  opacity: var(--tguide-o, 0);
+  transform: translate(-50%, -50%) scaleX(var(--tguide-s, 0));
+  transform-origin: center;
+  pointer-events: none;
+}
+.tguide::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 1px;
+  height: 11px;
+  background: var(--ink);
+}
+
+.tpulse {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: clamp(118px, 17vw, 250px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(0, 169, 214, .46);
+  border-radius: 50%;
+  opacity: var(--tpulse-o, 0);
+  transform: translate(-50%, -50%) scale(var(--tpulse-s, .72));
+  pointer-events: none;
+}
+.tpulse::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(239, 62, 53, .42);
+  border-radius: inherit;
+}
+
+/* ---- scroll cue: the landing's own label metrics ---- */
+.tcue {
+  position: absolute;
+  z-index: 5;
+  left: max(18px, 3.8vw);
+  bottom: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: var(--ink);
+  pointer-events: none;
+  opacity: calc(.78 - min(1, var(--tp, 0) * 5));
+}
+.tcue-line {
+  width: 30px;
+  height: 1.5px;
+  background: currentColor;
+  transform-origin: left;
+  animation: tbreathe 1.7s cubic-bezier(.22, 1, .36, 1) infinite;
+}
+@keyframes tbreathe {
+  0%, 100% { transform: scaleX(.25); opacity: .35; }
+  50%      { transform: scaleX(1);   opacity: 1; }
+}
+
+/* the landing's side rail belongs to the landing: it arrives with it */
+body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
+
+@media (max-width: 820px) {
+  #tstage { height: 280vh; }
+  .tword { font-size: clamp(56px, 21vw, 120px); }
+  .tcue { bottom: 26px; }
+}
+
+/* no scroll choreography: the registered name reads as a title card and
+   scrolls away with the page */
+@media (prefers-reduced-motion: reduce) {
+  #tstage { height: 100vh; height: 100svh; }
+  .tcue-line { animation: none; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  var root = document.documentElement;
+  var stage = document.getElementById('tstage');
+  var given = document.getElementById('twGiven');    /* MATT, cyan channel */
+  var shared = document.getElementById('twShared');  /* MATT, red channel  */
+  var tail = document.getElementById('twTail');      /* EI, red channel    */
+  if (!stage || !given || !shared || !tail) return;
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function clamp(v, a, b) {
+    a = a == null ? 0 : a; b = b == null ? 1 : b;
+    return Math.min(b, Math.max(a, v));
+  }
+  function mix(a, b, t) { return a + (b - a) * t; }
+  function easeInOut(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeIn(t) { return t * t * t; }
+
+  /* every position is derived from the measured words, so the sequence
+     holds at any width and after the display face swaps in */
+  var m = null;
+  function measure() {
+    var vw = innerWidth, vh = innerHeight;
+    var sharedW = shared.offsetWidth;
+    var fullW = sharedW + tail.offsetWidth;
+    var h = Math.max(given.offsetHeight, shared.offsetHeight);
+    var marginX = Math.max(18, vw * .038);
+    var marginY = Math.max(84, vh * .12);
+    var centerY = vh * .5 - h * .5;
+    /* the two channels register on MATT, but the word the eye reads is
+       MATTEI - centre the composite, or the shared half sits on the axis
+       and the whole name looks pushed right by half of EI */
+    var centerX = vw * .5 - fullW * .5;
+    var hold = Math.min(vw * .18, Math.max(92, sharedW * .72));
+    m = {
+      vw: vw, sharedW: sharedW, fullW: fullW, centerY: centerY, centerX: centerX,
+      givenStart: { x: marginX, y: marginY },
+      surnameStart: { x: vw - fullW - marginX, y: vh - h - marginY },
+      leftHold: centerX - hold,
+      rightHold: centerX + hold,
+      finalTop: Math.max(82, vh * .09),
+      fringe: Math.min(6, Math.max(3, vw * .004))
+    };
+  }
+
+  function place(el, x, y, s, blur) {
+    el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + s + ')';
+    el.style.opacity = '1';
+    el.style.filter = blur ? 'blur(' + blur + 'px)' : 'none';
+  }
+
+  function render(p) {
+    if (!m) measure();
+    root.style.setProperty('--tp', p.toFixed(4));
+
+    /* enter from the corners, hold either side of centre, then meet */
+    var enter = easeInOut(clamp(p / .25));
+    var meet = easeInOut(clamp((p - .22) / .24));
+    /* the fringe only opens once the two channels are on the same baseline */
+    var registered = easeOut(clamp((p - .40) / .09));
+    /* the rise: one continuous move, position and scale together */
+    var r = easeInOut(clamp((p - .46) / .43));
+
+    var scale = mix(1, .235, r);
+    var fringe = m.fringe * registered * (1 - r * .35);
+    var topX = m.vw * .5 - m.fullW * scale * .5;
+
+    var gx = mix(mix(m.givenStart.x, m.leftHold, enter), m.centerX, meet);
+    var gy = mix(m.givenStart.y, m.centerY, enter);
+    var sx = mix(mix(m.surnameStart.x, m.rightHold, enter), m.centerX, meet);
+    var sy = mix(m.surnameStart.y, m.centerY, enter);
+
+    var cyanX = mix(gx, topX, r) - fringe;
+    var cyanY = mix(gy, m.finalTop, r);
+    var redX = mix(sx, topX, r) + fringe;
+    var redY = mix(sy, m.finalTop, r);
+    /* the last of the rise takes a touch of blur, so the dock reads as
+       distance rather than as a stop */
+    var blur = mix(0, 1.1, easeIn(clamp((r - .7) / .3)));
+
+    place(given, cyanX, cyanY, scale, blur);
+    place(shared, redX, redY, scale, blur);
+    place(tail, redX + m.sharedW * scale, redY, scale, blur);
+
+    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .43) / .13) * 2 - 1));
+    root.style.setProperty('--tguide-o', (.28 * (1 - r) * easeOut(clamp((p - .16) / .18))).toFixed(4));
+    root.style.setProperty('--tguide-s', easeOut(clamp((p - .18) / .18)).toFixed(4));
+    root.style.setProperty('--tpulse-o', (.34 * pulse).toFixed(4));
+    root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
+
+    document.body.classList.toggle('title-done', p >= .84);
+  }
+
+  if (reduce) {
+    /* the registered pose, held: no scroll mapping, no frame loop */
+    var still = function () { measure(); render(.46); };
+    still();
+    addEventListener('resize', still);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(still);
+    document.body.classList.add('title-done');
+    return;
+  }
+
+  var current = 0;
+  var geo = { top: 0, travel: 1 };
+
+  function measureGeo() {
+    geo.top = stage.offsetTop;
+    geo.travel = Math.max(1, stage.offsetHeight - innerHeight);
+  }
+  /* read from scrollY rather than from a scroll event: restoration on reload,
+     anchor jumps and programmatic scrolls all move the page without one, and
+     a stale target leaves the name posed for a position the page is not at */
+  function targetNow() { return clamp((scrollY - geo.top) / geo.travel); }
+
+  /* the name trails the wheel slightly - the sequence reads as one move
+     being made rather than as scroll position being reported. A jump is not
+     a wheel, so anything that big lands instead of sweeping through the
+     whole choreography to catch up. */
+  function tick() {
+    var target = targetNow();
+    var d = target - current;
+    current = Math.abs(d) > .25 ? target : current + d * .095;
+    if (Math.abs(target - current) < .00008) current = target;
+    render(current);
+    requestAnimationFrame(tick);
+  }
+
+  measure();
+  measureGeo();
+  current = targetNow();
+  render(current);
+  requestAnimationFrame(tick);
+
+  addEventListener('resize', function () { measure(); measureGeo(); });
+  /* the display face lands after first paint on a cold cache; every
+     position is measured from it, so re-measure once it is real */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { measure(); render(current); });
+  }
+})();
+</script>

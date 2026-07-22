@@ -1,6 +1,7 @@
 ---
 import Bare from '../layouts/Bare.astro';
 import Logo from '../components/Logo.astro';
+import NameIntro from '../components/NameIntro.astro';
 import Plate from '../components/Plate.astro';
 import BillboardArt from '../components/BillboardArt.astro';
 /* Fraunces: the Poolside app's display face, used in the billboard UI */
@@ -424,6 +425,8 @@ const INDEX_ROWS = [
 <Bare
   title="Index"
   description="Matt Mattei's public notebook: ideas, experiments, sketches, software, and lessons at the intersection of design and development.">
+
+<NameIntro />
 
 <div id="fit">
   <div class="camera" id="camera">
@@ -1407,6 +1410,17 @@ function fit() {
 }
 addEventListener('resize', fit); fit();
 
+// The name sequence sits above the landing, so scroll 0 is the name, not the
+// hero. Anything that used to mean "back to the top of the stage" means the
+// top of #fit now.
+function heroTop() { return document.getElementById('fit').offsetTop; }
+// A deep link is already inside a world: land on the hero so stepping back
+// arrives on the landing rather than replaying the name.
+if (/^#\/p\//.test(location.hash)) {
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  addEventListener('load', function () { scrollTo({ top: heroTop(), behavior: 'instant' }); });
+}
+
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
 // ledger rows arrive as they are approached, staggered within each batch
@@ -2262,7 +2276,7 @@ var scene = document.getElementById('scene');
 
 function animEnter(i) {
   state.mode = 'entering';
-  scrollTo({ top: 0, behavior: 'instant' });   // the push is composed on the hero
+  scrollTo({ top: heroTop(), behavior: 'instant' });   // the push is composed on the hero
   setFeatured(i);
   buildDetail(i);
   clearTransTimers();
