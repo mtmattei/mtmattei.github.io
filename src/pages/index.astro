@@ -2387,149 +2387,121 @@ function initScratch() {
   var cv = document.getElementById('scratchCv');
   if (!wrap || !cv) return;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;                         // no coating; the heading just reads normally
   var dpr = Math.min(devicePixelRatio || 1, 2);
   var ctx = cv.getContext('2d');
   var lines = [].slice.call(wrap.querySelectorAll('.hl'));
   var under = wrap.querySelector('.scratch-under');
+  var W = 480, H = 440, ink = '#1A1815', paper = '#F7F5F1';
 
-  // the canvas must cover the whole heading block, and the quiet line sits
-  // directly behind the loud one - each subtitle line pitched to a heading
-  // line - so scratching anywhere reveals text, never blank.
-  var W = 480, H = 440;
+  // the coating is a SOLID slab the exact shape of the heading: each line is a
+  // filled rounded bar behind the letters, so there is a real surface to rub
+  // off, not just glyph strokes. The heading text sits on the slab in paper so
+  // the words still read; scratching removes slab + text together, and the
+  // quiet line shows through.
   function layout() {
     var top = lines[0].offsetTop;
-    var pitch = (lines[lines.length - 1].offsetTop - lines[0].offsetTop) / (lines.length - 1) || 71;
-    var bottom = lines[lines.length - 1].offsetTop + lines[lines.length - 1].offsetHeight;
-    H = Math.ceil(bottom + 20);
-    wrap.style.height = H + 'px';
-    cv.style.height = H + 'px';
-    if (under) {
-      under.style.top = top + 'px';
-      under.style.lineHeight = pitch + 'px';
-    }
+    var last = lines[lines.length - 1];
+    var pitch = (last.offsetTop - lines[0].offsetTop) / (lines.length - 1) || 71;
+    H = Math.ceil(last.offsetTop + last.offsetHeight + 16);
+    wrap.style.height = H + 'px'; cv.style.height = H + 'px';
+    if (under) { under.style.top = top + 'px'; under.style.lineHeight = pitch + 'px'; }
   }
 
-  // paint the coating: each calibrated line, drawn where it actually sits
-  function paint() {
+  function paint(alpha) {
     cv.width = W * dpr; cv.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    var wrapBox = wrap.getBoundingClientRect();
+    ctx.globalAlpha = alpha == null ? 1 : alpha;
+    var wb = wrap.getBoundingClientRect();
     lines.forEach(function (el) {
       var b = el.getBoundingClientRect(), cs = getComputedStyle(el);
-      var scale = b.width / el.offsetWidth || 1;          // camera scale factor
       var fs = parseFloat(cs.fontSize) * (b.height / el.offsetHeight);
-      ctx.save();
-      ctx.font = '800 ' + fs + "px 'BigShoulders', sans-serif";
+      var x = b.left - wb.left, y = b.top - wb.top;
+      ctx.font = "800 " + fs + "px 'BigShoulders', sans-serif";
       ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink') || '#1A1815';
-      ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.4 * scale;
-      var x = b.left - wrapBox.left, y = b.top - wrapBox.top;
-      var mm = ctx.measureText(el.textContent);
-      ctx.fillText(el.textContent, x, y + mm.actualBoundingBoxAscent);
-      ctx.strokeText(el.textContent, x, y + mm.actualBoundingBoxAscent);
-      ctx.restore();
+      var mm = ctx.measureText(el.textContent), asc = mm.actualBoundingBoxAscent;
+      var tw = mm.width, th = asc + mm.actualBoundingBoxDescent;
+      // a paper-toned slab hugging the line: a genuine solid surface to rub
+      // off, but the colour of the ground, so at rest it reads as the normal
+      // black-on-paper heading with no visible block.
+      ctx.fillStyle = paper;
+      roundRect(x - 8, y - 4, tw + 16, th + 8, 8); ctx.fill();
+      // the heading letters sit on the slab in ink - the words you read
+      ctx.fillStyle = ink;
+      ctx.strokeStyle = ink; ctx.lineWidth = 1.4 * (b.height / el.offsetHeight);
+      ctx.fillText(el.textContent, x, y + asc);
+      ctx.strokeText(el.textContent, x, y + asc);
     });
+    ctx.globalAlpha = 1;
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
 
-  var scratching = false, lastX = 0, lastY = 0, restoreT = null;
-  var parts = [], raf = null;
-
-  function armIfNeeded() {
-    if (!wrap.classList.contains('armed')) { layout(); wrap.classList.add('armed'); paint(); }
-  }
-
-  // a soft brush with a ragged rim, so the edge reads handmade not stamped
-  function erase(x, y) {
+  // gradual rub: each pass removes part of the coat, so a spot needs a couple
+  // of strokes to clear - it feels like rubbing, not a hard cut.
+  var lastX = null, lastY = null;
+  function rub(x, y) {
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
-    var r = 24;
+    var r = 26;
     var g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.65, 'rgba(0,0,0,1)');
+    g.addColorStop(0, 'rgba(0,0,0,0.5)');
+    g.addColorStop(0.7, 'rgba(0,0,0,0.28)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
-    // ragged flecks around the rim
-    if (!reduce) for (var i = 0; i < 5; i++) {
-      var a = (i / 5) * 6.2832 + x * 0.3, rr = r * (0.7 + (Math.sin(x * 3.1 + i) * 0.5 + 0.5) * 0.5);
-      ctx.beginPath();
-      ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, 3.4, 0, 6.2832); ctx.fill();
-    }
     ctx.restore();
   }
-  function eraseLine(x0, y0, x1, y1) {
-    var d = Math.hypot(x1 - x0, y1 - y0), steps = Math.max(1, d / 6);
-    for (var i = 0; i <= steps; i++) erase(x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps);
+  function rubLine(x1, y1, x2, y2) {
+    var d = Math.hypot(x2 - x1, y2 - y1), n = Math.max(1, d / 5);
+    for (var i = 0; i <= n; i++) rub(x1 + (x2 - x1) * i / n, y1 + (y2 - y1) * i / n);
   }
-
-  // a few fragments scatter briefly from the scratched point
-  function scatter(x, y) {
-    if (reduce) return;
-    for (var i = 0; i < 3; i++) parts.push({
-      x: x, y: y, vx: (Math.random() - 0.5) * 1.6, vy: -0.6 - Math.random() * 1.2,
-      life: 1, sz: 1 + Math.random() * 1.6
-    });
-    if (!raf) raf = requestAnimationFrame(tickParts);
-  }
-  function tickParts() {
-    // draw fragments on a sibling? keep it on the same canvas over the coating
-    // (they are additive ink specks, drawn source-over then decayed by repaint)
-    raf = null;
-    var alive = [];
-    ctx.save(); ctx.globalCompositeOperation = 'source-over';
-    parts.forEach(function (p2) {
-      p2.x += p2.vx; p2.y += p2.vy; p2.vy += 0.12; p2.life -= 0.06;
-      if (p2.life <= 0) return;
-      ctx.globalAlpha = p2.life * 0.5; ctx.fillStyle = '#1A1815';
-      ctx.beginPath(); ctx.arc(p2.x, p2.y, p2.sz, 0, 6.2832); ctx.fill();
-      alive.push(p2);
-    });
-    ctx.restore();
-    parts = alive;
-    if (parts.length) raf = requestAnimationFrame(tickParts);
-  }
-
-  function localXY(e) {
+  function toLocal(e) {
     var b = cv.getBoundingClientRect();
     return [(e.clientX - b.left) / b.width * W, (e.clientY - b.top) / b.height * H];
   }
-  function down(e) { armIfNeeded(); scratching = true; var p2 = localXY(e); lastX = p2[0]; lastY = p2[1]; erase(lastX, lastY); scatter(lastX, lastY); }
-  function move(e) {
-    armIfNeeded();
-    var p2 = localXY(e);
-    if (scratching || e.pointerType === 'mouse') { eraseLine(lastX, lastY, p2[0], p2[1]); if (Math.random() < 0.4) scatter(p2[0], p2[1]); }
+
+  var armed = false, restoreT = null, restoreRAF = null;
+  function arm() {
+    if (armed) return;
+    cancelAnimationFrame(restoreRAF); clearTimeout(restoreT);
+    armed = true; layout(); wrap.classList.add('armed'); paint(1); lastX = lastY = null;
+  }
+  function onMove(e) {
+    arm();
+    var p2 = toLocal(e);
+    if (lastX == null) { rub(p2[0], p2[1]); } else { rubLine(lastX, lastY, p2[0], p2[1]); }
     lastX = p2[0]; lastY = p2[1];
   }
-  function up() { scratching = false; }
-  function leave() {
-    scratching = false;
+  // a generous keep-alive box: only restore once the pointer is well clear, and
+  // cancel the instant it returns. Small moves never trigger a restore.
+  function scheduleRestore() {
     clearTimeout(restoreT);
-    restoreT = setTimeout(restore, 700);
+    restoreT = setTimeout(restore, 1100);
   }
-  // the coating grows back: repaint, then wipe a shrinking hole isn't needed -
-  // a simple fade-in by redrawing at rising alpha reads as it re-forming
   function restore() {
-    if (reduce) { wrap.classList.remove('armed'); return; }
-    var a = 0;
-    (function grow() {
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 0.14;
-      paint();                       // repaint at partial alpha builds the coat back
-      ctx.restore();
-      a += 0.14;
-      if (a < 1.1) requestAnimationFrame(grow);
-      else { paint(); wrap.classList.remove('armed'); }  // fully back, disarm
-    })();
+    var a = 0, t0 = null;
+    cancelAnimationFrame(restoreRAF);
+    (function step(now) {
+      if (t0 == null) t0 = now;
+      a = Math.min(1, (now - t0) / 420);
+      paint(a);                                 // coat fades back in
+      if (a < 1) restoreRAF = requestAnimationFrame(step);
+      else { armed = false; wrap.classList.remove('armed'); }
+    })(performance.now());
   }
 
-  cv.addEventListener('pointerdown', down);
-  cv.addEventListener('pointermove', move);
-  cv.addEventListener('pointerup', up);
-  wrap.addEventListener('pointerenter', armIfNeeded);
-  wrap.addEventListener('pointerleave', leave);
+  cv.addEventListener('pointermove', onMove);
+  cv.addEventListener('pointerdown', onMove);
+  wrap.addEventListener('pointerenter', function () { clearTimeout(restoreT); cancelAnimationFrame(restoreRAF); if (armed) { /* keep */ } });
+  wrap.addEventListener('pointerleave', scheduleRestore);
   layout();
-  addEventListener('resize', function () { layout(); if (wrap.classList.contains('armed')) paint(); });
+  addEventListener('resize', function () { layout(); if (armed) paint(1); });
 }
 
 // headline calibration: pin each line's ink box exactly onto the measured mockup box
