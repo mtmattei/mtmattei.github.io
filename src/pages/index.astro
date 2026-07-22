@@ -780,7 +780,7 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 /* ---- scratch-off heading ----
    the loud heading is painted onto a canvas the cursor erases; the quiet line
    underneath shows through where it has been scratched. */
-.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; pointer-events: none; }
+.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; pointer-events: none; z-index: 3; }
 .scratch-under {
   position: absolute; left: 86px; top: 236px; margin: 0;
   font-family: var(--sans); font-weight: 400; font-size: 21px;
