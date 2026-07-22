@@ -780,7 +780,7 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 /* ---- scratch-off heading ----
    the loud heading is painted onto a canvas the cursor erases; the quiet line
    underneath shows through where it has been scratched. */
-.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; }
+.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; pointer-events: none; }
 .scratch-under {
   position: absolute; left: 86px; top: 236px; margin: 0;
   font-family: var(--sans); font-weight: 400; font-size: 21px;
@@ -791,11 +791,11 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 .scratch h1 { position: absolute; inset: 0; }
 /* the DOM heading is the paint source and the a11y text; the canvas covers it */
 .scratch.armed h1 { visibility: hidden; }
+.scratch h1 { pointer-events: none; }
 .scratch-cv {
-  position: absolute; left: 0; top: 0; width: 480px; height: 440px;
-  cursor: crosshair; touch-action: none; display: none;
+  position: absolute; cursor: crosshair; touch-action: none;
+  pointer-events: auto; display: block;   /* transparent until armed; sized in JS to the heading */
 }
-.scratch.armed .scratch-cv { display: block; }
 
 .hl {
   left: 84px; font-family: 'BigShoulders', sans-serif; font-weight: 800;
@@ -2419,7 +2419,7 @@ function initScratch() {
   var ctx = cv.getContext('2d');
   var lines = [].slice.call(wrap.querySelectorAll('.hl'));
   var under = wrap.querySelector('.scratch-under');
-  var W = 480, H = 440, ink = '#1A1815', paper = '#F7F5F1';
+  var W = 480, H = 440, ox = 0, oy = 0, ink = '#1A1815', paper = '#F7F5F1';
 
   // the coating is a SOLID slab the exact shape of the heading: each line is a
   // filled rounded bar behind the letters, so there is a real surface to rub
@@ -2427,17 +2427,22 @@ function initScratch() {
   // the words still read; scratching removes slab + text together, and the
   // quiet line shows through.
   function layout() {
-    var first = lines[0], last = lines[lines.length - 1];
-    var blockTop = first.offsetTop, blockBot = last.offsetTop + last.offsetHeight;
-    H = Math.ceil(blockBot + 16);
-    wrap.style.height = H + 'px'; cv.style.height = H + 'px';
+    // the canvas is exactly the heading's bounding box, so it only catches the
+    // pointer where the letters are - never over the billboard or the rail.
+    var l = 1e9, t = 1e9, r = -1e9, bt = -1e9, pad = 12;
+    lines.forEach(function (el) {
+      l = Math.min(l, el.offsetLeft); t = Math.min(t, el.offsetTop);
+      r = Math.max(r, el.offsetLeft + el.offsetWidth);
+      bt = Math.max(bt, el.offsetTop + el.offsetHeight);
+    });
+    ox = l - pad; oy = t - pad; W = (r - l) + pad * 2; H = (bt - t) + pad * 2;
+    cv.style.left = ox + 'px'; cv.style.top = oy + 'px';
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
     if (under) {
-      // tight line-height, and the whole quiet block centred in the heading
-      // span so a rub anywhere across the middle reveals it
       var lh = Math.round(parseFloat(getComputedStyle(under).fontSize) * 1.16);
       under.style.lineHeight = lh + 'px';
       var underH = lh * (under.querySelectorAll('br').length + 1);
-      under.style.top = Math.round(blockTop + (blockBot - blockTop - underH) / 2) + 'px';
+      under.style.top = Math.round(t + (bt - t - underH) / 2) + 'px';
     }
   }
 
@@ -2446,11 +2451,10 @@ function initScratch() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     ctx.globalAlpha = alpha == null ? 1 : alpha;
-    var wb = wrap.getBoundingClientRect();
     lines.forEach(function (el) {
       var b = el.getBoundingClientRect(), cs = getComputedStyle(el);
       var fs = parseFloat(cs.fontSize) * (b.height / el.offsetHeight);
-      var x = b.left - wb.left, y = b.top - wb.top;
+      var x = el.offsetLeft - ox, y = el.offsetTop - oy;
       ctx.font = "800 " + fs + "px 'BigShoulders', sans-serif";
       ctx.textBaseline = 'alphabetic';
       var mm = ctx.measureText(el.textContent), asc = mm.actualBoundingBoxAscent;
@@ -2481,10 +2485,10 @@ function initScratch() {
   function rub(x, y) {
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
-    var r = 26;
+    var r = 30;
     var g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, 'rgba(0,0,0,0.5)');
-    g.addColorStop(0.7, 'rgba(0,0,0,0.28)');
+    g.addColorStop(0, 'rgba(0,0,0,0.95)');
+    g.addColorStop(0.6, 'rgba(0,0,0,0.7)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
@@ -2495,7 +2499,7 @@ function initScratch() {
     for (var i = 0; i <= n; i++) rub(x1 + (x2 - x1) * i / n, y1 + (y2 - y1) * i / n);
   }
   function toLocal(e) {
-    var b = cv.getBoundingClientRect();
+    var b = cv.getBoundingClientRect();   // canvas is always sized now, and paint draws in its space
     return [(e.clientX - b.left) / b.width * W, (e.clientY - b.top) / b.height * H];
   }
 
@@ -2511,8 +2515,9 @@ function initScratch() {
     lastX = p2[0]; lastY = p2[1];
   }
 
-  cv.addEventListener('pointermove', onMove);
-  cv.addEventListener('pointerdown', onMove);
+  wrap.addEventListener('pointerenter', onMove);
+  wrap.addEventListener('pointermove', onMove);
+  wrap.addEventListener('pointerdown', onMove);
   // once scratched it stays scratched: no restore on leave. A fresh page load
   // (navigate away and back) repaints the coat, which is the only reset.
   layout();
