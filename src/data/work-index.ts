@@ -9,7 +9,6 @@ export const WORK_ROWS: WorkRow[] = [
   { name: "APPMAP", tag: "Render an Uno Platform app's full navigation structure as an interactive canvas", meta: "2026" },
   { name: "UNOCOMPOSER", tag: "", meta: "2026" },
   { name: "DESIGN-LEDGER", tag: "A non-repetition layer for AI design generators: wrap any design skill in a persistent fingerprint ledger + collision gate so every result is provably unique across all prior generations.", meta: "2026" },
-  { name: "UNO-BUILDS-NET10", tag: "Uno-Builds projects upgraded to Uno.Sdk 6.5.33 / .NET 10 — see UPGRADE-SPEC.md", meta: "2026" },
   { name: "UNO-SAMPLE-GALLERY", tag: "", meta: "2026" },
   { name: "MERIDIAN", tag: "", meta: "2026" },
   { name: "COMPOSITION STACK", tag: "Companion to the blog post [Composition Stack for AI-Assisted .NET Development. A starter set of the six .md files the post describes, written for a fictional field-service app called FieldKit", meta: "2026" },

@@ -554,7 +554,9 @@ const INDEX_ROWS = [
   {INDEX_ROWS.map((r, i) => (
     <div class="ppv-card" data-card={i}>
       <span class="ppv-art">
-        {r.slug === 'poolside' || r.slug === 'xaml-uno' ? (
+        {r.slug === 'poolside' ? (
+          <video class="ppv-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+        ) : r.slug === 'xaml-uno' ? (
           <Plate slug={r.slug} />
         ) : r.slug === 'braille-transition' ? (
           <span class="ppv-fill braille"><pre>{POSTER_BRAILLE}</pre></span>
