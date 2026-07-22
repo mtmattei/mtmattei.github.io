@@ -429,13 +429,17 @@ const INDEX_ROWS = [
   <div class="camera" id="camera">
   <div class="scene" id="scene">
 
-    <h1 aria-label="Ideas, experiments, and lessons.">
-      <span class="t hl" id="hl1" data-x="84" data-w="102" data-captop="229">IDEAS,</span>
-      <span class="t hl" id="hl2" data-x="84" data-w="234" data-captop="302">EXPERIMENTS,</span>
-      <span class="t hl" id="hl3" data-x="86" data-w="218" data-captop="372">AND LESSONS</span>
-    </h1>
+    <div class="scratch" id="scratch">
+      <!-- the quiet line, revealed as the loud one is scratched away -->
+      <p class="scratch-under" aria-hidden="true">Some take shape.<br>Some simply<br>remain ideas.</p>
+      <h1 aria-label="Ideas, experiments, and lessons.">
+        <span class="t hl" id="hl1" data-x="84" data-w="102" data-captop="229">IDEAS,</span>
+        <span class="t hl" id="hl2" data-x="84" data-w="234" data-captop="302">EXPERIMENTS,</span>
+        <span class="t hl" id="hl3" data-x="86" data-w="218" data-captop="372">AND LESSONS</span>
+      </h1>
+      <canvas class="scratch-cv" id="scratchCv" aria-hidden="true"></canvas>
+    </div>
 
-    <p class="t para">Some take shape. Some simply<br>remain ideas.</p>
 
     <div class="t lbl" style="left:86px; top:608px; line-height:17px;">SCROLL<br>TO EXPLORE</div>
     <div class="scroll-arrow"></div>
@@ -771,6 +775,26 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 .lnav-quiet .lnav-i:hover { opacity: 1; }
 
 /* ---- headline ---- */
+/* ---- scratch-off heading ----
+   the loud heading is painted onto a canvas the cursor erases; the quiet line
+   underneath shows through where it has been scratched. */
+.scratch { position: absolute; left: 0; top: 0; width: 470px; height: 260px; }
+.scratch-under {
+  position: absolute; left: 86px; top: 236px; margin: 0;
+  font-family: var(--sans); font-weight: 400; font-size: 22px; line-height: 1.28;
+  letter-spacing: .1px; color: var(--ink); opacity: 0;
+  transition: opacity .3s ease;
+}
+.scratch.armed .scratch-under { opacity: .52; }
+.scratch h1 { position: absolute; inset: 0; }
+/* the DOM heading is the paint source and the a11y text; the canvas covers it */
+.scratch.armed h1 { visibility: hidden; }
+.scratch-cv {
+  position: absolute; left: 0; top: 0; width: 470px; height: 260px;
+  cursor: crosshair; touch-action: none; display: none;
+}
+.scratch.armed .scratch-cv { display: block; }
+
 .hl {
   left: 84px; font-family: 'BigShoulders', sans-serif; font-weight: 800;
   font-size: 83px; line-height: 1; letter-spacing: 0;
@@ -2353,6 +2377,142 @@ sound.addEventListener('click', function () {
   }
 });
 
+// ---- scratch-off heading ----
+// The loud heading is painted to a canvas (from the calibrated DOM lines, so
+// it matches exactly). The pointer erases it with a soft, slightly ragged
+// brush; the quiet line underneath shows through. Fingers work too. On leave,
+// after a beat, the coating grows back so the interaction can repeat.
+function initScratch() {
+  var wrap = document.getElementById('scratch');
+  var cv = document.getElementById('scratchCv');
+  if (!wrap || !cv) return;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W = 470, H = 260, dpr = Math.min(devicePixelRatio || 1, 2);
+  var ctx = cv.getContext('2d');
+  var lines = [].slice.call(wrap.querySelectorAll('.hl'));
+
+  // paint the coating: each calibrated line, drawn where it actually sits
+  function paint() {
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    var wrapBox = wrap.getBoundingClientRect();
+    lines.forEach(function (el) {
+      var b = el.getBoundingClientRect(), cs = getComputedStyle(el);
+      var scale = b.width / el.offsetWidth || 1;          // camera scale factor
+      var fs = parseFloat(cs.fontSize) * (b.height / el.offsetHeight);
+      ctx.save();
+      ctx.font = '800 ' + fs + "px 'BigShoulders', sans-serif";
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink') || '#1A1815';
+      ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.4 * scale;
+      var x = b.left - wrapBox.left, y = b.top - wrapBox.top;
+      var mm = ctx.measureText(el.textContent);
+      ctx.fillText(el.textContent, x, y + mm.actualBoundingBoxAscent);
+      ctx.strokeText(el.textContent, x, y + mm.actualBoundingBoxAscent);
+      ctx.restore();
+    });
+  }
+
+  var scratching = false, lastX = 0, lastY = 0, restoreT = null;
+  var parts = [], raf = null;
+
+  function armIfNeeded() {
+    if (!wrap.classList.contains('armed')) { wrap.classList.add('armed'); paint(); }
+  }
+
+  // a soft brush with a ragged rim, so the edge reads handmade not stamped
+  function erase(x, y) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    var r = 24;
+    var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.65, 'rgba(0,0,0,1)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+    // ragged flecks around the rim
+    if (!reduce) for (var i = 0; i < 5; i++) {
+      var a = (i / 5) * 6.2832 + x * 0.3, rr = r * (0.7 + (Math.sin(x * 3.1 + i) * 0.5 + 0.5) * 0.5);
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, 3.4, 0, 6.2832); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function eraseLine(x0, y0, x1, y1) {
+    var d = Math.hypot(x1 - x0, y1 - y0), steps = Math.max(1, d / 6);
+    for (var i = 0; i <= steps; i++) erase(x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps);
+  }
+
+  // a few fragments scatter briefly from the scratched point
+  function scatter(x, y) {
+    if (reduce) return;
+    for (var i = 0; i < 3; i++) parts.push({
+      x: x, y: y, vx: (Math.random() - 0.5) * 1.6, vy: -0.6 - Math.random() * 1.2,
+      life: 1, sz: 1 + Math.random() * 1.6
+    });
+    if (!raf) raf = requestAnimationFrame(tickParts);
+  }
+  function tickParts() {
+    // draw fragments on a sibling? keep it on the same canvas over the coating
+    // (they are additive ink specks, drawn source-over then decayed by repaint)
+    raf = null;
+    var alive = [];
+    ctx.save(); ctx.globalCompositeOperation = 'source-over';
+    parts.forEach(function (p2) {
+      p2.x += p2.vx; p2.y += p2.vy; p2.vy += 0.12; p2.life -= 0.06;
+      if (p2.life <= 0) return;
+      ctx.globalAlpha = p2.life * 0.5; ctx.fillStyle = '#1A1815';
+      ctx.beginPath(); ctx.arc(p2.x, p2.y, p2.sz, 0, 6.2832); ctx.fill();
+      alive.push(p2);
+    });
+    ctx.restore();
+    parts = alive;
+    if (parts.length) raf = requestAnimationFrame(tickParts);
+  }
+
+  function localXY(e) {
+    var b = cv.getBoundingClientRect();
+    return [(e.clientX - b.left) / b.width * W, (e.clientY - b.top) / b.height * H];
+  }
+  function down(e) { armIfNeeded(); scratching = true; var p2 = localXY(e); lastX = p2[0]; lastY = p2[1]; erase(lastX, lastY); scatter(lastX, lastY); }
+  function move(e) {
+    armIfNeeded();
+    var p2 = localXY(e);
+    if (scratching || e.pointerType === 'mouse') { eraseLine(lastX, lastY, p2[0], p2[1]); if (Math.random() < 0.4) scatter(p2[0], p2[1]); }
+    lastX = p2[0]; lastY = p2[1];
+  }
+  function up() { scratching = false; }
+  function leave() {
+    scratching = false;
+    clearTimeout(restoreT);
+    restoreT = setTimeout(restore, 700);
+  }
+  // the coating grows back: repaint, then wipe a shrinking hole isn't needed -
+  // a simple fade-in by redrawing at rising alpha reads as it re-forming
+  function restore() {
+    if (reduce) { wrap.classList.remove('armed'); return; }
+    var a = 0;
+    (function grow() {
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 0.14;
+      paint();                       // repaint at partial alpha builds the coat back
+      ctx.restore();
+      a += 0.14;
+      if (a < 1.1) requestAnimationFrame(grow);
+      else { paint(); wrap.classList.remove('armed'); }  // fully back, disarm
+    })();
+  }
+
+  cv.addEventListener('pointerdown', down);
+  cv.addEventListener('pointermove', move);
+  cv.addEventListener('pointerup', up);
+  wrap.addEventListener('pointerenter', armIfNeeded);
+  wrap.addEventListener('pointerleave', leave);
+  addEventListener('resize', function () { if (wrap.classList.contains('armed')) paint(); });
+}
+
 // headline calibration: pin each line's ink box exactly onto the measured mockup box
 function calibrate() {
   document.querySelectorAll('.hl').forEach(function (el) {
@@ -2376,5 +2536,5 @@ function calibrate() {
     el.style.transform = 'scale(' + sx + ',' + sy + ')';
   });
 }
-document.fonts.ready.then(calibrate);
+document.fonts.ready.then(function () { calibrate(); initScratch(); });
 </script>
