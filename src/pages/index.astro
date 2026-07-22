@@ -566,6 +566,8 @@ const INDEX_ROWS = [
           <Plate slug="source-figure" />
         ) : r.name === 'MATRIX' ? (
           <video class="ppv-vid" data-vid="/videos/prev-matrix.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+        ) : r.name === 'COMPOSITION STACK' ? (
+          <video class="ppv-vid" data-vid="/videos/prev-compstack.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
         ) : (
           <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
         )}
