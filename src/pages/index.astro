@@ -778,10 +778,10 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 /* ---- scratch-off heading ----
    the loud heading is painted onto a canvas the cursor erases; the quiet line
    underneath shows through where it has been scratched. */
-.scratch { position: absolute; left: 0; top: 0; width: 470px; height: 260px; }
+.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; }
 .scratch-under {
   position: absolute; left: 86px; top: 236px; margin: 0;
-  font-family: var(--sans); font-weight: 400; font-size: 22px; line-height: 1.28;
+  font-family: var(--sans); font-weight: 400; font-size: 21px;
   letter-spacing: .1px; color: var(--ink); opacity: 0;
   transition: opacity .3s ease;
 }
@@ -790,7 +790,7 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 /* the DOM heading is the paint source and the a11y text; the canvas covers it */
 .scratch.armed h1 { visibility: hidden; }
 .scratch-cv {
-  position: absolute; left: 0; top: 0; width: 470px; height: 260px;
+  position: absolute; left: 0; top: 0; width: 480px; height: 440px;
   cursor: crosshair; touch-action: none; display: none;
 }
 .scratch.armed .scratch-cv { display: block; }
@@ -2387,9 +2387,27 @@ function initScratch() {
   var cv = document.getElementById('scratchCv');
   if (!wrap || !cv) return;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var W = 470, H = 260, dpr = Math.min(devicePixelRatio || 1, 2);
+  var dpr = Math.min(devicePixelRatio || 1, 2);
   var ctx = cv.getContext('2d');
   var lines = [].slice.call(wrap.querySelectorAll('.hl'));
+  var under = wrap.querySelector('.scratch-under');
+
+  // the canvas must cover the whole heading block, and the quiet line sits
+  // directly behind the loud one - each subtitle line pitched to a heading
+  // line - so scratching anywhere reveals text, never blank.
+  var W = 480, H = 440;
+  function layout() {
+    var top = lines[0].offsetTop;
+    var pitch = (lines[lines.length - 1].offsetTop - lines[0].offsetTop) / (lines.length - 1) || 71;
+    var bottom = lines[lines.length - 1].offsetTop + lines[lines.length - 1].offsetHeight;
+    H = Math.ceil(bottom + 20);
+    wrap.style.height = H + 'px';
+    cv.style.height = H + 'px';
+    if (under) {
+      under.style.top = top + 'px';
+      under.style.lineHeight = pitch + 'px';
+    }
+  }
 
   // paint the coating: each calibrated line, drawn where it actually sits
   function paint() {
@@ -2418,7 +2436,7 @@ function initScratch() {
   var parts = [], raf = null;
 
   function armIfNeeded() {
-    if (!wrap.classList.contains('armed')) { wrap.classList.add('armed'); paint(); }
+    if (!wrap.classList.contains('armed')) { layout(); wrap.classList.add('armed'); paint(); }
   }
 
   // a soft brush with a ragged rim, so the edge reads handmade not stamped
@@ -2510,7 +2528,8 @@ function initScratch() {
   cv.addEventListener('pointerup', up);
   wrap.addEventListener('pointerenter', armIfNeeded);
   wrap.addEventListener('pointerleave', leave);
-  addEventListener('resize', function () { if (wrap.classList.contains('armed')) paint(); });
+  layout();
+  addEventListener('resize', function () { layout(); if (wrap.classList.contains('armed')) paint(); });
 }
 
 // headline calibration: pin each line's ink box exactly onto the measured mockup box
