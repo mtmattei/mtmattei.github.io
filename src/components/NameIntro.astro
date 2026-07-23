@@ -37,8 +37,8 @@
            4x upscale, skeleton, junction merge, bezier fit), one plotted
            line per channel. Cyan carries Matt in from the top-left, red
            carries Mattei in from the bottom-right; the meet assembles
-           the signature on one baseline. Subpaths are ordered left to
-           right so the dashoffset draw writes the way the hand did. -->
+           the signature on one baseline. The strokes are complete from
+           the first frame - the motion is the meet, not the writing. -->
       <svg class="tsig tsig-cyan" id="tsigCyan" viewBox="0 0 515 65" aria-hidden="true">
         <path pathLength="1" d="M 56.3 50.5 C 56.5 50.2, 57.5 49.9, 58 48.8 C 58.5 47.6, 54.7 50.1, 59.3 43.8 C 63.8 37.4, 80.9 16.4, 85.5 10.5 C 90.1 4.6, 86.5 9.3, 86.8 8.3 C 87 7.2, 87.3 4.9, 87.3 4 C 87.2 3.1, 87.1 3.2, 86.5 3 C 85.9 2.8, 85.1 2.7, 83.5 3 C 81.9 3.3, 79.9 3.8, 76.8 5 C 73.6 6.3, 70.8 7.3, 64.8 10.5 C 58.8 13.8, 47.4 20.3, 40.8 24.5 C 34.1 28.7, 29.5 32, 24.8 35.5 C 20 39, 15.5 42.8, 12.5 45.5 C 9.5 48.2, 8.1 49.7, 6.5 51.8 C 4.9 53.8, 3.4 56.5, 2.8 57.8 C 2.1 59, 2.3 58.6, 2.4 59.5 C 2.5 60.4, 3.3 62.4, 3.5 63 M 31.6 30.8 L 31.6 30.8 M 58 48.8 C 58.9 48.5, 56.4 52.4, 63.5 47.5 C 70.6 42.6, 92.3 25.2, 100.5 19.5 C 108.7 13.8, 110.2 14.2, 112.8 13.3 C 115.3 12.3, 115.5 12.9, 116 13.8 C 116.5 14.6, 119.3 12.4, 115.5 18.3 C 111.7 24.1, 97.1 43, 93.3 49 C 89.4 55, 92.1 52.9, 92.3 54 C 92.4 55.1, 92.5 55.5, 94.3 55.5 C 96 55.5, 98.2 55.4, 102.5 53.8 C 106.8 52.1, 116 47.5, 120.3 45.8 C 124.5 44, 126.1 43.9, 127.8 43.5 C 129.4 43.1, 129.4 43.3, 130.3 43.5 C 131.1 43.7, 130.9 44.8, 132.8 44.8 C 134.6 44.7, 139 43.2, 141.3 43 C 143.5 42.8, 144.9 43.3, 146 43.5 C 147.1 43.7, 147.4 43.5, 148 44.3 C 148.6 45, 148.9 47.2, 149.8 47.8 C 150.6 48.3, 150.8 48.4, 153 47.8 C 155.3 47.1, 160.6 44.7, 163.3 44 C 165.9 43.3, 166.1 45.2, 168.6 43.3 C 171.1 41.4, 176.7 35, 178.5 32.8 C 180.3 30.5, 178.1 30.5, 179.3 29.6 C 180.6 28.7, 184.8 28.2, 186.2 27.3 C 187.5 26.4, 186.1 25.5, 187.5 24 C 188.9 22.5, 193.3 19.4, 194.5 18.5 M 94.8 46.8 L 94.8 46.8 M 96.7 22.3 L 96.7 22.3 M 179.3 29.6 C 179.1 29.4, 180.6 28.5, 177.8 28.8 C 174.9 29, 164.6 30.8, 162 31.3 M 219 15.3 C 217.4 16.7, 211.3 21.8, 209.5 23.8 C 207.7 25.8, 209.3 26.4, 208 27.3 C 206.7 28.1, 203.1 27.7, 201.8 28.6 C 200.6 29.4, 202.4 29.9, 200.3 32.3 C 198.2 34.7, 192.1 41.1, 189.4 43 C 186.8 44.9, 186.4 42.9, 184.5 43.5 C 182.6 44.1, 180.6 45.7, 178.3 46.5 C 175.9 47.3, 171.9 48.5, 170.3 48.5 C 168.6 48.5, 168.8 47.6, 168.5 46.8 C 168.2 45.9, 168.6 43.9, 168.6 43.3 M 186.2 27.3 C 186.3 27.4, 184.8 27.9, 187.3 28 C 189.7 28.1, 198.3 27.7, 200.8 27.8 C 203.2 27.8, 201.7 28.4, 201.8 28.6 M 210 42.8 C 209.5 42.8, 208.9 42.3, 206.8 43 C 204.6 43.7, 199.8 46.1, 197.3 47 C 194.8 47.9, 193 48.1, 191.8 48.3 C 190.5 48.4, 189.9 48.6, 189.5 47.8 C 189.1 46.9, 189.4 43.8, 189.4 43 M 208.3 27 C 208.4 27.1, 206 27.5, 209 27.8 C 212 28, 222.4 28.3, 226 28.8 C 229.6 29.3, 230 30.4, 230.8 30.8" />
       </svg>
@@ -146,8 +146,6 @@
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
 }
 .tsig-cyan { z-index: 4; }
 .tsig-red  { z-index: 3; }
@@ -366,19 +364,13 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
 
-  /* the plotter: dashoffset walks each channel's strokes in pen order */
-  var sigCyanPath = sigCyan.querySelector('path');
-  var sigRedPath = sigRed.querySelector('path');
-  function draw(pathEl, t) {
-    pathEl.style.strokeDashoffset = String(1 - easeOut(t));
-  }
 
   function renderLiss(p, q) {
     /* the same choreography as the words - cyan Matt in from the top-left,
        red Mattei in from the bottom-right, hold either side of centre,
        meet so the two halves assemble on one baseline, rise with the
-       release, dock and stay. The signature-specific behavior is the
-       plotted draw on the way to the meet. */
+       release, dock and stay. The strokes arrive whole - two finished
+       colour plates looking for registration. */
     var enter = easeInOut(clamp(p / .36));
     var meet = easeInOut(clamp((p - .31) / .34));
     var registered = easeOut(clamp((p - .57) / .13));
@@ -395,10 +387,14 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var marginX = Math.max(18, m.vw * .038);
     var marginY = Math.max(84, m.vh * .12);
 
+    /* entry heights pulled halfway to centre: the words still oppose
+       corners, but the vertical spread between them is halved */
+    var cyanY0 = (marginY + centerY) * .5;
+    var redY0 = ((m.vh - m.sigH - marginY) + centerY) * .5;
     var gx = mix(mix(marginX, centerX - hold, enter), centerX, meet);
-    var gy = mix(marginY, centerY, enter);
+    var gy = mix(cyanY0, centerY, enter);
     var sx = mix(mix(m.vw - m.sigW - marginX, centerX + hold, enter), centerX, meet);
-    var sy = mix(m.vh - m.sigH - marginY, centerY, enter);
+    var sy = mix(redY0, centerY, enter);
 
     var topX = m.vw * .5 - m.sigW * scale * .5;
     var cyanX = mix(gx, topX, r) - fringe;
@@ -409,10 +405,8 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var bu = clamp((r - .35) / .65);
     var blur = .75 * (1 - Math.abs(2 * bu - 1));
 
-    draw(sigCyanPath, clamp(p / .52));
-    draw(sigRedPath, clamp((p - .05) / .52));
-    sigCyan.style.opacity = easeOut(clamp(p / .09)).toFixed(4);
-    sigRed.style.opacity = easeOut(clamp((p - .025) / .09)).toFixed(4);
+    sigCyan.style.opacity = '1';
+    sigRed.style.opacity = '1';
     sigCyan.style.transform = 'translate3d(' + cyanX + 'px,' + cyanY + 'px,0) scale(' + scale + ')';
     sigRed.style.transform = 'translate3d(' + redX + 'px,' + redY + 'px,0) scale(' + scale + ')';
     sigCyan.style.filter = blur > .01 ? 'blur(' + blur + 'px)' : 'none';
@@ -460,7 +454,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   function tick() {
     var target = targetNow();
     var d = target - current;
-    current = Math.abs(d) > .25 ? target : current + d * .095;
+    current = Math.abs(d) > .25 ? target : current + d * .06;
     if (Math.abs(target - current) < .00008) current = target;
     render(current);
     requestAnimationFrame(tick);
