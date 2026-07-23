@@ -3,9 +3,11 @@
 
    A sticky scene the page scrolls through before the landing: cyan MATT
    enters top-left, red MATTEI enters bottom-right, they meet on one
-   baseline where the shared MATT registers as an anaglyph, then the
-   overlap rises and reduces until it docks at the top edge. The stage
-   then releases and the landing scrolls up underneath it.
+   baseline where the shared MATT registers as an anaglyph. The release
+   and the rise are one move: the name rises and reduces toward the top
+   edge while the scene slides up and the landing rises into the frame
+   beneath it - the name retreats to the top and back as the hero
+   arrives.
 
    Ported from the scroll prototype (variant 01, Anaglyph Rise) with the
    prototype's own instrumentation dropped - the variant switcher, the
@@ -39,10 +41,11 @@
 </div>
 
 <style is:global>
-/* the scroll budget of the whole sequence. 300vh = 200vh of choreography
-   (the scene is stuck for that) + 100vh of release, where the scene slides
-   up and the landing rises into the frame. One number to retune. */
-#tstage { position: relative; height: 300vh; }
+/* the scroll budget of the whole sequence. 240vh = 140vh of choreography
+   (the scene is stuck for that: enter, meet, register) + 100vh of release,
+   where the name makes its rise WHILE the scene slides up and the landing
+   rises into the frame. One number to retune. */
+#tstage { position: relative; height: 240vh; }
 
 .tscene {
   position: sticky;
@@ -182,7 +185,7 @@
 body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
 
 @media (max-width: 820px) {
-  #tstage { height: 280vh; }
+  #tstage { height: 220vh; }
   .tword { font-size: clamp(56px, 21vw, 120px); }
   .tcue { bottom: 26px; }
 }
@@ -248,17 +251,28 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     el.style.filter = blur ? 'blur(' + blur + 'px)' : 'none';
   }
 
-  function render(p) {
+  /* T runs 0..2: 0..1 is the stuck choreography (the 140vh the scene is
+     pinned), 1..2 is the release (the scene's own 100vh slide). The rise
+     is driven by the release, so the name retreats to the top and back at
+     exactly the rate the landing rises in underneath - one move, not two
+     beats. */
+  function render(T) {
     if (!m) measure();
+    var p = Math.min(1, T);
+    var q = clamp(T - 1);
     root.style.setProperty('--tp', p.toFixed(4));
 
     /* enter from the corners, hold either side of centre, then meet */
-    var enter = easeInOut(clamp(p / .25));
-    var meet = easeInOut(clamp((p - .22) / .24));
+    var enter = easeInOut(clamp(p / .36));
+    var meet = easeInOut(clamp((p - .31) / .34));
     /* the fringe only opens once the two channels are on the same baseline */
-    var registered = easeOut(clamp((p - .40) / .09));
-    /* the rise: one continuous move, position and scale together */
-    var r = easeInOut(clamp((p - .46) / .43));
+    var registered = easeOut(clamp((p - .57) / .13));
+    /* the rise is viewport-true: the scene is sliding up underneath it, so
+       the lift below adds the slide back and the name docks at the top of
+       the FRAME - retreating to the top and back - while the hero rises.
+       The landing's edge wipes it in the last beat of the release. */
+    var r = easeInOut(clamp(q / .6));
+    var lift = q > 0 ? q * geo.release : 0;
 
     var scale = mix(1, .235, r);
     var fringe = m.fringe * registered * (1 - r * .35);
@@ -270,10 +284,10 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var sy = mix(m.surnameStart.y, m.centerY, enter);
 
     var cyanX = mix(gx, topX, r) - fringe;
-    var cyanY = mix(gy, m.finalTop, r);
+    var cyanY = mix(gy, m.finalTop, r) + lift;
     var redX = mix(sx, topX, r) + fringe;
-    var redY = mix(sy, m.finalTop, r);
-    /* the last of the rise takes a touch of blur, so the dock reads as
+    var redY = mix(sy, m.finalTop, r) + lift;
+    /* the last of the rise takes a touch of blur, so the exit reads as
        distance rather than as a stop */
     var blur = mix(0, 1.1, easeIn(clamp((r - .7) / .3)));
 
@@ -281,18 +295,20 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     place(shared, redX, redY, scale, blur);
     place(tail, redX + m.sharedW * scale, redY, scale, blur);
 
-    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .43) / .13) * 2 - 1));
-    root.style.setProperty('--tguide-o', (.28 * (1 - r) * easeOut(clamp((p - .16) / .18))).toFixed(4));
-    root.style.setProperty('--tguide-s', easeOut(clamp((p - .18) / .18)).toFixed(4));
+    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .61) / .19) * 2 - 1));
+    root.style.setProperty('--tguide-o', (.28 * (1 - r) * easeOut(clamp((p - .23) / .26))).toFixed(4));
+    root.style.setProperty('--tguide-s', easeOut(clamp((p - .26) / .26)).toFixed(4));
     root.style.setProperty('--tpulse-o', (.34 * pulse).toFixed(4));
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
 
-    document.body.classList.toggle('title-done', p >= .84);
+    /* the rail belongs to the landing: it arrives once the landing is
+       genuinely on its way up */
+    document.body.classList.toggle('title-done', T >= 1.12);
   }
 
   if (reduce) {
     /* the registered pose, held: no scroll mapping, no frame loop */
-    var still = function () { measure(); render(.46); };
+    var still = function () { measure(); render(.85); };
     still();
     addEventListener('resize', still);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(still);
@@ -301,16 +317,22 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   }
 
   var current = 0;
-  var geo = { top: 0, travel: 1 };
+  var geo = { top: 0, stick: 1, release: 1 };
 
   function measureGeo() {
     geo.top = stage.offsetTop;
-    geo.travel = Math.max(1, stage.offsetHeight - innerHeight);
+    geo.release = Math.max(1, innerHeight);
+    geo.stick = Math.max(1, stage.offsetHeight - geo.release);
   }
   /* read from scrollY rather than from a scroll event: restoration on reload,
      anchor jumps and programmatic scrolls all move the page without one, and
      a stale target leaves the name posed for a position the page is not at */
-  function targetNow() { return clamp((scrollY - geo.top) / geo.travel); }
+  function targetNow() {
+    var s = scrollY - geo.top;
+    return s <= geo.stick
+      ? clamp(s / geo.stick)
+      : 1 + clamp((s - geo.stick) / geo.release);
+  }
 
   /* the name trails the wheel slightly - the sequence reads as one move
      being made rather than as scroll position being reported. A jump is not
