@@ -24,7 +24,6 @@
 <div id="tstage" aria-hidden="false">
   <div class="tscene">
 
-    <div class="tguide" aria-hidden="true"></div>
     <div class="tpulse" aria-hidden="true"></div>
 
     <div class="tname" role="img" aria-label="Matt Mattei">
@@ -153,29 +152,6 @@
 .tsig-red  path { stroke: #EF3E35; }
 
 /* ---- registration marks ---- */
-.tguide {
-  position: absolute;
-  z-index: 1;
-  left: 50%;
-  top: 50%;
-  width: min(72vw, 1040px);
-  height: 1px;
-  background: var(--ink);
-  opacity: var(--tguide-o, 0);
-  transform: translate(-50%, -50%) scaleX(var(--tguide-s, 0));
-  transform-origin: center;
-  pointer-events: none;
-}
-.tguide::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -5px;
-  width: 1px;
-  height: 11px;
-  background: var(--ink);
-}
-
 .tpulse {
   position: absolute;
   z-index: 2;
@@ -358,9 +334,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     place(tail, redX + m.sharedW * scale, redY, scale, blur);
 
     var pulse = Math.max(0, 1 - Math.abs(clamp((p - .61) / .19) * 2 - 1));
-    root.style.setProperty('--tguide-o', (.28 * (1 - r) * easeOut(clamp((p - .23) / .26))).toFixed(4));
-    root.style.setProperty('--tguide-s', easeOut(clamp((p - .26) / .26)).toFixed(4));
-    root.style.setProperty('--tpulse-o', (.34 * pulse).toFixed(4));
+    root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
 
@@ -387,19 +361,23 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var marginX = Math.max(18, m.vw * .038);
     var marginY = Math.max(84, m.vh * .12);
 
-    /* entry heights pulled halfway to centre: the words still oppose
-       corners, but the vertical spread between them is halved */
-    var cyanY0 = (marginY + centerY) * .5;
-    var redY0 = ((m.vh - m.sigH - marginY) + centerY) * .5;
+    /* entry heights pulled well toward centre: the words still oppose
+       corners, but the vertical spread between them stays modest */
+    var cyanY0 = mix(marginY, centerY, .65);
+    var redY0 = mix(m.vh - m.sigH - marginY, centerY, .65);
     var gx = mix(mix(marginX, centerX - hold, enter), centerX, meet);
     var gy = mix(cyanY0, centerY, enter);
     var sx = mix(mix(m.vw - m.sigW - marginX, centerX + hold, enter), centerX, meet);
     var sy = mix(redY0, centerY, enter);
 
+    /* horizontal: during the rise the composite stays centred at its
+       CURRENT scale. Lerping toward an endpoint computed at the final
+       scale bows the path left before it comes back - the left-origin
+       shrink outruns the lerp. */
     var topX = m.vw * .5 - m.sigW * scale * .5;
-    var cyanX = mix(gx, topX, r) - fringe;
+    var cyanX = (r > 0 ? topX : gx) - fringe;
     var cyanY = mix(gy, m.finalTop, r) - fringe * .18;
-    var redX = mix(sx, topX, r) + fringe;
+    var redX = (r > 0 ? topX : sx) + fringe;
     var redY = mix(sy, m.finalTop, r) + fringe * .18;
 
     var bu = clamp((r - .35) / .65);
@@ -413,9 +391,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     sigRed.style.filter = blur > .01 ? 'blur(' + blur + 'px)' : 'none';
 
     var pulse = Math.max(0, 1 - Math.abs(clamp((p - .61) / .19) * 2 - 1));
-    root.style.setProperty('--tguide-o', (.28 * (1 - r) * easeOut(clamp((p - .23) / .26))).toFixed(4));
-    root.style.setProperty('--tguide-s', easeOut(clamp((p - .26) / .26)).toFixed(4));
-    root.style.setProperty('--tpulse-o', (.34 * pulse).toFixed(4));
+    root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
 
@@ -448,13 +424,14 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   }
 
   /* the name trails the wheel slightly - the sequence reads as one move
-     being made rather than as scroll position being reported. A jump is not
-     a wheel, so anything that big lands instead of sweeping through the
-     whole choreography to catch up. */
+     being made rather than as scroll position being reported. Only a real
+     jump (deep link, anchor - most of the whole sequence at once) lands
+     instantly; the threshold sits far above what a fast wheel flick can
+     cover between frames, or flicks snap and the motion reads as chop. */
   function tick() {
     var target = targetNow();
     var d = target - current;
-    current = Math.abs(d) > .25 ? target : current + d * .06;
+    current = Math.abs(d) > .85 ? target : current + d * .06;
     if (Math.abs(target - current) < .00008) current = target;
     render(current);
     requestAnimationFrame(tick);
