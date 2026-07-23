@@ -298,6 +298,40 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     /* the rail belongs to the landing: it arrives once the landing is
        genuinely on its way up */
     document.body.classList.toggle('title-done', T >= 1.12);
+    if (!reduce) driveHero(T);
+  }
+
+  /* the hero rides the same flow as the name: it peeks from below the
+     fold as the two channels come together, then rises in step with the
+     name's own rise - driven by the lerped T, not raw scroll, so both
+     move as one fluid gesture. It is never held below where native
+     scroll would put it, which makes the handoff to the wind run's pin
+     at the top of #fit seamless even on a fast flick. */
+  var fitEl = null, tvEl = null;
+  function driveHero(T) {
+    if (!fitEl) {
+      fitEl = document.getElementById('fit');
+      tvEl = document.getElementById('tv');
+      if (!fitEl) return;
+    }
+    if (!geo.fitTop) {
+      geo.fitTop = fitEl.offsetTop;
+      /* peek depth: enough of the hero that the billboard's dark screen
+         clearly crowns above the fold - the first ~70px of the billboard
+         are white bezel and rounded corners that read as paper */
+      geo.peekDepth = (tvEl
+        ? tvEl.getBoundingClientRect().top - fitEl.getBoundingClientRect().top
+        : innerHeight * .12) + innerHeight * .16;
+    }
+    var vh = geo.release;
+    var p = Math.min(1, T), q = clamp(T - 1);
+    var peek = easeInOut(clamp((p - .55) / .2));   /* slides in with the meet */
+    var rise = easeInOut(clamp(q / .6));           /* the name's own rise curve */
+    var D = mix(mix(vh + 2, vh - geo.peekDepth, peek), 0, rise);
+    var natural = geo.fitTop - scrollY;
+    if (natural <= 0) return;                      /* the wind run's domain */
+    D = Math.min(D, natural);
+    fitEl.style.transform = 'translate3d(0,' + (D - natural).toFixed(2) + 'px,0)';
   }
 
   function renderType(p, q) {
@@ -412,6 +446,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     geo.top = stage.offsetTop;
     geo.release = Math.max(1, innerHeight);
     geo.stick = Math.max(1, stage.offsetHeight - geo.release);
+    geo.fitTop = 0;   /* re-derived lazily by driveHero after layout */
   }
   /* read from scrollY rather than from a scroll event: restoration on reload,
      anchor jumps and programmatic scrolls all move the page without one, and
