@@ -32,7 +32,12 @@
       <p class="tword tw-red" id="twShared" aria-hidden="true">MATT</p>
       <p class="tword tw-red" id="twTail" aria-hidden="true">EI</p>
 
-      <svg class="tsig tsig-cyan" id="tsigCyan" viewBox="0 0 1150 660" aria-hidden="true">
+      <!-- cyan writes only Matt; red writes only Mattei. Both boxes share
+           one coordinate system, with Mattei shifted so its Matt letters
+           sit exactly where the cyan Matt sits: at the meet, the shared
+           word registers and the ei runs out red-only - the cursive twin
+           of the typographic MATT / MATTEI. -->
+      <svg class="tsig tsig-cyan" id="tsigCyan" viewBox="0 0 1150 360" aria-hidden="true">
         <path class="flow" pathLength="1" d="M 35 245
           C 55 245, 61 92, 110 92
           C 160 92, 145 245, 188 245
@@ -43,70 +48,20 @@
           C 522 232, 468 258, 427 229
           C 390 202, 408 151, 451 151
           C 497 151, 507 245, 548 245
-          C 579 245, 575 137, 594 83
-          C 611 35, 644 38, 650 82
-          C 658 134, 622 182, 630 229
-          C 636 262, 671 253, 686 237
-          C 709 245, 705 137, 724 83
-          C 741 35, 774 38, 780 82
-          C 788 134, 752 182, 760 229
-          C 766 262, 801 253, 816 237" />
+          C 566 220, 584 120, 596 62
+          C 600 40, 616 40, 620 62
+          C 630 120, 616 185, 622 229
+          C 628 258, 664 250, 686 237
+          C 700 230, 712 120, 726 62
+          C 730 40, 746 40, 750 62
+          C 760 120, 746 185, 752 229
+          C 758 258, 794 250, 816 237" />
         <path class="details" pathLength="1" d="M 566 129 C 590 121, 627 118, 665 124
           M 696 129 C 720 121, 757 118, 795 124" />
-        <g transform="translate(-874, 310)">
-          <path class="flow" pathLength="1" d="M 909 218
-            C 931 221, 938 95, 982 95
-            C 1029 95, 1017 245, 1058 245
-            C 1099 245, 1099 110, 1148 110
-            C 1197 110, 1182 245, 1224 245
-            C 1252 245, 1256 179, 1290 151
-            C 1330 119, 1388 131, 1390 183
-            C 1392 232, 1339 258, 1298 229
-            C 1261 202, 1279 151, 1322 151
-            C 1368 151, 1378 245, 1418 245
-            C 1448 245, 1445 138, 1464 83
-            C 1482 35, 1515 38, 1521 82
-            C 1529 135, 1493 183, 1501 230
-            C 1507 262, 1542 253, 1557 237
-            C 1580 245, 1576 138, 1595 83
-            C 1613 35, 1646 38, 1652 82
-            C 1660 135, 1624 183, 1632 230
-            C 1638 262, 1673 253, 1688 237
-            C 1718 218, 1758 182, 1760 158
-            C 1762 132, 1738 122, 1720 139
-            C 1699 159, 1707 210, 1743 229
-            C 1774 246, 1807 239, 1837 219
-            C 1852 207, 1855 140, 1870 140
-            C 1888 140, 1885 238, 1910 238
-            C 1935 238, 1970 205, 1997 169" />
-          <path class="details" pathLength="1" d="M 1430 129 C 1454 121, 1491 118, 1529 124
-            M 1561 129 C 1585 121, 1622 118, 1660 124
-            M 1858 96 C 1868 84, 1880 84, 1890 96" />
-        </g>
       </svg>
 
-      <svg class="tsig tsig-red" id="tsigRed" viewBox="0 0 1150 660" aria-hidden="true">
-        <path class="flow" pathLength="1" d="M 35 245
-          C 55 245, 61 92, 110 92
-          C 160 92, 145 245, 188 245
-          C 228 245, 228 110, 278 110
-          C 328 110, 312 245, 355 245
-          C 382 245, 386 179, 420 151
-          C 459 119, 518 130, 520 183
-          C 522 232, 468 258, 427 229
-          C 390 202, 408 151, 451 151
-          C 497 151, 507 245, 548 245
-          C 579 245, 575 137, 594 83
-          C 611 35, 644 38, 650 82
-          C 658 134, 622 182, 630 229
-          C 636 262, 671 253, 686 237
-          C 709 245, 705 137, 724 83
-          C 741 35, 774 38, 780 82
-          C 788 134, 752 182, 760 229
-          C 766 262, 801 253, 816 237" />
-        <path class="details" pathLength="1" d="M 566 129 C 590 121, 627 118, 665 124
-          M 696 129 C 720 121, 757 118, 795 124" />
-        <g transform="translate(-874, 310)">
+      <svg class="tsig tsig-red" id="tsigRed" viewBox="0 0 1150 360" aria-hidden="true">
+        <g transform="translate(-874, 0)">
           <path class="flow" pathLength="1" d="M 909 218
             C 931 221, 938 95, 982 95
             C 1029 95, 1017 245, 1058 245
@@ -117,14 +72,14 @@
             C 1392 232, 1339 258, 1298 229
             C 1261 202, 1279 151, 1322 151
             C 1368 151, 1378 245, 1418 245
-            C 1448 245, 1445 138, 1464 83
-            C 1482 35, 1515 38, 1521 82
-            C 1529 135, 1493 183, 1501 230
-            C 1507 262, 1542 253, 1557 237
-            C 1580 245, 1576 138, 1595 83
-            C 1613 35, 1646 38, 1652 82
-            C 1660 135, 1624 183, 1632 230
-            C 1638 262, 1673 253, 1688 237
+            C 1436 220, 1454 120, 1466 62
+            C 1470 40, 1486 40, 1490 62
+            C 1500 120, 1486 185, 1492 229
+            C 1498 258, 1534 250, 1557 237
+            C 1570 230, 1582 120, 1596 62
+            C 1600 40, 1616 40, 1620 62
+            C 1630 120, 1616 185, 1622 229
+            C 1628 258, 1664 250, 1688 237
             C 1718 218, 1758 182, 1760 158
             C 1762 132, 1738 122, 1720 139
             C 1699 159, 1707 210, 1743 229
@@ -224,9 +179,9 @@
   position: absolute;
   left: 0;
   top: 0;
-  /* narrower than the prototype's 90vw: the two-line block has to fit a
-     corner with margin to spare, or the channels can't oppose diagonally */
-  width: min(48vw, 900px);
+  /* narrower than the prototype's 90vw: the trace has to fit a corner
+     with margin to spare, or the two channels can't oppose diagonally */
+  width: min(64vw, 1180px);
   height: auto;
   overflow: visible;
   transform-origin: left top;
@@ -464,13 +419,11 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
 
-  /* the plotter, in handwriting order: write Matt, cross its t's, write
-     Mattei, then cross and dot. Path order in each svg matches this. */
+  /* the plotter, in handwriting order per channel: the word's flow first,
+     then its crossbars (and, for Mattei, the i dot) */
   var DRAW = [
-    { at: 0,   span: .40 },   /* Matt flow */
-    { at: .40, span: .12 },   /* Matt crossbars */
-    { at: .50, span: .38 },   /* Mattei flow */
-    { at: .88, span: .12 }    /* Mattei crossbars + i dot */
+    { at: 0,   span: .62 },   /* the word's flow */
+    { at: .66, span: .34 }    /* crossbars + dot */
   ];
   function setDraw(paths, t) {
     for (var i = 0; i < paths.length; i++) {
@@ -480,10 +433,11 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   }
 
   function renderLiss(p, q) {
-    /* the same choreography as the words - in from opposite corners, hold
-       either side of centre, meet, register, rise with the release, dock
-       and stay. The only Lissajous-specific behavior is that the traces
-       plot themselves on the way to the meet. */
+    /* the same choreography as the words - cyan Matt in from the top-left,
+       red Mattei in from the bottom-right, hold either side of centre,
+       meet so the shared Matt registers, rise with the release, dock and
+       stay. The only Lissajous-specific behavior is that the traces plot
+       themselves on the way to the meet. */
     var enter = easeInOut(clamp(p / .36));
     var meet = easeInOut(clamp((p - .31) / .34));
     var registered = easeOut(clamp((p - .57) / .13));
