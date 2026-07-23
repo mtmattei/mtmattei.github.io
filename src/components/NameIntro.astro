@@ -6,8 +6,8 @@
    baseline where the shared MATT registers as an anaglyph. The release
    and the rise are one move: the name rises and reduces toward the top
    edge while the scene slides up and the landing rises into the frame
-   beneath it - the name retreats to the top and back as the hero
-   arrives.
+   beneath it. The name is viewport-fixed, so it docks at the head of
+   the page and stays there - the hero arrives right beneath it.
 
    Ported from the scroll prototype (variant 01, Anaglyph Rise) with the
    prototype's own instrumentation dropped - the variant switcher, the
@@ -81,7 +81,10 @@
 }
 
 /* ---- the name ---- */
-.tname { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+/* fixed, not scene-local: the name docks at the head of the page and STAYS
+   when the scene departs - it never scrolls out of view. Isolated so the
+   two channels still multiply against each other. */
+.tname { position: fixed; inset: 0; z-index: 5; isolation: isolate; pointer-events: none; }
 
 .tword {
   position: absolute;
@@ -195,6 +198,9 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   #tstage { height: 100vh; height: 100svh; }
   .tcue-line { animation: none; }
+  /* the still pose is a title card: it belongs to the scene and scrolls
+     away with it, so it must not stay pinned over the page */
+  .tname { position: absolute; }
 }
 </style>
 
@@ -240,7 +246,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
       surnameStart: { x: vw - fullW - marginX, y: vh - h - marginY },
       leftHold: centerX - hold,
       rightHold: centerX + hold,
-      finalTop: Math.max(82, vh * .09),
+      finalTop: Math.max(24, vh * .035),
       fringe: Math.min(6, Math.max(3, vw * .004))
     };
   }
@@ -267,12 +273,10 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var meet = easeInOut(clamp((p - .31) / .34));
     /* the fringe only opens once the two channels are on the same baseline */
     var registered = easeOut(clamp((p - .57) / .13));
-    /* the rise is viewport-true: the scene is sliding up underneath it, so
-       the lift below adds the slide back and the name docks at the top of
-       the FRAME - retreating to the top and back - while the hero rises.
-       The landing's edge wipes it in the last beat of the release. */
+    /* the name is viewport-fixed, so the rise is viewport-true while the
+       scene slides up underneath it: it retreats to the head of the page
+       and stays there - the hero arrives right beneath it. */
     var r = easeInOut(clamp(q / .6));
-    var lift = q > 0 ? q * geo.release : 0;
 
     var scale = mix(1, .235, r);
     var fringe = m.fringe * registered * (1 - r * .35);
@@ -284,12 +288,13 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var sy = mix(m.surnameStart.y, m.centerY, enter);
 
     var cyanX = mix(gx, topX, r) - fringe;
-    var cyanY = mix(gy, m.finalTop, r) + lift;
+    var cyanY = mix(gy, m.finalTop, r);
     var redX = mix(sx, topX, r) + fringe;
-    var redY = mix(sy, m.finalTop, r) + lift;
-    /* the last of the rise takes a touch of blur, so the exit reads as
-       distance rather than as a stop */
-    var blur = mix(0, 1.1, easeIn(clamp((r - .7) / .3)));
+    var redY = mix(sy, m.finalTop, r);
+    /* a touch of blur through the middle of the rise reads as travel; it
+       clears again at the dock so the resting name is sharp */
+    var bu = clamp((r - .35) / .65);
+    var blur = 1.1 * (1 - Math.abs(2 * bu - 1));
 
     place(given, cyanX, cyanY, scale, blur);
     place(shared, redX, redY, scale, blur);
