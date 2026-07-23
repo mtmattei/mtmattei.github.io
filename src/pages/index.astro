@@ -445,33 +445,19 @@ const INDEX_ROWS = [
     </div>
 
 
-    <div class="t lbl" style="left:86px; top:608px; line-height:17px;">SCROLL<br>TO EXPLORE</div>
-    <div class="scroll-arrow"></div>
 
 
-    <div class="shelf"><img src="/landing/shelf.png" alt=""></div>
-    <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
-      <div class="screen">
-        <video class="bb-hero" id="bbHero" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-          <source src="/videos/hero-story.mp4" type="video/mp4" />
-        </video>
-        {SHOWN.map((p, i) => (
-          <span class:list={['art', { on: i === 0 }]} data-art={p.slug}>
-            <BillboardArt slug={p.slug} glyphStill={glyphFrame(34, 15)} brailleStill={brailleFrame(56, 20, 2.0, 0.9)} />
-          </span>
-        ))}
-        <span class="vignette" aria-hidden="true"></span>
-        <span class="sheen" aria-hidden="true"></span>
-      </div>
-    </div>
+    <!-- the billboard left the hero: it lives on the project pages now
+         (parked in #tvHold below, ridden into each world's poster slot).
+         The index is the hero - left aligned, three quarters wide. -->
 
-    <div class="t lbl" style="left:86px; top:772px;">FEATURED WORK</div>
-    <div class="hrule" style="left:210px; top:774px; width:55px; height:1.5px;"></div>
-    <div class="t lbl idxhint" style="left:86px; top:806px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
+    <div class="t lbl" style="left:86px; top:660px;">FEATURED WORK</div>
+    <div class="hrule" style="left:210px; top:662px; width:55px; height:1.5px;"></div>
+    <div class="t lbl idxhint" style="left:300px; top:654px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
 
-    <div class="hrule" style="left:1234px; top:779px; width:84px; height:2px;"></div>
-    <a class="t lbl viewall" href="/program/" style="left:1332px; top:772px;">VIEW ALL WORK</a>
-    <span class="ne-arrow" style="left:1433px; top:772px;">
+    <div class="hrule" style="left:1040px; top:667px; width:84px; height:2px;"></div>
+    <a class="t lbl viewall" href="/program/" style="left:1140px; top:660px;">VIEW ALL WORK</a>
+    <span class="ne-arrow" style="left:1241px; top:660px;">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M2.5 11.5 L11 3 M4.5 3 H11 V9.5" stroke="#3656D4" stroke-width="1.6"/>
       </svg>
@@ -523,6 +509,25 @@ const INDEX_ROWS = [
     <button class="sound" id="sound" role="switch" aria-checked="false" aria-label="Room tone"><span class="knob"></span></button>
 
   </div>
+  </div>
+</div>
+
+<!-- the billboard's holder: the live element parks here on the landing and
+     rides into a project's poster slot when a world is entered -->
+<div id="tvHold" hidden>
+  <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
+    <div class="screen">
+      <video class="bb-hero" id="bbHero" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+        <source src="/videos/hero-story.mp4" type="video/mp4" />
+      </video>
+      {SHOWN.map((p, i) => (
+        <span class:list={['art', { on: i === 0 }]} data-art={p.slug}>
+          <BillboardArt slug={p.slug} glyphStill={glyphFrame(34, 15)} brailleStill={brailleFrame(56, 20, 2.0, 0.9)} />
+        </span>
+      ))}
+      <span class="vignette" aria-hidden="true"></span>
+      <span class="sheen" aria-hidden="true"></span>
+    </div>
   </div>
 </div>
 
@@ -847,8 +852,6 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .ne-arrow svg { display: block; }
 
 /* ---- shelf + billboard ---- */
-.shelf { position: absolute; left: 285px; top: 606px; }
-.shelf img { display: block; width: 1055px; height: 156px; }
 .tv {
   position: absolute; left: 342px; top: 161px; width: 944px; height: 452px;
   border-radius: 55px; padding: 5px; cursor: pointer;
@@ -894,7 +897,9 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .ppv-card {
   position: absolute; inset: 0; overflow: hidden;
   opacity: 0; transform: translateY(12px) scale(.985);
-  transition: opacity .28s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  /* fast cross-fade: moving down the index should feel like flipping
+     through work, not waiting for dissolves */
+  transition: opacity .12s ease-out, transform .26s cubic-bezier(.22,1,.36,1);
   box-shadow: 0 18px 45px rgba(15,15,10,.12), 0 0 0 1px rgba(0,0,0,.08);
   background: #ddd8cf;
 }
@@ -925,16 +930,15 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 @media (max-width: 1080px) { .ppv { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ppv-card { transition-duration: .01ms; } }
 
-/* ---- featured index/* ---- featured index ----
-   the lab's ledger, fitted to the band under the shelf: the four billboard
-   projects drive the TV on hover, everything below is listed only. 33 rows
-   do not fit 130px, so the list scrolls inside the band. */
+/* ---- featured index ----
+   the hero now: left aligned with the heading, three quarters of the
+   stage wide. Hover answers in the fixed previewer, lower right. */
 .pindex {
-  position: absolute; left: 300px; top: 792px; width: 1150px;
+  position: absolute; left: 86px; top: 704px; width: 1152px;
 }
 .prow {
   position: relative; display: grid; align-items: center;
-  grid-template-columns: 58px 300px 300px 160px; gap: 16px;
+  grid-template-columns: 58px 380px 1fr 150px; gap: 16px;
   height: 22px; padding: 0 0 0 4px;
   font-size: 13px; line-height: 1;
   color: var(--ink); text-decoration: none;
@@ -1481,8 +1485,10 @@ function showPreview(row) {
     c.classList.toggle('on', on);
     var v = c.querySelector('.ppv-vid');
     if (v) {
-      if (on && !v.getAttribute('src')) { v.src = v.dataset.vid; v.play().catch(function(){}); }
-      else if (!on && v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); }
+      if (on) {
+        if (!v.getAttribute('src')) { v.src = v.dataset.vid; }
+        v.play().catch(function(){});
+      } else v.pause();
     }
   });
 }
@@ -1490,9 +1496,21 @@ function clearPreview() {
   ppvCards.forEach(function (c) {
     c.classList.remove('on');
     var v = c.querySelector('.ppv-vid');
-    if (v && v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); }
+    if (v && v.getAttribute('src')) v.pause();
   });
 }
+
+/* previews answer instantly: video sources attach once at idle, so a
+   hover only plays - no fetch, no src churn between rows */
+addEventListener('load', function () {
+  var arm = function () {
+    if (!ppv) return;
+    [].forEach.call(ppv.querySelectorAll('.ppv-vid'), function (v) {
+      if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
+    });
+  };
+  ('requestIdleCallback' in window) ? requestIdleCallback(arm, { timeout: 2500 }) : setTimeout(arm, 800);
+});
 
 // pointing at a row is what loads the billboard; the click still walks in
 document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
@@ -2029,6 +2047,11 @@ function extraHtml(p, x) {
 function buildDetail(i) {
   var p = PROJECTS[i];
   dfigsTeardown();
+  // the billboard lives on the project pages now: park the live element
+  // before the rail is rebuilt (innerHTML would destroy it), then ride it
+  // into this world's poster slot below
+  var tvHold = document.getElementById('tvHold');
+  if (tv && tvHold && tv.parentElement !== tvHold) tvHold.appendChild(tv);
   detail.style.background = 'radial-gradient(130% 120% at 30% 10%, ' + p.deep + ' 0%, ' + (p.base || '#060809') + ' 78%)';
   detail.style.color = p.ink;
 
@@ -2067,19 +2090,16 @@ function buildDetail(i) {
        '</div><div class="dend-pad"></div>';
   railEl.innerHTML = h;
 
-  // the poster: for poolside, a scaled clone of the real interface;
-  // otherwise the project's plate, cloned from its template
+  // the poster: the billboard itself, showing this world's art - the
+  // project page is where the screen lives now. Plate fallback if the
+  // billboard is unavailable.
   var poster = railEl.querySelector('.dposter');
-  var papp = p.slug === 'poolside' ? document.querySelector('.tv .bb-app') : null;
-  if (papp) {
-    var pclone = papp.cloneNode(true);
-    var pcv = pclone.querySelector('canvas');
-    if (pcv) { pcv.removeAttribute('id'); pcv.classList.add('dfig'); pcv.dataset.fig = 'water'; }
+  if (poster && tv) {
     var wrap = document.createElement('span');
     wrap.className = 'bb-scale';
-    wrap.appendChild(pclone);
+    wrap.appendChild(tv);
     poster.appendChild(wrap);
-  } else {
+  } else if (poster) {
     var tpl = document.getElementById('plate-' + p.slug);
     if (tpl) poster.appendChild(tpl.content.cloneNode(true));
   }

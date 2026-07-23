@@ -111,7 +111,10 @@
     run = document.getElementById('windrun');
     tv = document.getElementById('tv');
     camera = document.querySelector('.camera');
-    if (!fit || !run || !tv || !camera) return;
+    /* the rock must actually stand in the hero: with the billboard parked
+       for the project pages there is nothing to flow around, and the run
+       stays inert (no spacer, natural scroll into the index) */
+    if (!fit || !run || !tv || !tv.offsetParent || !camera) return;
 
     var rows = [].slice.call(document.querySelectorAll('#pindex .prow'));
     if (!rows.length) return;

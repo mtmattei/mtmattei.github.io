@@ -307,7 +307,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
      move as one fluid gesture. It is never held below where native
      scroll would put it, which makes the handoff to the wind run's pin
      at the top of #fit seamless even on a fast flick. */
-  var fitEl = null, tvEl = null;
+  var fitEl = null, tvEl = null, heroHeld = false;
   function driveHero(T) {
     if (!fitEl) {
       fitEl = document.getElementById('fit');
@@ -316,10 +316,9 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     }
     if (!geo.fitTop) {
       geo.fitTop = fitEl.offsetTop;
-      /* peek depth: enough of the hero that the billboard's dark screen
-         clearly crowns above the fold - the first ~70px of the billboard
-         are white bezel and rounded corners that read as paper */
-      geo.peekDepth = (tvEl
+      /* peek depth: enough of the hero to read - the billboard's dark
+         screen when it stands in the hero, otherwise the heading's cap */
+      geo.peekDepth = ((tvEl && tvEl.offsetParent)
         ? tvEl.getBoundingClientRect().top - fitEl.getBoundingClientRect().top
         : innerHeight * .12) + innerHeight * .16;
     }
@@ -329,9 +328,15 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     var rise = easeInOut(clamp(q / .6));           /* the name's own rise curve */
     var D = mix(mix(vh + 2, vh - geo.peekDepth, peek), 0, rise);
     var natural = geo.fitTop - scrollY;
-    if (natural <= 0) return;                      /* the wind run's domain */
+    if (natural <= 0) {
+      /* past the hero top this is native (or wind run) territory: leave
+         no stale offset behind, or the hero stays displaced */
+      if (heroHeld) { fitEl.style.transform = ''; heroHeld = false; }
+      return;
+    }
     D = Math.min(D, natural);
     fitEl.style.transform = 'translate3d(0,' + (D - natural).toFixed(2) + 'px,0)';
+    heroHeld = true;
   }
 
   function renderType(p, q) {
