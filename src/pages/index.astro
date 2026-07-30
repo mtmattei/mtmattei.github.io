@@ -522,7 +522,10 @@ const INDEX_ROWS = [
 <div id="tvHold" hidden>
   <div class="tv" id="tv" role="button" tabindex="0" aria-label="Step into the featured project">
     <div class="screen">
-      <video class="bb-hero" id="bbHero" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <!-- no autoplay/preload: parked in this hidden holder it would fetch
+           and decode the whole loop invisibly on every landing visit. The
+           src arms at idle; play/pause follows the ride into a poster. -->
+      <video class="bb-hero" id="bbHero" muted loop playsinline preload="none" aria-hidden="true">
         <source src="/videos/hero-story.mp4" type="video/mp4" />
       </video>
       {SHOWN.map((p, i) => (
@@ -734,7 +737,9 @@ html, body { overflow-x: clip; }
    Astro leaves body selectors unscoped, so a background here would silently
    override the site ground - it did, until this was split out. */
 body { font-size: 16px; line-height: normal; }
-#fit { position: relative; display: flex; align-items: flex-start; justify-content: center; }
+/* will-change: the hero rise and the wind run translate #fit every frame;
+   keep it on its own layer instead of re-promoting at each gesture */
+#fit { position: relative; display: flex; align-items: flex-start; justify-content: center; will-change: transform; }
 /* 1024 of hero, then the index: the camera scales from the top edge so the
    hero still meets the viewport exactly and the rest falls below the fold */
 .camera { width: 1536px; height: 1640px; flex: none; transform-origin: top center; }
@@ -1462,9 +1467,15 @@ function heroTop() { return document.getElementById('fit').offsetTop; }
 //      jumps, and a missed event leaves the group parked mid-ride. ----
 var idxGroup = document.getElementById('idxgroup');
 var idxDocked = false;
-(function stickTick() {
+var idxTop = -1;                             // heroTop cached: offsetTop every
+addEventListener('resize', function () { idxTop = -1; });  // frame is a layout read
+// first run via rAF, not synchronously: a load with restored scroll can be
+// past the dock line already, and the sync path would touch state/showPreview
+// before they exist below - the throw would kill the loop for good
+function stickTick() {
   if (!camState.push) {
-    var over = scrollY - (heroTop() + IDX_TOP * camState.fitS - idxPad());
+    if (idxTop < 0) idxTop = heroTop();
+    var over = scrollY - (idxTop + IDX_TOP * camState.fitS - idxPad());
     var t = over > 0
       ? 'translate3d(0,' + (over / camState.fitS).toFixed(2) + 'px,0)'
       : '';
@@ -1476,7 +1487,8 @@ var idxDocked = false;
     }
   }
   requestAnimationFrame(stickTick);
-})();
+}
+requestAnimationFrame(stickTick);
 
 // docked, the previewer holds the featured project so the split reads as
 // list-and-preview; a hover still retargets it, and leaving the list falls
@@ -1605,10 +1617,13 @@ function clearPreview() {
    hover only plays - no fetch, no src churn between rows */
 addEventListener('load', function () {
   var arm = function () {
-    if (!ppv) return;
-    [].forEach.call(ppv.querySelectorAll('.ppv-vid'), function (v) {
+    if (ppv) [].forEach.call(ppv.querySelectorAll('.ppv-vid'), function (v) {
       if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
     });
+    // the billboard's attract loop arms here too: fetched at idle, decoded
+    // only once it actually rides into a poster
+    var bh = document.getElementById('bbHero');
+    if (bh && bh.preload === 'none') { bh.preload = 'auto'; bh.load(); }
   };
   ('requestIdleCallback' in window) ? requestIdleCallback(arm, { timeout: 2500 }) : setTimeout(arm, 800);
 });
@@ -1744,10 +1759,11 @@ var brailleEls = Array.prototype.slice.call(document.querySelectorAll('.braille-
   if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var cols = +el.dataset.cols, rows = +el.dataset.rows, ph = 0;
   var B0 = 0x2800, DOTS = [0x01,0x02,0x04,0x40,0x08,0x10,0x20,0x80], ORD = [0,1,2,6,3,4,5,7];
+  var card = el.closest('.ppv-card');
   function ch(f){ if (f<=0) return String.fromCharCode(B0); var on=Math.round(f*8),c=0;
     for (var i=0;i<on&&i<8;i++) c|=DOTS[ORD[i]]; return String.fromCharCode(B0+c); }
   function frame() {
-    if (el.closest('.ppv-card') && el.closest('.ppv-card').classList.contains('on')) {
+    if (card && card.classList.contains('on')) {
       ph += 0.008; var cx=cols/2, cy=rows/2, out='';
       for (var y=0;y<rows;y++){ for (var x=0;x<cols;x++){
         var d=Math.hypot(x-cx,y-cy);
@@ -1804,7 +1820,10 @@ function easeHeroTick(now) {
 /* no document.hidden gate: rAF freezes in hidden tabs and resumes on its own */
 function bbOn() { return !!bbDraw && bbCv.closest('.art').classList.contains('on'); }
 function bbActive() {
-  return state.mode !== 'detail' && (bbOn() || brailleEls.length > 0 || !!easeParts);
+  /* the whole loop draws billboard art; with the tv parked in its hidden
+     holder every frame of it is invisible work (the braille field alone is
+     ~3k trig calls a frame). offsetParent is null while parked. */
+  return state.mode !== 'detail' && !!tv.offsetParent && (bbOn() || brailleEls.length > 0 || !!easeParts);
 }
 function bbTick(now) {
   bbRaf = null;
@@ -2200,6 +2219,8 @@ function buildDetail(i) {
     wrap.className = 'bb-scale';
     wrap.appendChild(tv);
     poster.appendChild(wrap);
+    var bh = document.getElementById('bbHero');
+    if (bh) bh.play().catch(function () {});
   } else if (poster) {
     var tpl = document.getElementById('plate-' + p.slug);
     if (tpl) poster.appendChild(tpl.content.cloneNode(true));
@@ -2440,6 +2461,8 @@ function animExit() {
 
   function land() {
     state.mode = 'landing';
+    var bh = document.getElementById('bbHero');
+    if (bh && !bh.paused) bh.pause();       // parked again: stop the decode
     camState.push = 0; applyCamera();        // deterministic even if rAF was throttled
     document.body.classList.remove('walked');
     scene.classList.remove('pushing');

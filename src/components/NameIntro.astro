@@ -538,12 +538,20 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
      at once) lands instantly; the threshold sits far above what a fast
      wheel flick can cover between frames, or flicks snap and the motion
      reads as chop. */
+  var dirty = false;
   function tick() {
     var target = targetNow();
     var d = target - current;
-    current = Math.abs(d) > .85 ? target : current + d * .16;
-    if (Math.abs(target - current) < .00008) current = target;
-    render(current);
+    /* settled and unchanged: skip the render entirely - without this the
+       loop writes five elements' styles every frame forever. driveHero
+       needs no update either: T only holds still when the scroll does,
+       and past the hero top its transform is already cleared. */
+    if (d || dirty) {
+      current = Math.abs(d) > .85 ? target : current + d * .16;
+      if (Math.abs(target - current) < .00008) current = target;
+      render(current);
+      dirty = false;
+    }
     requestAnimationFrame(tick);
   }
 
@@ -553,7 +561,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   render(current);
   requestAnimationFrame(tick);
 
-  addEventListener('resize', function () { measure(); measureGeo(); });
+  addEventListener('resize', function () { measure(); measureGeo(); dirty = true; });
   /* the display face lands after first paint on a cold cache; every
      position is measured from it, so re-measure once it is real */
   if (document.fonts && document.fonts.ready) {
