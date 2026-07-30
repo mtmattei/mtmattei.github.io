@@ -373,7 +373,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     }
     var vh = geo.release;
     var p = Math.min(1, T), q = clamp(T - 1);
-    var peek = easeInOut(clamp((p - .55) / .2));   /* slides in with the meet */
+    var peek = easeInOut(clamp((p - .69) / .25));  /* slides in with the meet */
     var rise = easeInOut(clamp(q / .6));           /* the name's own rise curve */
     var D = mix(mix(vh + 2, vh - geo.peekDepth, peek), 0, rise);
     var natural = geo.fitTop - scrollY;
@@ -389,11 +389,13 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   }
 
   function renderType(p, q) {
-    /* enter from the corners, hold either side of centre, then meet */
-    var enter = easeInOut(clamp(p / .36));
-    var meet = easeInOut(clamp((p - .31) / .34));
+    /* enter from the corners, hold either side of centre, then meet.
+       The milestones fill the whole pin: they used to finish at p .8,
+       and the last fifth of the stuck scroll answered nothing. */
+    var enter = easeInOut(clamp(p / .45));
+    var meet = easeInOut(clamp((p - .39) / .42));
     /* the fringe only opens once the two channels are on the same baseline */
-    var registered = easeOut(clamp((p - .57) / .13));
+    var registered = easeOut(clamp((p - .71) / .16));
     /* the name is viewport-fixed, so the rise is viewport-true while the
        scene slides up underneath it: it retreats to the head of the page
        and stays there - the hero arrives right beneath it. */
@@ -421,7 +423,7 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
     place(shared, redX, redY, scale, blur);
     place(tail, redX + m.sharedW * scale, redY, scale, blur);
 
-    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .61) / .19) * 2 - 1));
+    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .76) / .24) * 2 - 1));
     root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
@@ -433,9 +435,12 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
        meet so the two halves assemble on one baseline, rise with the
        release, dock and stay. The strokes arrive whole - two finished
        colour plates looking for registration. */
-    var enter = easeInOut(clamp(p / .36));
-    var meet = easeInOut(clamp((p - .31) / .34));
-    var registered = easeOut(clamp((p - .57) / .13));
+    /* milestones fill the whole pin (they used to finish at p .8, leaving
+       the last fifth of the stuck scroll dead): the pulse's fade is the
+       release handing into the rise */
+    var enter = easeInOut(clamp(p / .45));
+    var meet = easeInOut(clamp((p - .39) / .42));
+    var registered = easeOut(clamp((p - .71) / .16));
     var r = easeInOut(clamp(q / .6));
 
     var scale = mix(1, .235, r);
@@ -496,14 +501,15 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
       }
     }
 
-    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .61) / .19) * 2 - 1));
+    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .76) / .24) * 2 - 1));
     root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
     root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
   }
 
   if (reduce) {
     /* the registered pose, held: no scroll mapping, no frame loop */
-    var still = function () { measure(); render(.85); };
+    /* the registered pose, pulse spent: p 1 under the stretched milestones */
+    var still = function () { measure(); render(1); };
     still();
     addEventListener('resize', still);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(still);
