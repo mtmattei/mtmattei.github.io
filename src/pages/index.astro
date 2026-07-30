@@ -459,9 +459,9 @@ const INDEX_ROWS = [
     <div class="hrule" style="left:210px; top:662px; width:55px; height:1.5px;"></div>
     <div class="t lbl idxhint" style="left:300px; top:654px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
 
-    <div class="hrule" style="left:1040px; top:667px; width:84px; height:2px;"></div>
-    <a class="t lbl viewall" href="/program/" style="left:1140px; top:660px;">VIEW ALL WORK</a>
-    <span class="ne-arrow" style="left:1241px; top:660px;">
+    <div class="hrule idx-r" style="left:1040px; top:667px; width:84px; height:2px;"></div>
+    <a class="t lbl viewall idx-r" href="/program/" style="left:1140px; top:660px;">VIEW ALL WORK</a>
+    <span class="ne-arrow idx-r" style="left:1241px; top:660px;">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M2.5 11.5 L11 3 M4.5 3 H11 V9.5" stroke="#3656D4" stroke-width="1.6"/>
       </svg>
@@ -892,11 +892,13 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 }
 .tv .art.on { opacity: 1; transform: none; }
 /* ---- hover previewer (prototype-exact) ----
-   A large 4:5 card fixed in the lower-right, outside the scaled stage so its
-   size is true px. Cards stack; the hovered row's card cross-fades in. */
+   A large card fixed centre-right, outside the scaled stage so its size is
+   true px. Cards stack; the hovered row's card cross-fades in. While the
+   index is docked it stays lit with the featured project - the docked state
+   reads as a split: the ledger left, the preview centre-right. */
 .ppv {
   position: fixed; z-index: 7; pointer-events: none;
-  right: clamp(24px, 3vw, 46px); bottom: clamp(56px, 8vh, 96px);
+  right: clamp(24px, 3vw, 46px); top: 50%; transform: translateY(-50%);
   width: min(38vw, 560px); aspect-ratio: 3 / 2;
 }
 .ppv-card {
@@ -944,7 +946,17 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 .idxgroup { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
 .pindex {
   position: absolute; left: 86px; top: 704px; width: 1152px;
+  transition: width .34s cubic-bezier(.22,1,.36,1);
 }
+/* docked: the ledger narrows to the left hand of the screen (the tag column
+   gives, ellipsized - the full text lives in the preview card) and the
+   view-all trio rides in. 560, not the 452 the narrowing alone would ask:
+   the monogram docks at stage centre on the same line, so the trio stops
+   short of it (arrow ends at 695, the mark starts near 725). */
+.idxgroup .idx-r { transition: transform .34s cubic-bezier(.22,1,.36,1); }
+.idxgroup.docked .pindex { width: 700px; }
+.idxgroup.docked .idx-r { transform: translateX(-560px); }
+.idxgroup.docked .prow:hover .ptag, .idxgroup.docked .prow:focus-visible .ptag { max-width: 220px; }
 .prow {
   position: relative; display: grid; align-items: center;
   grid-template-columns: 58px 380px 1fr 150px; gap: 16px;
@@ -1013,7 +1025,7 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 @media (prefers-reduced-motion: reduce) {
   .pindex, .prow.in { animation: none; }
   .prow { opacity: 1; }
-  a.viewall, .sound, .lrail-strip { transition-duration: .01ms; }
+  a.viewall, .sound, .lrail-strip, .pindex, .idxgroup .idx-r { transition-duration: .01ms; }
 }
 .idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
 
@@ -1449,6 +1461,7 @@ function heroTop() { return document.getElementById('fit').offsetTop; }
 //      the name is - scroll events drop under load and after programmatic
 //      jumps, and a missed event leaves the group parked mid-ride. ----
 var idxGroup = document.getElementById('idxgroup');
+var idxDocked = false;
 (function stickTick() {
   if (!camState.push) {
     var over = scrollY - (heroTop() + IDX_TOP * camState.fitS - idxPad());
@@ -1456,9 +1469,28 @@ var idxGroup = document.getElementById('idxgroup');
       ? 'translate3d(0,' + (over / camState.fitS).toFixed(2) + 'px,0)'
       : '';
     if (idxGroup.style.transform !== t) idxGroup.style.transform = t;
+    if ((over > 0) !== idxDocked) {
+      idxDocked = over > 0;
+      idxGroup.classList.toggle('docked', idxDocked);
+      syncDockPreview();
+    }
   }
   requestAnimationFrame(stickTick);
 })();
+
+// docked, the previewer holds the featured project so the split reads as
+// list-and-preview; a hover still retargets it, and leaving the list falls
+// back to the featured card instead of going dark
+function syncDockPreview() {
+  var pindexEl = document.getElementById('pindex');
+  if (idxDocked) {
+    if (!pindexEl.matches(':hover')) {
+      showPreview(pindexEl.querySelector('.prow[data-i="' + state.featured + '"]'));
+    }
+  } else if (!pindexEl.matches(':hover')) {
+    clearPreview();
+  }
+}
 
 // ---- smooth scroll: the wheel writes a target; a frame loop glides the
 //      page toward it with exponential damping, so the landing reads as one
