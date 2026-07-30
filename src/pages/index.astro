@@ -451,6 +451,10 @@ const INDEX_ROWS = [
          (parked in #tvHold below, ridden into each world's poster slot).
          The index is the hero - left aligned, three quarters wide. -->
 
+    <!-- the header row and the ledger travel as one group: past the fold the
+         group rides the remaining scroll and docks at the top left, its
+         header on the name's own dock line -->
+    <div class="idxgroup" id="idxgroup">
     <div class="t lbl" style="left:86px; top:660px;">FEATURED WORK</div>
     <div class="hrule" style="left:210px; top:662px; width:55px; height:1.5px;"></div>
     <div class="t lbl idxhint" style="left:300px; top:654px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
@@ -489,6 +493,7 @@ const INDEX_ROWS = [
           </span>
         )
       ))}
+    </div>
     </div>
 
     <span class="sig-mark"><Logo height={30} /></span>
@@ -933,6 +938,10 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
 /* ---- featured index ----
    the hero now: left aligned with the heading, three quarters of the
    stage wide. Hover answers in the fixed previewer, lower right. */
+/* the sticky group: zero-size so it has no hit-test box of its own; its
+   absolute children keep their scene coordinates. The translate lives here,
+   not on .pindex, whose transform the ledgerIn fill owns. */
+.idxgroup { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
 .pindex {
   position: absolute; left: 86px; top: 704px; width: 1152px;
 }
@@ -1409,10 +1418,20 @@ function applyCamera() {
   var dx = offX * (c.fitS * (1 - c.push) - k);
   cam.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
 }
+// the index group's dock: its header row (scene y 654) holds on the name's
+// own dock line, so the two arrivals read as one register
+var IDX_TOP = 654;
+function idxPad() { return Math.max(24, innerHeight * .035); }
 function fit() {
   // the hero is what has to fit the viewport; the scene continues past it
   camState.fitS = Math.min(innerWidth / 1536, innerHeight / 1024);
-  document.getElementById('fit').style.height = (1640 * camState.fitS) + 'px';
+  // enough run below the hero for the index to reach its dock line before
+  // the page ends, plus slack: page zoom rounds vh-sized blocks by a few px,
+  // and an exact budget leaves the dock a hair short of engaging. Skipped on
+  // small screens, where the scaled stage sits far shorter than the viewport.
+  var h = 1640 * camState.fitS;
+  if (innerWidth > 1080) h = Math.max(h, IDX_TOP * camState.fitS - idxPad() + innerHeight + 48);
+  document.getElementById('fit').style.height = h + 'px';
   applyCamera();
 }
 addEventListener('resize', fit); fit();
@@ -1421,6 +1440,52 @@ addEventListener('resize', fit); fit();
 // hero. Anything that used to mean "back to the top of the stage" means the
 // top of #fit now.
 function heroTop() { return document.getElementById('fit').offsetTop; }
+
+// ---- the index sticks: once its header reaches the dock line it rides the
+//      remaining scroll and holds at the top left. Direct-mapped, not lerped:
+//      a sticky element that trails the wheel swims under the pointer. The
+//      overshoot is divided back by the fit scale because the group lives on
+//      the scaled stage but the scroll is in page px. Polled per frame like
+//      the name is - scroll events drop under load and after programmatic
+//      jumps, and a missed event leaves the group parked mid-ride. ----
+var idxGroup = document.getElementById('idxgroup');
+(function stickTick() {
+  if (!camState.push) {
+    var over = scrollY - (heroTop() + IDX_TOP * camState.fitS - idxPad());
+    var t = over > 0
+      ? 'translate3d(0,' + (over / camState.fitS).toFixed(2) + 'px,0)'
+      : '';
+    if (idxGroup.style.transform !== t) idxGroup.style.transform = t;
+  }
+  requestAnimationFrame(stickTick);
+})();
+
+// ---- smooth scroll: the wheel writes a target; a frame loop glides the
+//      page toward it with exponential damping, so the landing reads as one
+//      continuous camera move instead of the wheel's 100px steps. Scrollbar,
+//      keyboard and touch stay native; the detail rail keeps its own wheel. ----
+(function smoothWheel() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var target = -1, cur = 0, raf = 0, last = 0;
+  var RATE = 6.5;                 // 1/s damping: a glide that settles in ~.6s
+  function maxY() { return document.documentElement.scrollHeight - innerHeight; }
+  function frame(now) {
+    var dt = Math.min(.05, (now - last) / 1000); last = now;
+    cur += (target - cur) * (1 - Math.exp(-RATE * dt));
+    if (Math.abs(target - cur) < .5) cur = target;
+    scrollTo(0, cur);
+    if (cur === target) { raf = 0; target = -1; return; }
+    raf = requestAnimationFrame(frame);
+  }
+  addEventListener('wheel', function (e) {
+    if (state.mode !== 'landing' || e.ctrlKey || e.defaultPrevented) return;
+    e.preventDefault();
+    var d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
+    if (target < 0) cur = target = scrollY;
+    target = Math.max(0, Math.min(maxY(), target + d));
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+  }, { passive: false });
+})();
 // A deep link is already inside a world: land on the hero so stepping back
 // arrives on the landing rather than replaying the name.
 if (/^#\/p\//.test(location.hash)) {

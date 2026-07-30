@@ -464,14 +464,17 @@ body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
   }
 
   /* the name trails the wheel slightly - the sequence reads as one move
-     being made rather than as scroll position being reported. Only a real
-     jump (deep link, anchor - most of the whole sequence at once) lands
-     instantly; the threshold sits far above what a fast wheel flick can
-     cover between frames, or flicks snap and the motion reads as chop. */
+     being made rather than as scroll position being reported. The page
+     itself glides now (the landing's wheel damping), so this lerp only adds
+     a whisper of trail on top: .06 on top of the glide compounded into
+     syrup. Only a real jump (deep link, anchor - most of the whole sequence
+     at once) lands instantly; the threshold sits far above what a fast
+     wheel flick can cover between frames, or flicks snap and the motion
+     reads as chop. */
   function tick() {
     var target = targetNow();
     var d = target - current;
-    current = Math.abs(d) > .85 ? target : current + d * .06;
+    current = Math.abs(d) > .85 ? target : current + d * .16;
     if (Math.abs(target - current) < .00008) current = target;
     render(current);
     requestAnimationFrame(tick);
