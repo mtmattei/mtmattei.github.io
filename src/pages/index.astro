@@ -1499,7 +1499,11 @@ function syncDockPreview() {
 (function smoothWheel() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var target = -1, cur = 0, raf = 0, last = 0;
-  var RATE = 6.5;                 // 1/s damping: a glide that settles in ~.6s
+  var RATE = 5;                   // 1/s damping: a glide that coasts ~.9s
+  var MULT = 2;                   // input gain: a notch is 100px of a 2250px
+                                  // choreography - undoctored, the sequence
+                                  // parks mid-pose every notch and reads as
+                                  // stuck. Doubled, a gesture carries a beat.
   function maxY() { return document.documentElement.scrollHeight - innerHeight; }
   function frame(now) {
     var dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -1514,7 +1518,7 @@ function syncDockPreview() {
     e.preventDefault();
     var d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
     if (target < 0) cur = target = scrollY;
-    target = Math.max(0, Math.min(maxY(), target + d));
+    target = Math.max(0, Math.min(maxY(), target + d * MULT));
     if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
   }, { passive: false });
 })();
