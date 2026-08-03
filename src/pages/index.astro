@@ -621,15 +621,30 @@ const INDEX_ROWS = [
             <span class="ptag">{r.tag}</span>
             <span class="pmeta">{r.meta}</span>
           </a>
-        ) : (
-          <span class="prow listed" style={`--i:${i}`} data-n={i}>
-            <span class="pno">{r.no}</span>
-            <span class="pname">{r.name}</span>
-            <span class="ptag">{r.tag}</span>
-            <span class="pmeta">{r.meta}</span>
-          </span>
-        )
+        ) : null
       ))}
+      <!-- the archive folds: every public repo, listed only, behind one
+           row - the ledger opens compact and unfolds on demand -->
+      <button class="prow pfold-toggle" id="pfoldToggle" type="button" aria-expanded="false" aria-controls="pfold">
+        <span class="pno"><span class="pfold-caret" aria-hidden="true"></span></span>
+        <span class="pname">ARCHIVE</span>
+        <span class="ptag">{INDEX_ROWS.filter((r) => !r.href).length} PUBLIC REPOS, LISTED ONLY</span>
+        <span class="pmeta">2025—</span>
+      </button>
+      <div class="pfold" id="pfold">
+        <div>
+          {INDEX_ROWS.map((r, i) => (
+            !r.href ? (
+              <span class="prow listed" style={`--i:${i}`} data-n={i}>
+                <span class="pno">{r.no}</span>
+                <span class="pname">{r.name}</span>
+                <span class="ptag">{r.tag}</span>
+                <span class="pmeta">{r.meta}</span>
+              </span>
+            ) : null
+          ))}
+        </div>
+      </div>
     </div>
     </div>
     <!-- the notes, listed in the same ledger: every text, its count and
@@ -943,6 +958,32 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
   font-size: clamp(48px, 6.4vw, 104px); line-height: .9;
   -webkit-text-stroke: 1.8px var(--ink); color: var(--ink);
 }
+/* ---- the archive fold: the listed tail collapses behind one row ---- */
+.pfold-toggle {
+  width: 100%; border: 0; background: none; cursor: pointer; text-align: left;
+  font: inherit; color: var(--ink);
+}
+.pfold-toggle .pname { letter-spacing: .04em; }
+.pfold-caret {
+  display: inline-block; width: 0; height: 0; vertical-align: 1px;
+  border-left: 5px solid var(--muted); border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  transition-property: transform, border-left-color;
+  transition-duration: .25s, .15s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+.pfold-toggle:hover .pfold-caret { border-left-color: var(--ink); }
+.pfold-toggle[aria-expanded="true"] .pfold-caret { transform: rotate(90deg); }
+/* 0fr -> 1fr: the fold animates to its content height, interruptibly */
+.pfold {
+  display: grid; grid-template-rows: 0fr;
+  transition-property: grid-template-rows;
+  transition-duration: .4s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+.pfold > div { min-height: 0; overflow: hidden; }
+.pfold.open { grid-template-rows: 1fr; }
+/* the folded rows sit under the toggle's own hairline; keep the doubled
+   border from stacking while closed */
+.pfold .prow:first-child { border-top: 0; }
+
 /* ---- the notes ledger: every text, count in the margin, drafts in
    accent - the galley page's grammar compressed to rows ---- */
 .nindex { margin-top: 48px; max-width: 1000px; }
@@ -1346,7 +1387,7 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 @media (prefers-reduced-motion: reduce) {
   .pindex, .prow.in { animation: none; }
   .prow { opacity: 1; }
-  .pindex, .masthead, .index-panel, .index-close, .cl-replay { transition-duration: .01ms; }
+  .pindex, .masthead, .index-panel, .index-close, .cl-replay, .pfold, .pfold-caret { transition-duration: .01ms; }
 }
 
 /* the IsoBasin construction, now only for the phone cloned into the
@@ -1862,6 +1903,14 @@ function closeIndex() {
 if (indexOpenBtn) indexOpenBtn.addEventListener('click', openIndex);
 var indexCloseBtn = document.getElementById('indexClose');
 if (indexCloseBtn) indexCloseBtn.addEventListener('click', closeIndex);
+// the archive fold: one row unfolds the listed tail
+var pfoldToggle = document.getElementById('pfoldToggle');
+var pfold = document.getElementById('pfold');
+if (pfoldToggle && pfold) pfoldToggle.addEventListener('click', function () {
+  var open = !pfold.classList.contains('open');
+  pfold.classList.toggle('open', open);
+  pfoldToggle.setAttribute('aria-expanded', String(open));
+});
 // choosing a work closes the overlay; the hash change walks in over it
 document.querySelectorAll('#pindex .prow[href]').forEach(function (row) {
   row.addEventListener('click', closeIndex);
@@ -1994,7 +2043,7 @@ addEventListener('load', function () {
 });
 
 // pointing at a row is what loads the billboard; the click still walks in
-document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
+document.querySelectorAll('#pindex .prow:not(.phdr):not(.pfold-toggle)').forEach(function (row) {
   function enter() {
     if (state.mode !== 'landing') return;
     showPreview(row);
