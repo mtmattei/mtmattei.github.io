@@ -916,9 +916,13 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
   position: fixed; z-index: 8; left: 0; right: 0; top: 0;
   display: flex; justify-content: flex-end; align-items: center;
   padding: 14px 20px; pointer-events: none;
-  color: #fff; mix-blend-mode: difference;
-  transition-property: opacity; transition-duration: .2s; transition-timing-function: ease-out;
+  /* ink over paper, paper over a full-bleed card - driven by the same
+     relay-live signal as the mark. Difference-blending here forced the
+     whole page into one compositing group, repainted on every scroll. */
+  color: var(--ink);
+  transition-property: opacity, color; transition-duration: .2s, .25s; transition-timing-function: ease-out;
 }
+body.relay-live .masthead { color: #F6F2EE; }
 .mh-index {
   pointer-events: auto; border: 0; background: transparent; cursor: pointer;
   font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
@@ -928,6 +932,9 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 .mh-index:hover { opacity: .65; }
 .mh-index:active { transform: scale(.96); }
 body.walked .masthead { opacity: 0; pointer-events: none; }
+/* the landing stops painting under an open world (layout height stays,
+   so the exit lands back on the same scroll position) */
+body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hidden; }
 .lrail-strip {
   transition-property: transform, opacity, background-color;
   transition-duration: .12s; transition-timing-function: ease-out;
@@ -1071,9 +1078,10 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
   width: calc(58vw + var(--ha) * 42vw); height: calc(43vh + var(--ha) * 57vh);
   transform: translate(-50%, -50%);
   overflow: hidden; display: block; background: #ddd8cf; cursor: pointer;
+  contain: layout style paint;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 28px 70px -28px rgba(26, 24, 21, .35);
 }
-.hero-photo .rl-visual { transform: scale(calc(1.05 - var(--ha) * .05)); }
+.hero-photo .rl-visual { transform: translate(-50%, -50%) scale(calc(1.05 - var(--ha) * .05)); }
 .hero-meta {
   position: absolute; z-index: 5; left: 50%; top: 84.5%; width: 58vw; transform: translateX(-50%);
   display: flex; justify-content: space-between; gap: 24px;
@@ -1124,7 +1132,10 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
 }
 .rl-cur, .rl-next {
   position: absolute; display: block; overflow: hidden; text-decoration: none;
-  will-change: width, height, top, left;
+  /* the boxes animate layout properties, so keep each card's reflow and
+     repaint fenced inside the card (will-change on box props composits
+     nothing and only pinned extra layers) */
+  contain: layout style paint;
 }
 .rl-cur {
   left: calc(var(--p) * 7.4%); top: calc(var(--p) * 12%);
@@ -1133,9 +1144,17 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
   box-shadow: 0 0 0 1px rgba(0, 0, 0, calc(var(--p) * .1)),
               0 24px 60px -22px rgba(26, 24, 21, calc(var(--p) * .3));
 }
-.rl-visual { position: absolute; inset: 0; display: block; transform-origin: center; }
-.rl-cur .rl-visual { transform: scale(calc(1 + var(--p) * .025)); filter: saturate(calc(1 - var(--p) * .14)); }
-.rl-next .rl-visual { transform: scale(calc(1.035 - var(--q) * .035)); }
+/* the visual is a constant full-viewport layer; the card is only a clip
+   window sliding over it. Sizing content to the animating box relaid out
+   an iframe (the labs rebuild their canvases on resize — the flashes),
+   a ~2000-glyph pre, and an SVG every scroll frame; at a fixed size the
+   subtree lays out once and the box just crops it. */
+.rl-visual {
+  position: absolute; left: 50%; top: 50%; width: 100vw; height: 100vh;
+  display: block; transform-origin: center; transform: translate(-50%, -50%);
+}
+.rl-cur .rl-visual { transform: translate(-50%, -50%) scale(calc(1 + var(--p) * .025)); filter: saturate(calc(1 - var(--p) * .14)); }
+.rl-next .rl-visual { transform: translate(-50%, -50%) scale(calc(1.035 - var(--q) * .035)); }
 .rl-visual .plate { width: 100%; height: 100%; display: block; }
 /* the shader footage carries a baked matte around the water (content is
    ~73% of the frame width); the scale crops to the water itself */
@@ -1162,7 +1181,9 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
   opacity: 0; pointer-events: none;
   transition-property: opacity; transition-duration: .35s; transition-timing-function: ease-out;
 }
-.rl-embed[src] { opacity: 1; }
+/* fade on load, never on src: a navigating iframe paints a blank frame
+   before its document renders, and [src] showed that flash */
+.rl-embed.ready { opacity: 1; }
 .rl-label {
   position: absolute; z-index: 5;
   left: calc(4.6vw + var(--p) * 49vw);
@@ -1232,7 +1253,7 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
   .rly, .rly.last { height: auto; --p: 1; --hand: 1; --q: 0; }
   .rl-stick { position: relative; height: 100vh; }
   .rl-next, .rl-next-title { display: none; }
-  .rl-cur .rl-visual { transform: none; filter: none; }
+  .rl-cur .rl-visual { transform: translate(-50%, -50%); filter: none; }
   .rl-embed, .idx-jump { transition-duration: .01ms; }
 }
 
@@ -1736,14 +1757,30 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
   function sm(t) { return t * t * (3 - 2 * t); }
   function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   var brPh = 0, frame = 0;
+  /* the hero and the first card play the same footage from two elements;
+     starting the joiner on the leaver's clock keeps the handoff on the
+     same frame of water instead of jumping */
+  function syncClock(v, from) {
+    if (v && from && from.duration && !from.paused) {
+      try { v.currentTime = from.currentTime; } catch (err) {}
+    }
+  }
   function tick() {
     frame++;
     var vh = innerHeight;
-    var band = vh * .1;          /* the mark's zone at the head of the frame */
+    /* the mark's zone at the head of the frame, with hysteresis: a single
+       threshold rode the scroll noise and strobed the mark at the edge */
+    var band = vh * (live ? .12 : .09);
     var covered = false;
+    var inDetail = state.mode === 'detail';
+    /* read phase - every rect up front. A custom-property write below
+       invalidates style, and a rect read after it forces a synchronous
+       reflow; interleaved per section that was up to six layouts a frame. */
+    var hr = hero ? hero.getBoundingClientRect() : null;
+    var R = S.map(function (s) { return s.el.getBoundingClientRect(); });
+    /* write phase */
     if (hero) {
-      var hr = hero.getBoundingClientRect();
-      var hvis = hr.bottom > 0 && hr.top < vh && state.mode !== 'detail';
+      var hvis = hr.bottom > 0 && hr.top < vh && !inDetail;
       var ha = 0;
       if (!reduce) {
         var hmax = hr.height - vh;
@@ -1760,6 +1797,7 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
         if (heroVid) {
           if (hvis && !reduce) {
             if (!heroVid.getAttribute('src')) heroVid.src = heroVid.dataset.vid;
+            syncClock(heroVid, S.length ? S[0].vid : null);
             heroVid.play().catch(function () {});
           } else if (!heroVid.paused) heroVid.pause();
         }
@@ -1771,9 +1809,9 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
         if (hTop < band) covered = true;
       }
     }
-    S.forEach(function (s) {
-      var r = s.el.getBoundingClientRect();
-      var vis = r.bottom > 0 && r.top < vh && state.mode !== 'detail';
+    S.forEach(function (s, i) {
+      var r = R[i];
+      var vis = r.bottom > 0 && r.top < vh && !inDetail;
       if (!reduce && vis) {
         var max = r.height - vh;
         var prog = max > 0 ? cl(-r.top / max) : 0;
@@ -1789,13 +1827,18 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
         if (s.vid) {
           if (vis && !reduce) {
             if (!s.vid.getAttribute('src')) s.vid.src = s.vid.dataset.vid;
+            if (i === 0) syncClock(s.vid, heroVid);
             s.vid.play().catch(function () {});
           } else if (!s.vid.paused) s.vid.pause();
         }
-        /* the labs arrive with their sections (still first, embed fades over
-           it); under reduced motion the stills stand alone */
+        /* the labs arrive with their sections - still first, and the embed
+           only fades over it once its document has actually rendered;
+           under reduced motion the stills stand alone */
         if (vis && !reduce) s.embeds.forEach(function (f) {
-          if (!f.getAttribute('src')) f.src = f.dataset.embed;
+          if (!f.getAttribute('src')) {
+            f.addEventListener('load', function () { f.classList.add('ready'); }, { once: true });
+            f.src = f.dataset.embed;
+          }
         });
       }
       if (vis) {
