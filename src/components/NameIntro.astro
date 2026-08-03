@@ -54,6 +54,10 @@ body.relay-live #sigdock, body.walked #sigdock { opacity: 0; }
   pointer-events: auto;
   transition-property: transform;
   transition-duration: .6s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+  /* closing: hold the composition still while the pen retracts; the glide
+     back to centre only starts once the strokes are home, together with
+     the monogram's return */
+  transition-delay: .68s;
 }
 body.relay-live .tmark { pointer-events: none; }
 /* the hover field: generous, and wide enough that following the pen to
@@ -105,10 +109,10 @@ body.relay-live .tmark { pointer-events: none; }
 #sigdock.open .tmark-m path { opacity: 0; transition-delay: .05s; }
 /* the composition glides left so the finished autograph sits centred:
    half of the plates' extra width (429 units), at the docked scale */
-#sigdock.open .tmark { transform: translateX(calc(min(64vw, 1180px) * -.0979)) scale(.235); }
+#sigdock.open .tmark { transform: translateX(calc(min(64vw, 1180px) * -.0979)) scale(.235); transition-delay: 0s; }
 /* the exponent gives way to the real tail on open — and stays away until
    the autograph has fully retracted into the monogram */
-.tmark-exp { transition-delay: .62s; }
+.tmark-exp { transition-delay: .68s; }
 #sigdock.open .tmark-exp { opacity: 0; transform: translateY(-14%) translateX(10px); transition-delay: 0s; }
 
 @media (max-width: 820px) {

@@ -1,6 +1,5 @@
 ---
 import Bare from '../layouts/Bare.astro';
-import Logo from '../components/Logo.astro';
 import NameIntro from '../components/NameIntro.astro';
 import Plate from '../components/Plate.astro';
 import BillboardArt from '../components/BillboardArt.astro';
@@ -9,7 +8,7 @@ import '@fontsource/fraunces/300.css';
 import '@fontsource/fraunces/400.css';
 /* the Poolside phone build's own styles, scoped under .pworld */
 import '../styles/poolside-app.css';
-import { highlightSource, SKILLS } from '../data/portfolio';
+import { highlightSource, SKILLS, WRITING } from '../data/portfolio';
 import { WORK_ROWS } from '../data/work-index';
 /* Source / Figure's own sheet styles (namespaced .sf) + its serif */
 import '@fontsource/radley/400.css';
@@ -633,6 +632,23 @@ const INDEX_ROWS = [
       ))}
     </div>
     </div>
+    <!-- the notes, listed in the same ledger: every text, its count and
+         state; each row reads on the galley page -->
+    <div class="nindex">
+      <div class="cl-kicker">NOTES / TEXTS</div>
+      {WRITING.map((t) => (
+        <a class="nrow" href="/texts/">
+          <span class="nname">{t.title}</span>
+          <span class="ncount">{t.count}</span>
+          <span class:list={['nstat', { acc: t.status !== 'set' }]}>{t.status === 'set' ? 'SET' : 'COMPOSING'}</span>
+        </a>
+      ))}
+      <div class="ip-nav">
+        <a href="/program/">PROGRAM</a>
+        <a href="/texts/">ALL TEXTS</a>
+        <a href="/contact/">CONTACT</a>
+      </div>
+    </div>
   </div>
   <div class="index-preview" aria-hidden="true">
     <div class="index-hint">HOVER TO PREVIEW · SELECT TO ENTER</div>
@@ -668,30 +684,6 @@ const INDEX_ROWS = [
 </header>
 
 <!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
-<div class="lrail" id="lrail">
-  <a class="lrail-logo" href="/" aria-label="Matt Mattei — home"><Logo height={20} /></a>
-  <button class="lrail-strip" id="lrailStrip" aria-expanded="false" aria-controls="lnav" aria-label="Open navigation">
-    <span class="lrail-label">Nav</span>
-  </button>
-  <nav class="lnav" id="lnav" aria-label="Sections">
-    <div class="lnav-g">
-      <span class="lnav-k">Overview</span>
-      <a class="lnav-i is-active" href="/"><span class="ltick"></span>Index</a>
-    </div>
-    <div class="lnav-g">
-      <span class="lnav-k">Projects</span>
-      <a class="lnav-i" href="/#/p/poolside"><span class="ltick"></span>Poolside</a>
-      <a class="lnav-i" href="/texts/"><span class="ltick"></span>Texts</a>
-      <a class="lnav-i" href="/#/p/xaml-uno"><span class="ltick"></span>XAML / Uno</a>
-    </div>
-    <div class="lnav-g lnav-quiet">
-      <span class="lnav-k">About</span>
-      <a class="lnav-i" href="/program/"><span class="ltick"></span>Program</a>
-      <a class="lnav-i" href="/contact/"><span class="ltick"></span>Contact</a>
-    </div>
-  </nav>
-</div>
-
 <!-- the previewer: lifted out of the scaled stage so its size is real px,
      not camera-scaled. A large 4:5 card anchored lower-right that cross-fades
      to the row under the pointer - the prototype's behaviour verbatim. -->
@@ -862,56 +854,8 @@ body { font-size: 16px; line-height: normal; }
 
 
 
-/* ---- side rail: the Shell's collapsed rail, incorporated on the stage ---- */
-.lrail { position: fixed; left: 0; top: 0; bottom: 0; z-index: 6; display: flex; flex-direction: column; transition: opacity .2s ease-out; }
-.lrail-logo {
-  width: 34px; display: flex; justify-content: center; padding: 13px 0 11px;
-  color: var(--ink); background: rgba(246,242,238,.55);
-  border-right: var(--bw) solid var(--line);
-}
-.lrail-logo:hover { background: var(--gray-1); }
-body.walked .lrail { opacity: 0; pointer-events: none; }
-.lrail-strip {
-  width: 34px; flex: 1 1 auto; border: 0; border-right: var(--bw) solid var(--line);
-  background: rgba(246,242,238,.55); cursor: pointer;
-  display: flex; justify-content: center; align-items: flex-start; padding-top: var(--s6);
-  transition: background .15s;
-}
-.lrail-strip:hover { background: var(--gray-1); }
-.lrail-label {
-  writing-mode: vertical-rl;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--muted); transition: color .15s;
-}
-.lrail-strip:hover .lrail-label, .lrail.open .lrail-label { color: var(--ink); }
-.lnav {
-  position: absolute; left: 34px; top: 0; bottom: 0; width: 236px;
-  background: var(--paper); border-right: var(--bw) solid var(--line);
-  box-shadow: 22px 0 44px -30px rgba(26,24,21,.4);
-  padding: var(--s6) 0; overflow-y: auto;
-  transform: translateX(-10px); opacity: 0; pointer-events: none; visibility: hidden;
-  transition: transform .22s cubic-bezier(.22,1,.36,1), opacity .18s ease-out, visibility .22s;
-}
-.lrail.open .lnav { transform: none; opacity: 1; pointer-events: auto; visibility: visible; }
-.lnav-g + .lnav-g { margin-top: var(--s4); }
-.lnav-k {
-  display: block; padding: 0 var(--s4); margin-bottom: var(--s2);
-  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted);
-}
-.lnav-i {
-  display: flex; align-items: center; gap: var(--s3);
-  padding: 7px var(--s4); font-size: 14px; color: var(--ink); text-decoration: none;
-  transition: background .15s;
-}
-.lnav-i:hover { background: var(--gray-1); }
-.ltick { width: 2px; height: 14px; border-radius: 1px; background: transparent; flex: none; }
-.lnav-i.is-active .ltick { background: var(--accent); }
-.lnav-quiet .lnav-i { opacity: .62; }
-.lnav-quiet .lnav-i:hover { opacity: 1; }
-
-/* ---- masthead: brand left, index right, difference-blended over any card;
-   the mark holds the centre. Press scale 0.96, the web press. ---- */
+/* ---- masthead: the single header - the index at right, the mark holding
+   the centre. Press scale 0.96, the web press. ---- */
 .masthead {
   position: fixed; z-index: 8; left: 0; right: 0; top: 0;
   display: flex; justify-content: flex-end; align-items: center;
@@ -935,11 +879,6 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
 /* the landing stops painting under an open world (layout height stays,
    so the exit lands back on the same scroll position) */
 body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hidden; }
-.lrail-strip {
-  transition-property: transform, opacity, background-color;
-  transition-duration: .12s; transition-timing-function: ease-out;
-}
-.lrail-strip:active { transform: scale(.96); }
 
 /* ---- the closing: end of the sequence ---- */
 .closing {
@@ -1004,6 +943,28 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
   font-size: clamp(48px, 6.4vw, 104px); line-height: .9;
   -webkit-text-stroke: 1.8px var(--ink); color: var(--ink);
 }
+/* ---- the notes ledger: every text, count in the margin, drafts in
+   accent - the galley page's grammar compressed to rows ---- */
+.nindex { margin-top: 48px; max-width: 1000px; }
+.nrow {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 22px; align-items: baseline;
+  margin-top: 0; padding: 13px 4px 13px 0; border-bottom: 1px solid #DAD5CE;
+  color: var(--ink); text-decoration: none;
+  transition-property: background-color, padding-left;
+  transition-duration: .15s, .22s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+.nindex .cl-kicker + .nrow { margin-top: 14px; border-top: 1px solid #BCB8B4; }
+.nrow:hover { background: rgba(255, 255, 255, .62); padding-left: 12px; }
+.nname { font-size: 15px; font-weight: 600; letter-spacing: .1px; }
+.ncount { font-size: 9px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.nstat { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted); }
+.nstat.acc { color: var(--accent); }
+.ip-nav { display: flex; gap: 26px; margin-top: 26px; }
+.ip-nav a {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted); text-decoration: none;
+  transition-property: color; transition-duration: .15s; transition-timing-function: ease-out;
+}
+.ip-nav a:hover { color: var(--ink); }
 .index-preview { position: relative; background: #E9E4DC; overflow: hidden; }
 .index-hint {
   position: absolute; left: 24px; bottom: 20px; z-index: 5;
@@ -1352,7 +1313,7 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 .prow { opacity: 0; }
 /* an unrevealed row is invisible; it must not be hoverable either */
 .prow:not(.in) { pointer-events: none; }
-.prow.in { animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
+.prow.in { opacity: 1; animation: ledgerIn .42s cubic-bezier(.22,1,.36,1) both;
   animation-delay: var(--d, 0ms); }
 .phdr {
   opacity: .5; font-size: 11px; letter-spacing: .12em;
@@ -1385,7 +1346,7 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 @media (prefers-reduced-motion: reduce) {
   .pindex, .prow.in { animation: none; }
   .prow { opacity: 1; }
-  .lrail-strip, .pindex, .masthead, .index-panel, .index-close, .cl-replay { transition-duration: .01ms; }
+  .pindex, .masthead, .index-panel, .index-close, .cl-replay { transition-duration: .01ms; }
 }
 
 /* the IsoBasin construction, now only for the phone cloned into the
@@ -1885,6 +1846,7 @@ function openIndex() {
   if (indexOpenBtn) indexOpenBtn.setAttribute('aria-expanded', 'true');
   document.body.classList.add('index-open');
   document.body.style.overflow = 'hidden';
+  staggerLedger();
   var row = document.querySelector('#pindex .prow[data-i="' + state.featured + '"]') ||
             document.querySelector('#pindex .prow:not(.phdr)');
   if (row) showPreview(row);
@@ -1944,25 +1906,22 @@ if (replayBtn) replayBtn.addEventListener('click', function () {
 })();
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
-// ledger rows arrive as they are approached, staggered within each batch
-(function revealLedger() {
+// ledger rows enter with the panel, staggered in order, and the entrance
+// replays on every open. The old load-time observer marked rows while the
+// panel was still hidden, and rows below the fold never fired at all.
+function staggerLedger() {
   var rows = [].slice.call(document.querySelectorAll('#pindex .prow'));
-  // reduceMotion is declared further down; read the query directly here
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     rows.forEach(function (r) { r.classList.add('in'); });
     return;
   }
-  var io = new IntersectionObserver(function (entries) {
-    var n = 0;
-    entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.style.setProperty('--d', (n++ * 16) + 'ms');
-      e.target.classList.add('in');
-      io.unobserve(e.target);
-    });
-  }, { rootMargin: '0px 0px 12% 0px', threshold: 0.01 });
-  rows.forEach(function (r) { io.observe(r); });
-})();
+  rows.forEach(function (r) { r.classList.remove('in'); });
+  void document.getElementById('pindex').offsetWidth;   /* restart the run */
+  rows.forEach(function (r, n) {
+    r.style.setProperty('--d', Math.min(n * 16, 460) + 'ms');
+    r.classList.add('in');
+  });
+}
 
 var tv = document.getElementById('tv');
 // the TV carries role="button" and "Step into ..." - it has to actually do it.
@@ -2880,19 +2839,6 @@ document.addEventListener('keydown', function (e) {
   if (state.mode === 'detail') location.hash = '#/';
 });
 
-// ---- side rail: strip toggles the nav; leaving the rail closes it ----
-var lrail = document.getElementById('lrail');
-var lrailStrip = document.getElementById('lrailStrip');
-function lrailSet(open) {
-  lrail.classList.toggle('open', open);
-  lrailStrip.setAttribute('aria-expanded', String(open));
-  lrailStrip.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-}
-lrailStrip.addEventListener('click', function () { lrailSet(!lrail.classList.contains('open')); });
-lrail.addEventListener('pointerleave', function () { lrailSet(false); });
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && state.mode === 'landing' && lrail.classList.contains('open')) lrailSet(false);
-});
 route(true);
 bbWake();
 
