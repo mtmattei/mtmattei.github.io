@@ -42,6 +42,10 @@ User-reported jitter/fragments/flashes/stale frames → render-path fixes: `.rl-
 - The previewer pane is fixed at `left: 53vw` to mirror the panel grid — single source that 53vw if the split changes.
 - `?intro=type` query variant is gone with the intro; remove any references elsewhere if found.
 
+## Android
+
+Tried and reverted same-day (added @ 40c44be, removed next commit): the Capacitor wrap was a mistake — the site stays web-only. The app is uninstalled from the Pixel 8. If on-device testing is ever wanted again, prefer `astro dev --host` + phone browser over a wrapper.
+
 ## Relaunch
 
 cd C:\Users\Platform006\portfolio-instrument

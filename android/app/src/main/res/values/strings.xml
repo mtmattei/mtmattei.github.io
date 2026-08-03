@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Matt Mattei</string>
-    <string name="title_activity_main">Matt Mattei</string>
-    <string name="package_name">com.mattmattei.portfolio</string>
-    <string name="custom_url_scheme">com.mattmattei.portfolio</string>
-</resources>

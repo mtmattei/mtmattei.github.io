@@ -12,8 +12,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.0",
-    "@capacitor/core": "^8.5.0",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/geist-sans": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.2.7",
@@ -23,9 +21,5 @@
     "@fontsource/radley": "^5.2.8",
     "@fontsource/stix-two-text": "^5.2.8",
     "astro": "^7.0.9"
-  },
-  "devDependencies": {
-    "@capacitor/cli": "^8.5.0",
-    "typescript": "^7.0.2"
   }
 }
