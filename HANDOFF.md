@@ -33,14 +33,15 @@ User-reported jitter/fragments/flashes/stale frames → render-path fixes: `.rl-
 
 ## Next actions (in order)
 
-1. Live pass, visible window: confirm the jitter/flash symptoms are gone at feel level; easter-egg draw + hold-then-glide close, relay beats, panel open row stagger, notes ledger typography.
-2. Mobile + reduced-motion passes (queries written, unverified).
-3. Consider clearing lab-embed iframes' src when walking into a world (they keep running behind the overlay).
+1. Live pass, **visible window** (blocked while Chrome is minimized — everything below is user-eyes work): jitter/flash symptoms gone at feel level; easter-egg draw + hold-then-glide close; relay beats; panel open row stagger + archive fold; frame lines over full-bleed cards; two-line hero.
+2. Mobile + reduced-motion passes (queries written; a minimized window reports the desktop viewport, so these could not be emulated).
+
+Done since: lab embeds undisplay behind an open world (rAF quiesces, resume without reload) and the 53vw split is single-sourced as `--index-split` (@ e9cb6da). Hero is headline-only, two lines (@ b7bb458). Android wrap tried + reverted (@ a4a8fe2).
 
 ## Open questions
 
-- The previewer pane is fixed at `left: 53vw` to mirror the panel grid — single source that 53vw if the split changes.
 - `?intro=type` query variant is gone with the intro; remove any references elsewhere if found.
+- If the top-bar band should go transparent while a card owns the frame, key it off `body.relay-live` (one line).
 
 ## Android
 
