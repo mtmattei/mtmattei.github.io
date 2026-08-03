@@ -913,6 +913,9 @@ body.walked .masthead { opacity: 0; pointer-events: none; }
 /* the landing stops painting under an open world (layout height stays,
    so the exit lands back on the same scroll position) */
 body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hidden; }
+/* an undisplayed iframe stops receiving frames, so the labs' own rAF
+   loops go quiet behind an open world; display back = resume, no reload */
+body.walked .rl-embed { display: none; }
 
 /* ---- the closing: end of the sequence ---- */
 .closing {
@@ -949,11 +952,13 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
 .cl-replay:hover { background: rgba(255, 255, 255, .62); }
 .cl-replay:active { transform: scale(.96); }
 
-/* ---- the index overlay: ledger left, previewer right ---- */
+/* ---- the index overlay: ledger left, previewer right ----
+   the split is shared with the fixed .ppv pane - one number, two rules */
+:root { --index-split: 53vw; }
 .index-panel {
   position: fixed; inset: 0; z-index: 20;
   background: rgba(247, 246, 242, .98);
-  display: grid; grid-template-columns: 53vw 1fr;
+  display: grid; grid-template-columns: var(--index-split) 1fr;
   opacity: 0; visibility: hidden;
   transition-property: opacity, visibility;
   transition-duration: .35s; transition-timing-function: ease-out;
@@ -1284,7 +1289,7 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
    cross-fades in - the split reads ledger-left, preview-right. */
 .ppv {
   position: fixed; z-index: 21; pointer-events: none;
-  left: 53vw; right: 0; top: 0; bottom: 0;
+  left: var(--index-split); right: 0; top: 0; bottom: 0;
   opacity: 0; visibility: hidden;
   transition-property: opacity, visibility;
   transition-duration: .35s; transition-timing-function: ease-out;
