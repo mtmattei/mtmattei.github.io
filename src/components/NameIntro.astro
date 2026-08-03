@@ -1,577 +1,135 @@
 ---
-/* The name, as the site's opening.
+/* The mark, docked from the first frame.
 
-   A sticky scene the page scrolls through before the landing: cyan MATT
-   enters top-left, red MATTEI enters bottom-right, they meet on one
-   baseline where the shared MATT registers as an anaglyph. The release
-   and the rise are one move: the name rises and reduces toward the top
-   edge while the scene slides up and the landing rises into the frame
-   beneath it. The name is viewport-fixed, so it docks at the head of
-   the page and stays there - the hero arrives right beneath it.
+   The scroll intro (anaglyph meet → rise → monogram) is retired: the page
+   opens with its end state — the M-squared monogram, the signature's own
+   opening M stroke raised to 2ei, printed at the centre of the head of the
+   page and held there. The M is cloned from the signature plate's first
+   stroke at runtime so the mark and the autograph can never fork; the
+   ±3.2-unit channel offsets are the docked fringe, baked in.
 
-   Ported from the scroll prototype (variant 01, Anaglyph Rise) with the
-   prototype's own instrumentation dropped - the variant switcher, the
-   01/04 counter, the study copy, the phase captions and the progress
-   bar were there to compare variants, not to ship. What stays is the
-   choreography, the registration guide and the pulse.
-
-   Type is BigShoulders 800, the landing's own display face, so the name
-   hands off to IDEAS, EXPERIMENTS, AND LESSONS in the same voice. The
-   red and cyan are true anaglyph channels, not the house accent: the
-   effect is the two channels failing to register, so it needs both. */
+   Easter egg: pointing at the mark makes the pen finish the autograph.
+   Both signature plates (the centerlines extracted by scripts/extract-sig.mjs,
+   cyan Matt / red Mattei) are registered onto the mark's own M and drawn by
+   dashoffset out of it, while the composition glides left to stay centred
+   and the 2ei exponent gives way to the real tail. Leaving retracts the
+   strokes back into the monogram. */
 ---
 
-<div id="tstage" aria-hidden="false">
-  <div class="tscene">
-
-    <div class="tpulse" aria-hidden="true"></div>
-
-    <div class="tname" role="img" aria-label="Matt Mattei">
-      <p class="tword tw-cyan" id="twGiven" aria-hidden="true">MATT</p>
-      <p class="tword tw-red" id="twShared" aria-hidden="true">MATT</p>
-      <p class="tword tw-red" id="twTail" aria-hidden="true">EI</p>
-
-      <!-- the actual autograph, recreated as pen strokes: centerlines
-           extracted from the signature scan (scripts/extract-sig.mjs -
-           4x upscale, skeleton, junction merge, bezier fit), one plotted
-           line per channel. Cyan carries Matt in from the top-left, red
-           carries Mattei in from the bottom-right; the meet assembles
-           the signature on one baseline. The strokes are complete from
-           the first frame - the motion is the meet, not the writing. -->
-      <svg class="tsig tsig-cyan" id="tsigCyan" viewBox="0 0 515 65" aria-hidden="true">
-        <path pathLength="1" d="M 56.3 50.5 C 56.5 50.2, 57.5 49.9, 58 48.8 C 58.5 47.6, 54.7 50.1, 59.3 43.8 C 63.8 37.4, 80.9 16.4, 85.5 10.5 C 90.1 4.6, 86.5 9.3, 86.8 8.3 C 87 7.2, 87.3 4.9, 87.3 4 C 87.2 3.1, 87.1 3.2, 86.5 3 C 85.9 2.8, 85.1 2.7, 83.5 3 C 81.9 3.3, 79.9 3.8, 76.8 5 C 73.6 6.3, 70.8 7.3, 64.8 10.5 C 58.8 13.8, 47.4 20.3, 40.8 24.5 C 34.1 28.7, 29.5 32, 24.8 35.5 C 20 39, 15.5 42.8, 12.5 45.5 C 9.5 48.2, 8.1 49.7, 6.5 51.8 C 4.9 53.8, 3.4 56.5, 2.8 57.8 C 2.1 59, 2.3 58.6, 2.4 59.5 C 2.5 60.4, 3.3 62.4, 3.5 63 M 31.6 30.8 L 31.6 30.8 M 58 48.8 C 58.9 48.5, 56.4 52.4, 63.5 47.5 C 70.6 42.6, 92.3 25.2, 100.5 19.5 C 108.7 13.8, 110.2 14.2, 112.8 13.3 C 115.3 12.3, 115.5 12.9, 116 13.8 C 116.5 14.6, 119.3 12.4, 115.5 18.3 C 111.7 24.1, 97.1 43, 93.3 49 C 89.4 55, 92.1 52.9, 92.3 54 C 92.4 55.1, 92.5 55.5, 94.3 55.5 C 96 55.5, 98.2 55.4, 102.5 53.8 C 106.8 52.1, 116 47.5, 120.3 45.8 C 124.5 44, 126.1 43.9, 127.8 43.5 C 129.4 43.1, 129.4 43.3, 130.3 43.5 C 131.1 43.7, 130.9 44.8, 132.8 44.8 C 134.6 44.7, 139 43.2, 141.3 43 C 143.5 42.8, 144.9 43.3, 146 43.5 C 147.1 43.7, 147.4 43.5, 148 44.3 C 148.6 45, 148.9 47.2, 149.8 47.8 C 150.6 48.3, 150.8 48.4, 153 47.8 C 155.3 47.1, 160.6 44.7, 163.3 44 C 165.9 43.3, 166.1 45.2, 168.6 43.3 C 171.1 41.4, 176.7 35, 178.5 32.8 C 180.3 30.5, 178.1 30.5, 179.3 29.6 C 180.6 28.7, 184.8 28.2, 186.2 27.3 C 187.5 26.4, 186.1 25.5, 187.5 24 C 188.9 22.5, 193.3 19.4, 194.5 18.5 M 94.8 46.8 L 94.8 46.8 M 96.7 22.3 L 96.7 22.3 M 179.3 29.6 C 179.1 29.4, 180.6 28.5, 177.8 28.8 C 174.9 29, 164.6 30.8, 162 31.3 M 219 15.3 C 217.4 16.7, 211.3 21.8, 209.5 23.8 C 207.7 25.8, 209.3 26.4, 208 27.3 C 206.7 28.1, 203.1 27.7, 201.8 28.6 C 200.6 29.4, 202.4 29.9, 200.3 32.3 C 198.2 34.7, 192.1 41.1, 189.4 43 C 186.8 44.9, 186.4 42.9, 184.5 43.5 C 182.6 44.1, 180.6 45.7, 178.3 46.5 C 175.9 47.3, 171.9 48.5, 170.3 48.5 C 168.6 48.5, 168.8 47.6, 168.5 46.8 C 168.2 45.9, 168.6 43.9, 168.6 43.3 M 186.2 27.3 C 186.3 27.4, 184.8 27.9, 187.3 28 C 189.7 28.1, 198.3 27.7, 200.8 27.8 C 203.2 27.8, 201.7 28.4, 201.8 28.6 M 210 42.8 C 209.5 42.8, 208.9 42.3, 206.8 43 C 204.6 43.7, 199.8 46.1, 197.3 47 C 194.8 47.9, 193 48.1, 191.8 48.3 C 190.5 48.4, 189.9 48.6, 189.5 47.8 C 189.1 46.9, 189.4 43.8, 189.4 43 M 208.3 27 C 208.4 27.1, 206 27.5, 209 27.8 C 212 28, 222.4 28.3, 226 28.8 C 229.6 29.3, 230 30.4, 230.8 30.8" />
-      </svg>
-      <svg class="tsig tsig-red" id="tsigRed" viewBox="0 0 515 65" aria-hidden="true">
-        <path pathLength="1" d="M 241.8 62.4 C 241.7 61.6, 240.8 59.4, 241 58 C 241.2 56.6, 241.3 56.3, 243 54.3 C 244.7 52.2, 248.1 48.3, 251 45.5 C 253.9 42.7, 256 40.9, 260.5 37.5 C 265 34.1, 272.4 28.9, 278 25.3 C 283.6 21.6, 289.1 18.4, 294.3 15.5 C 299.4 12.6, 304.5 9.8, 308.8 7.8 C 313 5.8, 317.2 4.2, 320 3.5 C 322.8 2.8, 324.4 3, 325.4 3.4 C 326.3 3.8, 325.9 5, 325.8 6 C 325.6 7, 326.4 6.4, 324.6 9.1 C 322.9 11.8, 319.8 16.4, 315.3 22.3 C 310.7 28.1, 300.8 39.4, 297.5 44 C 294.2 48.6, 295.8 48.8, 295.5 49.8 M 296.1 49 C 297.1 48.8, 295.1 52.3, 302 47.5 C 308.9 42.7, 330.2 25.9, 337.5 20.5 C 344.8 15.1, 343.7 16.5, 346 15.3 C 348.3 14, 349.9 13.5, 351.3 13.3 C 352.6 13, 353.9 13, 354.4 13.8 C 354.8 14.5, 357.6 12.4, 354 18 C 350.4 23.6, 336.7 41.4, 332.8 47.3 C 328.8 53.1, 330.8 52, 330.5 53.3 C 330.3 54.5, 330.9 54.6, 331.3 55 C 331.6 55.4, 331.5 55.5, 332.5 55.5 C 333.5 55.5, 335.2 55.5, 337 55 C 338.8 54.5, 338.9 54.6, 343.5 52.8 C 348.1 50.9, 360.3 45.3, 364.5 43.8 C 368.7 42.2, 367.3 43.3, 368.5 43.5 C 369.7 43.7, 369.7 44.8, 371.5 44.8 C 373.3 44.7, 377.2 43.2, 379.5 43 C 381.8 42.8, 384.1 42.7, 385.5 43.5 C 386.9 44.3, 387.2 47, 388 47.8 C 388.8 48.5, 389.2 47.9, 390.3 47.8 C 391.3 47.6, 392.6 47.6, 394.5 47 C 396.4 46.4, 399.7 44.6, 401.8 44 C 403.8 43.4, 404.5 45.2, 406.9 43.4 C 409.4 41.6, 414.7 35.6, 416.5 33.3 C 418.3 30.9, 416.5 30.5, 417.8 29.5 C 419 28.5, 422.6 28.7, 424.3 27.5 C 425.9 26.3, 426.3 24, 427.8 22.5 C 429.3 21, 432.3 19, 433.3 18.3 M 417.5 29.8 C 417.3 29.6, 418.9 28.5, 416 28.8 C 413.1 29, 402.9 30.6, 400.3 31 M 429.6 41.5 C 429.2 41.7, 428.6 42.7, 427.5 43 C 426.4 43.3, 425 42.9, 423.3 43.5 C 421.5 44.1, 419.1 45.7, 416.8 46.5 C 414.4 47.3, 410.6 48, 409 48.3 C 407.4 48.5, 407.6 48.6, 407.3 47.8 C 406.9 46.9, 407 44.1, 406.9 43.4 M 457.3 15.5 C 455.7 16.9, 449.5 21.8, 447.8 23.8 C 446 25.7, 447.8 26.4, 446.5 27.2 C 445.2 28, 441.3 28.5, 440.1 28.6 C 438.8 28.7, 441.3 27.8, 439 27.8 C 436.7 27.7, 428.3 28.2, 426 28 C 423.7 27.8, 425.2 27, 425 26.8 M 440.1 28.6 C 439.9 29.2, 441 29.5, 439 32 C 437 34.5, 429.8 40.8, 428 43.5 C 426.2 46.2, 427.5 47.4, 428.4 48.1 C 429.3 48.8, 430.7 48.6, 433.5 47.8 C 436.3 46.9, 442.3 43.9, 445.3 43 C 448.2 42.1, 450 42.4, 451.3 42.5 C 452.5 42.6, 452.4 43.5, 453 43.5 C 453.6 43.5, 453.6 42.5, 454.8 42.3 C 455.9 42, 459.1 41.8, 460 41.8 M 446.5 27.2 C 449 27.4, 457.8 27.7, 461.5 28.3 C 465.2 28.8, 467.5 30.1, 468.8 30.5 M 450.5 21.4 L 450.5 21.4 M 513.3 42.5 C 512.4 42.6, 511.7 42.2, 508.3 43 C 504.8 43.8, 495.8 46.6, 492.8 47.3 C 489.8 47.9, 490.8 47.5, 490.3 46.8 C 489.7 46, 490.1 43.6, 489.5 43 C 488.9 42.4, 490.8 42.2, 486.5 43 C 482.2 43.8, 468.7 47, 463.5 47.8 C 458.3 48.5, 456.9 48.5, 455.3 47.8 C 453.6 47, 453.9 44, 453.7 43.3 M 504.3 22.3 L 504.3 22.3" />
-      </svg>
-
-      <!-- the monogram the name resolves into: the signature's own opening
-           M stroke (its d is cloned from the cyan plate at runtime, so the
-           stroke never forks) raised to 2ei. Over the last quarter of the
-           rise the words fade and the M slides to centre carrying the
-           exponent in - the name contracts into the mark and stays. -->
-      <div class="tmark" id="tmark" aria-hidden="true">
-        <svg class="tmark-m" viewBox="2 3 86 60">
-          <path class="mk-cyan" transform="translate(-3.2 0)"/>
-          <path class="mk-red" transform="translate(3.2 0)"/>
-        </svg><span class="tmark-exp">2ei</span>
-      </div>
-    </div>
-
-    <div class="tcue" id="tcue">
-      <span class="tcue-line" aria-hidden="true"></span>SCROLL
-    </div>
-
+<div id="sigdock" aria-hidden="false">
+  <div class="tmark" id="tmark" role="img" aria-label="Matt Mattei">
+    <svg class="tmark-m" viewBox="2 3 86 60">
+      <path class="mk-cyan" transform="translate(-3.2 0)"/>
+      <path class="mk-red" transform="translate(3.2 0)"/>
+    </svg><span class="tmark-exp">2ei</span>
+    <!-- the full autograph, hidden in the mark: same unit scale, positioned
+         so plate coordinates land exactly on the mark's M -->
+    <svg class="tsig-eg eg-cyan" viewBox="0 0 515 65" aria-hidden="true">
+      <path pathLength="1" transform="translate(-3.2 0)" d="M 56.3 50.5 C 56.5 50.2, 57.5 49.9, 58 48.8 C 58.5 47.6, 54.7 50.1, 59.3 43.8 C 63.8 37.4, 80.9 16.4, 85.5 10.5 C 90.1 4.6, 86.5 9.3, 86.8 8.3 C 87 7.2, 87.3 4.9, 87.3 4 C 87.2 3.1, 87.1 3.2, 86.5 3 C 85.9 2.8, 85.1 2.7, 83.5 3 C 81.9 3.3, 79.9 3.8, 76.8 5 C 73.6 6.3, 70.8 7.3, 64.8 10.5 C 58.8 13.8, 47.4 20.3, 40.8 24.5 C 34.1 28.7, 29.5 32, 24.8 35.5 C 20 39, 15.5 42.8, 12.5 45.5 C 9.5 48.2, 8.1 49.7, 6.5 51.8 C 4.9 53.8, 3.4 56.5, 2.8 57.8 C 2.1 59, 2.3 58.6, 2.4 59.5 C 2.5 60.4, 3.3 62.4, 3.5 63 M 31.6 30.8 L 31.6 30.8 M 58 48.8 C 58.9 48.5, 56.4 52.4, 63.5 47.5 C 70.6 42.6, 92.3 25.2, 100.5 19.5 C 108.7 13.8, 110.2 14.2, 112.8 13.3 C 115.3 12.3, 115.5 12.9, 116 13.8 C 116.5 14.6, 119.3 12.4, 115.5 18.3 C 111.7 24.1, 97.1 43, 93.3 49 C 89.4 55, 92.1 52.9, 92.3 54 C 92.4 55.1, 92.5 55.5, 94.3 55.5 C 96 55.5, 98.2 55.4, 102.5 53.8 C 106.8 52.1, 116 47.5, 120.3 45.8 C 124.5 44, 126.1 43.9, 127.8 43.5 C 129.4 43.1, 129.4 43.3, 130.3 43.5 C 131.1 43.7, 130.9 44.8, 132.8 44.8 C 134.6 44.7, 139 43.2, 141.3 43 C 143.5 42.8, 144.9 43.3, 146 43.5 C 147.1 43.7, 147.4 43.5, 148 44.3 C 148.6 45, 148.9 47.2, 149.8 47.8 C 150.6 48.3, 150.8 48.4, 153 47.8 C 155.3 47.1, 160.6 44.7, 163.3 44 C 165.9 43.3, 166.1 45.2, 168.6 43.3 C 171.1 41.4, 176.7 35, 178.5 32.8 C 180.3 30.5, 178.1 30.5, 179.3 29.6 C 180.6 28.7, 184.8 28.2, 186.2 27.3 C 187.5 26.4, 186.1 25.5, 187.5 24 C 188.9 22.5, 193.3 19.4, 194.5 18.5 M 94.8 46.8 L 94.8 46.8 M 96.7 22.3 L 96.7 22.3 M 179.3 29.6 C 179.1 29.4, 180.6 28.5, 177.8 28.8 C 174.9 29, 164.6 30.8, 162 31.3 M 219 15.3 C 217.4 16.7, 211.3 21.8, 209.5 23.8 C 207.7 25.8, 209.3 26.4, 208 27.3 C 206.7 28.1, 203.1 27.7, 201.8 28.6 C 200.6 29.4, 202.4 29.9, 200.3 32.3 C 198.2 34.7, 192.1 41.1, 189.4 43 C 186.8 44.9, 186.4 42.9, 184.5 43.5 C 182.6 44.1, 180.6 45.7, 178.3 46.5 C 175.9 47.3, 171.9 48.5, 170.3 48.5 C 168.6 48.5, 168.8 47.6, 168.5 46.8 C 168.2 45.9, 168.6 43.9, 168.6 43.3 M 186.2 27.3 C 186.3 27.4, 184.8 27.9, 187.3 28 C 189.7 28.1, 198.3 27.7, 200.8 27.8 C 203.2 27.8, 201.7 28.4, 201.8 28.6 M 210 42.8 C 209.5 42.8, 208.9 42.3, 206.8 43 C 204.6 43.7, 199.8 46.1, 197.3 47 C 194.8 47.9, 193 48.1, 191.8 48.3 C 190.5 48.4, 189.9 48.6, 189.5 47.8 C 189.1 46.9, 189.4 43.8, 189.4 43 M 208.3 27 C 208.4 27.1, 206 27.5, 209 27.8 C 212 28, 222.4 28.3, 226 28.8 C 229.6 29.3, 230 30.4, 230.8 30.8" />
+    </svg>
+    <svg class="tsig-eg eg-red" viewBox="0 0 515 65" aria-hidden="true">
+      <path pathLength="1" transform="translate(3.2 0)" d="M 241.8 62.4 C 241.7 61.6, 240.8 59.4, 241 58 C 241.2 56.6, 241.3 56.3, 243 54.3 C 244.7 52.2, 248.1 48.3, 251 45.5 C 253.9 42.7, 256 40.9, 260.5 37.5 C 265 34.1, 272.4 28.9, 278 25.3 C 283.6 21.6, 289.1 18.4, 294.3 15.5 C 299.4 12.6, 304.5 9.8, 308.8 7.8 C 313 5.8, 317.2 4.2, 320 3.5 C 322.8 2.8, 324.4 3, 325.4 3.4 C 326.3 3.8, 325.9 5, 325.8 6 C 325.6 7, 326.4 6.4, 324.6 9.1 C 322.9 11.8, 319.8 16.4, 315.3 22.3 C 310.7 28.1, 300.8 39.4, 297.5 44 C 294.2 48.6, 295.8 48.8, 295.5 49.8 M 296.1 49 C 297.1 48.8, 295.1 52.3, 302 47.5 C 308.9 42.7, 330.2 25.9, 337.5 20.5 C 344.8 15.1, 343.7 16.5, 346 15.3 C 348.3 14, 349.9 13.5, 351.3 13.3 C 352.6 13, 353.9 13, 354.4 13.8 C 354.8 14.5, 357.6 12.4, 354 18 C 350.4 23.6, 336.7 41.4, 332.8 47.3 C 328.8 53.1, 330.8 52, 330.5 53.3 C 330.3 54.5, 330.9 54.6, 331.3 55 C 331.6 55.4, 331.5 55.5, 332.5 55.5 C 333.5 55.5, 335.2 55.5, 337 55 C 338.8 54.5, 338.9 54.6, 343.5 52.8 C 348.1 50.9, 360.3 45.3, 364.5 43.8 C 368.7 42.2, 367.3 43.3, 368.5 43.5 C 369.7 43.7, 369.7 44.8, 371.5 44.8 C 373.3 44.7, 377.2 43.2, 379.5 43 C 381.8 42.8, 384.1 42.7, 385.5 43.5 C 386.9 44.3, 387.2 47, 388 47.8 C 388.8 48.5, 389.2 47.9, 390.3 47.8 C 391.3 47.6, 392.6 47.6, 394.5 47 C 396.4 46.4, 399.7 44.6, 401.8 44 C 403.8 43.4, 404.5 45.2, 406.9 43.4 C 409.4 41.6, 414.7 35.6, 416.5 33.3 C 418.3 30.9, 416.5 30.5, 417.8 29.5 C 419 28.5, 422.6 28.7, 424.3 27.5 C 425.9 26.3, 426.3 24, 427.8 22.5 C 429.3 21, 432.3 19, 433.3 18.3 M 417.5 29.8 C 417.3 29.6, 418.9 28.5, 416 28.8 C 413.1 29, 402.9 30.6, 400.3 31 M 429.6 41.5 C 429.2 41.7, 428.6 42.7, 427.5 43 C 426.4 43.3, 425 42.9, 423.3 43.5 C 421.5 44.1, 419.1 45.7, 416.8 46.5 C 414.4 47.3, 410.6 48, 409 48.3 C 407.4 48.5, 407.6 48.6, 407.3 47.8 C 406.9 46.9, 407 44.1, 406.9 43.4 M 457.3 15.5 C 455.7 16.9, 449.5 21.8, 447.8 23.8 C 446 25.7, 447.8 26.4, 446.5 27.2 C 445.2 28, 441.3 28.5, 440.1 28.6 C 438.8 28.7, 441.3 27.8, 439 27.8 C 436.7 27.7, 428.3 28.2, 426 28 C 423.7 27.8, 425.2 27, 425 26.8 M 440.1 28.6 C 439.9 29.2, 441 29.5, 439 32 C 437 34.5, 429.8 40.8, 428 43.5 C 426.2 46.2, 427.5 47.4, 428.4 48.1 C 429.3 48.8, 430.7 48.6, 433.5 47.8 C 436.3 46.9, 442.3 43.9, 445.3 43 C 448.2 42.1, 450 42.4, 451.3 42.5 C 452.5 42.6, 452.4 43.5, 453 43.5 C 453.6 43.5, 453.6 42.5, 454.8 42.3 C 455.9 42, 459.1 41.8, 460 41.8 M 446.5 27.2 C 449 27.4, 457.8 27.7, 461.5 28.3 C 465.2 28.8, 467.5 30.1, 468.8 30.5 M 450.5 21.4 L 450.5 21.4 M 513.3 42.5 C 512.4 42.6, 511.7 42.2, 508.3 43 C 504.8 43.8, 495.8 46.6, 492.8 47.3 C 489.8 47.9, 490.8 47.5, 490.3 46.8 C 489.7 46, 490.1 43.6, 489.5 43 C 488.9 42.4, 490.8 42.2, 486.5 43 C 482.2 43.8, 468.7 47, 463.5 47.8 C 458.3 48.5, 456.9 48.5, 455.3 47.8 C 453.6 47, 453.9 44, 453.7 43.3 M 504.3 22.3 L 504.3 22.3" />
+    </svg>
   </div>
 </div>
 
 <style is:global>
-/* the scroll budget of the whole sequence. 240vh = 140vh of choreography
-   (the scene is stuck for that: enter, meet, register) + 100vh of release,
-   where the name makes its rise WHILE the scene slides up and the landing
-   rises into the frame. One number to retune. */
-#tstage { position: relative; height: 240vh; }
-
-.tscene {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  overflow: hidden;
-  /* the words register by multiplying against each other, so the blend
-     needs a group of its own and an opaque ground under it. This is the
-     site ground from global.css, unfixed: while the scene is stuck it is
-     viewport-anchored anyway, and the two tones differ by 1/255. */
-  isolation: isolate;
-  background: radial-gradient(125% 125% at 24% 16%,
-              var(--paper) 0%, var(--paper) 46%, var(--paper-2) 100%);
-}
-
-/* measurement field: near-invisible at rest, firming up as the name
-   resolves. Masked top and bottom so it has no edge of its own. */
-.tscene::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* fixed at the head of the page, above the relay cards (z9) but under the
+   walked-in worlds (z10) */
+#sigdock {
+  position: fixed; left: 50%; top: max(20px, 3.2vh); z-index: 9;
+  transform: translateX(-50%);
   pointer-events: none;
-  opacity: calc(.02 + var(--tp, 0) * .05);
-  background-image:
-    linear-gradient(to right, var(--line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
-  background-size: min(9vw, 118px) min(9vw, 118px);
-  transform: translateY(calc(var(--tp, 0) * -4vh));
-  -webkit-mask-image: linear-gradient(to bottom, transparent 2%, #000 18%, #000 82%, transparent 98%);
-  mask-image: linear-gradient(to bottom, transparent 2%, #000 18%, #000 82%, transparent 98%);
+  transition-property: opacity; transition-duration: .35s; transition-timing-function: ease-out;
 }
-
-/* ---- the name ---- */
-/* fixed, not scene-local: the name docks at the head of the page and STAYS
-   when the scene departs - it never scrolls out of view. Isolated so the
-   two channels still multiply against each other. */
-.tname { position: fixed; inset: 0; z-index: 5; isolation: isolate; pointer-events: none; }
-
-.tword {
-  position: absolute;
-  left: 0;
-  top: 0;
-  margin: 0;
-  font-family: 'BigShoulders', 'Arial Narrow', sans-serif;
-  font-weight: 800;
-  font-size: clamp(84px, 16vw, 250px);
-  line-height: .76;
-  letter-spacing: -.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transform-origin: left top;
-  will-change: transform, opacity, filter;
-  user-select: none;
-  -webkit-user-select: none;
-  font-kerning: none;
-  /* JS writes the transform on first frame; until then it stays off-frame
-     rather than stacked at the origin */
-  opacity: 0;
-}
-
-.tw-cyan { z-index: 4; color: #00A9D6; mix-blend-mode: multiply; }
-.tw-red  { z-index: 3; color: #EF3E35; mix-blend-mode: multiply; }
-
-/* ---- the signature (default; ?intro=type for the word treatment) ----
-   the actual autograph as plotted pen strokes: same anaglyph rules as
-   the words - two channels, multiply, fringe - drawn by dashoffset. */
-.tsig {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: min(64vw, 1180px);
-  height: auto;
-  overflow: visible;
-  transform-origin: left top;
-  opacity: 0;
-  mix-blend-mode: multiply;
-  will-change: transform, opacity, filter;
-  pointer-events: none;
-}
-.tsig path {
-  fill: none;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.tsig-cyan { z-index: 4; }
-.tsig-red  { z-index: 3; }
-.tsig-cyan path { stroke: #00A9D6; }
-.tsig-red  path { stroke: #EF3E35; }
-
-/* ---- the M-squared monogram ----
-   sized so its M matches the signature's M exactly at any scale: the svg
-   width is the M's share of the full plate (86/515), so the crossfade
-   holds the stroke still while the rest of the name leaves. The static
-   ±3.2-unit path offsets are the docked fringe, baked in. */
+/* the mark prints on paper: while a full-bleed card owns the head of the
+   frame it steps aside, and returns as the card recedes */
+body.relay-live #sigdock, body.walked #sigdock { opacity: 0; }
 .tmark {
-  position: absolute; left: 0; top: 0; z-index: 6;
-  display: flex; align-items: flex-start;
-  transform-origin: left top; opacity: 0; pointer-events: none;
-  isolation: isolate; will-change: transform, opacity;
+  position: relative; display: flex; align-items: flex-start;
+  /* the docked scale of the retired rise (.235 of the full plate), so the
+     mark reads exactly as it did at the end of the old choreography */
+  transform: scale(.235); transform-origin: center top;
+  isolation: isolate;
+  pointer-events: auto;
+  transition-property: transform;
+  transition-duration: .6s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
 }
+body.relay-live .tmark { pointer-events: none; }
+/* the hover field: generous, and wide enough that following the pen to
+   either end of the drawn autograph never drops the hover */
+.tmark::after { content: ''; position: absolute; inset: -40px -520px -60px; }
 .tmark-m { width: calc(min(64vw, 1180px) * .167); height: auto; overflow: visible; }
-.tmark-m path {
+.tmark-m path, .tsig-eg path {
   fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
   mix-blend-mode: multiply;
 }
-.mk-cyan { stroke: #00A9D6; }
-.mk-red  { stroke: #EF3E35; }
+.tmark-m .mk-cyan, .eg-cyan path { stroke: #00A9D6; }
+.tmark-m .mk-red,  .eg-red path  { stroke: #EF3E35; }
 .tmark-exp {
   font-family: 'BigShoulders', 'Arial Narrow', sans-serif; font-weight: 800;
   font-size: calc(min(64vw, 1180px) * .062); line-height: 1;
   color: var(--ink); margin-left: .5vw; transform: translateY(-14%);
+  transition-property: opacity, transform;
+  transition-duration: .3s; transition-timing-function: ease-out;
 }
+
+/* ---- easter egg: the pen finishes the autograph ----
+   The plates share the mark's unit scale: mark width is the M's 86-unit
+   share of the 515-unit plate, so plate x0/y0 sits 2/3 units up-left of
+   the mark's box. Drawn by dashoffset out of the M; cyan (Matt) leads,
+   red (Mattei) follows; retract runs in reverse order. */
+.tsig-eg {
+  position: absolute;
+  left: calc(min(64vw, 1180px) * .167 / 86 * -2);
+  top: calc(min(64vw, 1180px) * .167 / 86 * -3);
+  width: min(64vw, 1180px); height: auto; overflow: visible;
+  pointer-events: none;
+}
+.tsig-eg path {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition-property: stroke-dashoffset;
+  transition-duration: .5s; transition-timing-function: cubic-bezier(.45, .05, .35, 1);
+}
+.eg-cyan path { transition-delay: .14s; }   /* closing: red retracts first */
+.eg-red path  { transition-delay: 0s; }
+#sigdock.open .eg-cyan path { stroke-dashoffset: 0; transition-delay: 0s; transition-duration: .55s; }
+#sigdock.open .eg-red path  { stroke-dashoffset: 0; transition-delay: .2s; transition-duration: .6s; }
+/* the mark's own strokes yield while the plates retrace them, so the
+   multiply blend never doubles the M's ink */
+.tmark-m path { transition-property: opacity; transition-duration: .12s; transition-timing-function: linear; transition-delay: .5s; }
+#sigdock.open .tmark-m path { opacity: 0; transition-delay: .05s; }
+/* the composition glides left so the finished autograph sits centred:
+   half of the plates' extra width (429 units), at the docked scale */
+#sigdock.open .tmark { transform: translateX(calc(min(64vw, 1180px) * -.0979)) scale(.235); }
+/* the exponent gives way to the real tail */
+#sigdock.open .tmark-exp { opacity: 0; transform: translateY(-14%) translateX(10px); }
+
 @media (max-width: 820px) {
   .tmark-m { width: calc(86vw * .167); }
   .tmark-exp { font-size: calc(86vw * .062); }
+  .tsig-eg { left: calc(86vw * .167 / 86 * -2); top: calc(86vw * .167 / 86 * -3); width: 86vw; }
+  #sigdock.open .tmark { transform: translateX(calc(86vw * -.0979)) scale(.235); }
+  .tmark::after { inset: -30px -46vw -40px; }
 }
-
-/* ---- registration marks ---- */
-.tpulse {
-  position: absolute;
-  z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: clamp(118px, 17vw, 250px);
-  aspect-ratio: 1;
-  border: 1px solid rgba(0, 169, 214, .46);
-  border-radius: 50%;
-  opacity: var(--tpulse-o, 0);
-  transform: translate(-50%, -50%) scale(var(--tpulse-s, .72));
-  pointer-events: none;
-}
-.tpulse::before {
-  content: '';
-  position: absolute;
-  inset: 12%;
-  border: 1px solid rgba(239, 62, 53, .42);
-  border-radius: inherit;
-}
-
-/* ---- scroll cue: the landing's own label metrics ---- */
-.tcue {
-  position: absolute;
-  z-index: 5;
-  left: max(18px, 3.8vw);
-  bottom: 34px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.8px;
-  color: var(--ink);
-  pointer-events: none;
-  opacity: calc(.78 - min(1, var(--tp, 0) * 5));
-}
-.tcue-line {
-  width: 30px;
-  height: 1.5px;
-  background: currentColor;
-  transform-origin: left;
-  animation: tbreathe 1.7s cubic-bezier(.22, 1, .36, 1) infinite;
-}
-@keyframes tbreathe {
-  0%, 100% { transform: scaleX(.25); opacity: .35; }
-  50%      { transform: scaleX(1);   opacity: 1; }
-}
-
-/* the landing's side rail belongs to the landing: it arrives with it */
-body:not(.title-done) .lrail { opacity: 0; pointer-events: none; }
-
-@media (max-width: 820px) {
-  #tstage { height: 220vh; }
-  .tword { font-size: clamp(56px, 21vw, 120px); }
-  .tsig { width: 86vw; }
-  .tcue { bottom: 26px; }
-}
-
-/* no scroll choreography: the registered name reads as a title card and
-   scrolls away with the page */
 @media (prefers-reduced-motion: reduce) {
-  #tstage { height: 100vh; height: 100svh; }
-  .tcue-line { animation: none; }
-  /* the still pose is a title card: it belongs to the scene and scrolls
-     away with it, so it must not stay pinned over the page */
-  .tname { position: absolute; }
+  #sigdock, .tmark, .tsig-eg path, .tmark-m path, .tmark-exp { transition-duration: .01ms; }
 }
 </style>
 
 <script is:inline>
 (function () {
-  var root = document.documentElement;
-  var stage = document.getElementById('tstage');
-  var given = document.getElementById('twGiven');    /* MATT, cyan channel */
-  var shared = document.getElementById('twShared');  /* MATT, red channel  */
-  var tail = document.getElementById('twTail');      /* EI, red channel    */
-  var sigCyan = document.getElementById('tsigCyan');
-  var sigRed = document.getElementById('tsigRed');
-  if (!stage || !given || !shared || !tail || !sigCyan || !sigRed) return;
-
-  /* which treatment plays: the cursive Lissajous signature by default,
-     ?intro=type for the typographic anaglyph. Both stay wired so the two
-     can be compared on the real page. */
-  var MODE = /[?&]intro=type\b/.test(location.search) ? 'type' : 'liss';
-
-  /* the monogram: its M is the signature's opening stroke, cloned so the
-     two never drift apart */
-  var mark = MODE === 'liss' ? document.getElementById('tmark') : null;
-  if (mark) {
-    var mD = sigCyan.querySelector('path').getAttribute('d').split(/ M /)[0];
-    [].forEach.call(mark.querySelectorAll('path'), function (p) { p.setAttribute('d', mD); });
-  }
-
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function clamp(v, a, b) {
-    a = a == null ? 0 : a; b = b == null ? 1 : b;
-    return Math.min(b, Math.max(a, v));
-  }
-  function mix(a, b, t) { return a + (b - a) * t; }
-  function easeInOut(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-  function easeIn(t) { return t * t * t; }
-
-  /* every position is derived from the measured words, so the sequence
-     holds at any width and after the display face swaps in */
-  var m = null;
-  function measure() {
-    var vw = innerWidth, vh = innerHeight;
-    var sharedW = shared.offsetWidth;
-    var fullW = sharedW + tail.offsetWidth;
-    var h = Math.max(given.offsetHeight, shared.offsetHeight);
-    var marginX = Math.max(18, vw * .038);
-    var marginY = Math.max(84, vh * .12);
-    var centerY = vh * .5 - h * .5;
-    /* the two channels register on MATT, but the word the eye reads is
-       MATTEI - centre the composite, or the shared half sits on the axis
-       and the whole name looks pushed right by half of EI */
-    var centerX = vw * .5 - fullW * .5;
-    var hold = Math.min(vw * .18, Math.max(92, sharedW * .72));
-    m = {
-      vw: vw, vh: vh, sharedW: sharedW, fullW: fullW, centerY: centerY, centerX: centerX,
-      givenStart: { x: marginX, y: marginY },
-      surnameStart: { x: vw - fullW - marginX, y: vh - h - marginY },
-      leftHold: centerX - hold,
-      rightHold: centerX + hold,
-      finalTop: Math.max(24, vh * .035),
-      fringe: Math.min(6, Math.max(3, vw * .004)),
-      sigW: sigCyan.clientWidth,
-      sigH: sigCyan.clientHeight,
-      markW: mark ? mark.offsetWidth : 0
-    };
-  }
-
-  function place(el, x, y, s, blur) {
-    el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + s + ')';
-    el.style.opacity = '1';
-    el.style.filter = blur ? 'blur(' + blur + 'px)' : 'none';
-  }
-
-  /* T runs 0..2: 0..1 is the stuck choreography (the 140vh the scene is
-     pinned), 1..2 is the release (the scene's own 100vh slide). The rise
-     is driven by the release, so the name retreats to the top and back at
-     exactly the rate the landing rises in underneath - one move, not two
-     beats. Both treatments share the driver; only the drawing differs. */
-  function render(T) {
-    if (!m) measure();
-    var p = Math.min(1, T);
-    var q = clamp(T - 1);
-    root.style.setProperty('--tp', p.toFixed(4));
-    if (MODE === 'type') renderType(p, q); else renderLiss(p, q);
-    /* the rail belongs to the landing: it arrives once the landing is
-       genuinely on its way up */
-    document.body.classList.toggle('title-done', T >= 1.12);
-    if (!reduce) driveHero(T);
-  }
-
-  /* the hero rides the same flow as the name: it peeks from below the
-     fold as the two channels come together, then rises in step with the
-     name's own rise - driven by the lerped T, not raw scroll, so both
-     move as one fluid gesture. It is never held below where native
-     scroll would put it, which makes the handoff to the wind run's pin
-     at the top of #fit seamless even on a fast flick. */
-  var fitEl = null, tvEl = null, heroHeld = false;
-  function driveHero(T) {
-    if (!fitEl) {
-      fitEl = document.getElementById('fit');
-      tvEl = document.getElementById('tv');
-      if (!fitEl) return;
-    }
-    if (!geo.fitTop) {
-      geo.fitTop = fitEl.offsetTop;
-      /* peek depth: enough of the hero to read - the billboard's dark
-         screen when it stands in the hero, otherwise the heading's cap */
-      geo.peekDepth = ((tvEl && tvEl.offsetParent)
-        ? tvEl.getBoundingClientRect().top - fitEl.getBoundingClientRect().top
-        : innerHeight * .12) + innerHeight * .16;
-    }
-    var vh = geo.release;
-    var p = Math.min(1, T), q = clamp(T - 1);
-    var peek = easeInOut(clamp((p - .69) / .25));  /* slides in with the meet */
-    var rise = easeInOut(clamp(q / .6));           /* the name's own rise curve */
-    var D = mix(mix(vh + 2, vh - geo.peekDepth, peek), 0, rise);
-    var natural = geo.fitTop - scrollY;
-    if (natural <= 0) {
-      /* past the hero top this is native (or wind run) territory: leave
-         no stale offset behind, or the hero stays displaced */
-      if (heroHeld) { fitEl.style.transform = ''; heroHeld = false; }
-      return;
-    }
-    D = Math.min(D, natural);
-    fitEl.style.transform = 'translate3d(0,' + (D - natural).toFixed(2) + 'px,0)';
-    heroHeld = true;
-  }
-
-  function renderType(p, q) {
-    /* enter from the corners, hold either side of centre, then meet.
-       The milestones fill the whole pin: they used to finish at p .8,
-       and the last fifth of the stuck scroll answered nothing. */
-    var enter = easeInOut(clamp(p / .45));
-    var meet = easeInOut(clamp((p - .39) / .42));
-    /* the fringe only opens once the two channels are on the same baseline */
-    var registered = easeOut(clamp((p - .71) / .16));
-    /* the name is viewport-fixed, so the rise is viewport-true while the
-       scene slides up underneath it: it retreats to the head of the page
-       and stays there - the hero arrives right beneath it. */
-    var r = easeInOut(clamp(q / .6));
-
-    var scale = mix(1, .235, r);
-    var fringe = m.fringe * registered * (1 - r * .35);
-    var topX = m.vw * .5 - m.fullW * scale * .5;
-
-    var gx = mix(mix(m.givenStart.x, m.leftHold, enter), m.centerX, meet);
-    var gy = mix(m.givenStart.y, m.centerY, enter);
-    var sx = mix(mix(m.surnameStart.x, m.rightHold, enter), m.centerX, meet);
-    var sy = mix(m.surnameStart.y, m.centerY, enter);
-
-    var cyanX = mix(gx, topX, r) - fringe;
-    var cyanY = mix(gy, m.finalTop, r);
-    var redX = mix(sx, topX, r) + fringe;
-    var redY = mix(sy, m.finalTop, r);
-    /* a touch of blur through the middle of the rise reads as travel; it
-       clears again at the dock so the resting name is sharp */
-    var bu = clamp((r - .35) / .65);
-    var blur = 1.1 * (1 - Math.abs(2 * bu - 1));
-
-    place(given, cyanX, cyanY, scale, blur);
-    place(shared, redX, redY, scale, blur);
-    place(tail, redX + m.sharedW * scale, redY, scale, blur);
-
-    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .76) / .24) * 2 - 1));
-    root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
-    root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
-  }
-
-
-  function renderLiss(p, q) {
-    /* the same choreography as the words - cyan Matt in from the top-left,
-       red Mattei in from the bottom-right, hold either side of centre,
-       meet so the two halves assemble on one baseline, rise with the
-       release, dock and stay. The strokes arrive whole - two finished
-       colour plates looking for registration. */
-    /* milestones fill the whole pin (they used to finish at p .8, leaving
-       the last fifth of the stuck scroll dead): the pulse's fade is the
-       release handing into the rise */
-    var enter = easeInOut(clamp(p / .45));
-    var meet = easeInOut(clamp((p - .39) / .42));
-    var registered = easeOut(clamp((p - .71) / .16));
-    var r = easeInOut(clamp(q / .6));
-
-    var scale = mix(1, .235, r);
-    /* both traces carry the full name, so they register completely; the
-       fringe misprints on both axes like a plate slipped on the press */
-    var fringe = m.fringe * 1.18 * registered * (1 - r * .35);
-
-    var centerX = m.vw * .5 - m.sigW * .5;
-    var centerY = m.vh * .5 - m.sigH * .5;
-    var hold = Math.min(m.vw * .18, Math.max(92, m.sigW * .18));
-    var marginX = Math.max(18, m.vw * .038);
-    var marginY = Math.max(84, m.vh * .12);
-
-    /* entry heights pulled well toward centre: the words still oppose
-       corners, but the vertical spread between them stays modest */
-    var cyanY0 = mix(marginY, centerY, .65);
-    var redY0 = mix(m.vh - m.sigH - marginY, centerY, .65);
-    var gx = mix(mix(marginX, centerX - hold, enter), centerX, meet);
-    var gy = mix(cyanY0, centerY, enter);
-    var sx = mix(mix(m.vw - m.sigW - marginX, centerX + hold, enter), centerX, meet);
-    var sy = mix(redY0, centerY, enter);
-
-    /* horizontal: during the rise the composite stays centred at its
-       CURRENT scale. Lerping toward an endpoint computed at the final
-       scale bows the path left before it comes back - the left-origin
-       shrink outruns the lerp. */
-    var topX = m.vw * .5 - m.sigW * scale * .5;
-    var cyanX = (r > 0 ? topX : gx) - fringe;
-    var cyanY = mix(gy, m.finalTop, r) - fringe * .18;
-    var redX = (r > 0 ? topX : sx) + fringe;
-    var redY = mix(sy, m.finalTop, r) + fringe * .18;
-
-    var bu = clamp((r - .35) / .65);
-    var blur = .75 * (1 - Math.abs(2 * bu - 1));
-
-    /* the last quarter of the rise is the handoff: the words fade while
-       the M holds still (the mark's svg is sized so its M sits exactly on
-       the signature's), then the M slides to centre carrying 2ei in */
-    var morph = mark ? easeInOut(clamp((r - .75) / .25)) : 0;
-
-    sigCyan.style.opacity = (1 - morph).toFixed(3);
-    sigRed.style.opacity = (1 - morph).toFixed(3);
-    sigCyan.style.transform = 'translate3d(' + cyanX + 'px,' + cyanY + 'px,0) scale(' + scale + ')';
-    sigRed.style.transform = 'translate3d(' + redX + 'px,' + redY + 'px,0) scale(' + scale + ')';
-    sigCyan.style.filter = blur > .01 ? 'blur(' + blur + 'px)' : 'none';
-    sigRed.style.filter = blur > .01 ? 'blur(' + blur + 'px)' : 'none';
-
-    if (mark) {
-      if (morph > 0) {
-        var midY = (cyanY + redY) * .5;
-        var mStartX = topX + m.sigW * scale * (2.4 / 515);
-        var mEndX = m.vw * .5 - m.markW * scale * .5;
-        mark.style.opacity = morph.toFixed(3);
-        mark.style.transform = 'translate3d(' + mix(mStartX, mEndX, morph) + 'px,' +
-          (midY + m.sigH * scale * (3 / 65)) + 'px,0) scale(' + scale + ')';
-      } else {
-        mark.style.opacity = '0';
-      }
-    }
-
-    var pulse = Math.max(0, 1 - Math.abs(clamp((p - .76) / .24) * 2 - 1));
-    root.style.setProperty('--tpulse-o',(.34 * pulse).toFixed(4));
-    root.style.setProperty('--tpulse-s', mix(.72, 1.12, pulse).toFixed(4));
-  }
-
-  if (reduce) {
-    /* the registered pose, held: no scroll mapping, no frame loop */
-    /* the registered pose, pulse spent: p 1 under the stretched milestones */
-    var still = function () { measure(); render(1); };
-    still();
-    addEventListener('resize', still);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(still);
-    document.body.classList.add('title-done');
-    return;
-  }
-
-  var current = 0;
-  var geo = { top: 0, stick: 1, release: 1 };
-
-  function measureGeo() {
-    geo.top = stage.offsetTop;
-    geo.release = Math.max(1, innerHeight);
-    geo.stick = Math.max(1, stage.offsetHeight - geo.release);
-    geo.fitTop = 0;   /* re-derived lazily by driveHero after layout */
-  }
-  /* read from scrollY rather than from a scroll event: restoration on reload,
-     anchor jumps and programmatic scrolls all move the page without one, and
-     a stale target leaves the name posed for a position the page is not at */
-  function targetNow() {
-    var s = scrollY - geo.top;
-    return s <= geo.stick
-      ? clamp(s / geo.stick)
-      : 1 + clamp((s - geo.stick) / geo.release);
-  }
-
-  /* the name trails the wheel slightly - the sequence reads as one move
-     being made rather than as scroll position being reported. The page
-     itself glides now (the landing's wheel damping), so this lerp only adds
-     a whisper of trail on top: .06 on top of the glide compounded into
-     syrup. Only a real jump (deep link, anchor - most of the whole sequence
-     at once) lands instantly; the threshold sits far above what a fast
-     wheel flick can cover between frames, or flicks snap and the motion
-     reads as chop. */
-  var dirty = false;
-  function tick() {
-    var target = targetNow();
-    var d = target - current;
-    /* settled and unchanged: skip the render entirely - without this the
-       loop writes five elements' styles every frame forever. driveHero
-       needs no update either: T only holds still when the scroll does,
-       and past the hero top its transform is already cleared. */
-    if (d || dirty) {
-      current = Math.abs(d) > .85 ? target : current + d * .16;
-      if (Math.abs(target - current) < .00008) current = target;
-      render(current);
-      dirty = false;
-    }
-    requestAnimationFrame(tick);
-  }
-
-  measure();
-  measureGeo();
-  current = targetNow();
-  render(current);
-  requestAnimationFrame(tick);
-
-  addEventListener('resize', function () { measure(); measureGeo(); dirty = true; });
-  /* the display face lands after first paint on a cold cache; every
-     position is measured from it, so re-measure once it is real */
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { measure(); render(current); });
-  }
+  /* the monogram's M is the signature's opening stroke, cloned so the two
+     never drift apart */
+  var src = document.querySelector('.eg-cyan path');
+  var dock = document.getElementById('sigdock');
+  var mark = document.getElementById('tmark');
+  if (!src || !dock || !mark) return;
+  var mD = src.getAttribute('d').split(/ M /)[0];
+  [].forEach.call(mark.querySelectorAll('.tmark-m path'), function (p) {
+    p.setAttribute('d', mD);
+  });
+  mark.addEventListener('pointerenter', function () { dock.classList.add('open'); });
+  mark.addEventListener('pointerleave', function () { dock.classList.remove('open'); });
 })();
 </script>

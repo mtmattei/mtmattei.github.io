@@ -115,6 +115,30 @@ function glyphFrame(cols: number, rows: number): string {
 }
 const POSTER_GLYPH = glyphFrame(19, 8);
 
+/* ---- the relay: the landing's main navigation ----
+   Each featured project takes the full frame, recedes to reveal its title,
+   and hands the stage to the next — the handoff prototype's grammar in the
+   site's own inks and media. The stills below are drawn by each lab's own
+   formulas; the live media (video, embedded prototypes) fade in over them. */
+const RELAY_BRAILLE = brailleFrame(76, 26, 2.0, 0.7);
+const RELAY_GLYPH = glyphFrame(34, 15);
+/* Voice Assistant's idle pose from the lab's own constants: 31 bars, warm
+   filament 245/216/166, round caps — the still the live embed fades over */
+const VOICE_BARS = Array.from({ length: 31 }, (_, i) => {
+  const t = i / 30;
+  const env = Math.pow(Math.sin(t * Math.PI), 0.8);
+  const wob = 0.55 + 0.45 * Math.sin(i * 1.9 + 0.7) * Math.sin(i * 0.53);
+  return Math.max(0.06, env * wob);
+});
+/* the ink the next-card's title prints in: per artwork, not per world —
+   xaml's plate is dark even though its world is light */
+const RELAY_ART_INK: Record<string, string> = {
+  'xaml-uno': '#F6F2EE',
+  'braille-transition': '#1A1815',
+  'voice-assistant': '#F2EFE9',
+  'glyph-grid': '#C9C9CF',
+};
+
 /* the three skill sheets, one world panel each, from the SKILLS data */
 const SKILL_EXTRAS: Extra[] = SKILLS.map((s) => ({
   kind: 'list' as const,
@@ -429,6 +453,122 @@ const INDEX_ROWS = [
 
 <NameIntro />
 
+<!-- ---- the hero: one work at a distance ----
+     The page opens with the mark docked centre-top and a single centred
+     frame — the featured work, live — that expands as the page scrolls
+     until it IS the first project, full bleed, and the relay takes over.
+     The head copy stands top-left and yields to the approach. -->
+<section class="hero" id="hero" style="--hp:0; --ha:0">
+  <div class="hero-stick">
+    <div class="hero-copy">
+      <div class="hero-eyebrow">DESIGN × DEVELOPMENT</div>
+      <h1 class="hero-h">SOME TAKE SHAPE.<br>SOME SIMPLY<br>REMAIN IDEAS.</h1>
+      <p class="hero-p">A public notebook: ideas, experiments, sketches, software, and lessons. The work begins at a distance — approach, and the first project takes the frame.</p>
+    </div>
+    <a class="hero-photo" href="#/p/poolside" aria-label="Enter Poolside">
+      <span class="rl-visual">
+        <Plate slug="poolside" />
+        <video class="rl-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+      </span>
+    </a>
+    <div class="hero-meta" aria-hidden="true">
+      <span>SELECTED WORK 01</span><span>Poolside · runtime SkSL water</span><span>2026</span>
+    </div>
+    <div class="hero-cue" aria-hidden="true"><i></i>SCROLL TO ENTER</div>
+  </div>
+</section>
+
+<!-- ---- the relay: the landing's main navigation ----
+     Each featured project holds the full frame, recedes to reveal its title,
+     and hands the stage to the next — scroll carries the handoff. The hero
+     expands into the first card, and the last card closes onto the index,
+     which keeps its dock and its previewer as the fast path. Clicking any
+     card walks into that project's world, same as the ledger rows. -->
+<div id="heroRise">
+  {SHOWN.map((p, i) => {
+    const next = SHOWN[i + 1];
+    const no = String(i + 1).padStart(2, '0');
+    const nextNo = String(i + 2).padStart(2, '0');
+    return (
+      <section class:list={['rly', { last: !next }]} id={`rly-${p.slug}`} data-slug={p.slug} style={`--rl-accent:${p.accent}`}>
+        <div class="rl-stick">
+          <div class="rl-topline" aria-hidden="true">
+            <span>{no} / {p.name}</span>
+            <span>{next ? 'SCROLL — THE NEXT WORK ARRIVES' : 'SCROLL — THE INDEX ARRIVES'}</span>
+          </div>
+          <a class="rl-cur" href={`#/p/${p.slug}`} aria-label={`Step into ${p.name}`}>
+            <span class="rl-visual">
+              {p.slug === 'poolside' ? (
+                <>
+                  <Plate slug="poolside" />
+                  <video class="rl-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+                </>
+              ) : p.slug === 'xaml-uno' ? (
+                <Plate slug="xaml-uno" />
+              ) : p.slug === 'braille-transition' ? (
+                <span class="rl-fill rl-braille"><pre class="rl-braille-live" data-cols="76" data-rows="26" aria-hidden="true">{RELAY_BRAILLE}</pre></span>
+              ) : p.slug === 'voice-assistant' ? (
+                <span class="rl-fill rl-voice">
+                  <svg class="rl-bars" viewBox="0 0 312 120" aria-hidden="true">
+                    {VOICE_BARS.map((h, k) => (
+                      <rect x={k * 10 + 2} y={60 - (6 + h * 92) / 2} width="5.4" height={6 + h * 92} rx="2.7" fill="#F5D8A6" />
+                    ))}
+                  </svg>
+                  <iframe class="rl-embed" data-embed="/voice-assistant/index.html?billboard=1" title="Voice Assistant, live" loading="lazy"></iframe>
+                </span>
+              ) : p.slug === 'glyph-grid' ? (
+                <span class="rl-fill rl-glyph">
+                  <pre aria-hidden="true">{RELAY_GLYPH}</pre>
+                  <iframe class="rl-embed" data-embed="/glyph-grid/index.html?billboard=1" title="Magnetic Spring-Mass, live" loading="lazy"></iframe>
+                </span>
+              ) : (
+                <Plate slug={p.slug} />
+              )}
+            </span>
+          </a>
+          <div class="rl-label">
+            <div class="rl-no">{no} / {p.tag}</div>
+            <h2 class="rl-name">{p.name}</h2>
+            {p.lede && <p class="rl-lede">{p.lede}</p>}
+            <a class="rl-enter" href={`#/p/${p.slug}`}>STEP INSIDE <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="rl-handline" aria-hidden="true"></div>
+          <div class="rl-handlbl" aria-hidden="true">{next ? `NEXT · ${nextNo} ${next.name}` : 'NEXT · THE FULL INDEX'}</div>
+          {next && (
+            <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true" style={`--rl-next-ink:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
+              <span class="rl-visual">
+                {next.slug === 'xaml-uno' ? (
+                  <Plate slug="xaml-uno" />
+                ) : next.slug === 'braille-transition' ? (
+                  <span class="rl-fill rl-braille"><pre aria-hidden="true">{RELAY_BRAILLE}</pre></span>
+                ) : next.slug === 'voice-assistant' ? (
+                  <span class="rl-fill rl-voice">
+                    <svg class="rl-bars" viewBox="0 0 312 120" aria-hidden="true">
+                      {VOICE_BARS.map((h, k) => (
+                        <rect x={k * 10 + 2} y={60 - (6 + h * 92) / 2} width="5.4" height={6 + h * 92} rx="2.7" fill="#F5D8A6" />
+                      ))}
+                    </svg>
+                  </span>
+                ) : next.slug === 'glyph-grid' ? (
+                  <span class="rl-fill rl-glyph"><pre aria-hidden="true">{RELAY_GLYPH}</pre></span>
+                ) : (
+                  <Plate slug={next.slug} />
+                )}
+              </span>
+            </a>
+          )}
+          {next && (
+            <div class="rl-next-title" aria-hidden="true" style={`color:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
+              <span>{nextNo} / {next.tag}</span>
+              <b>{next.name}</b>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  })}
+</div>
+
 <div id="fit">
   <div class="camera" id="camera">
   <div class="scene" id="scene">
@@ -540,6 +680,10 @@ const INDEX_ROWS = [
 </div>
 
 <WindRun />
+
+<!-- the fast path: the relay is the default walk; visitors who already know
+     what they want jump straight to the docked ledger -->
+<button class="idx-jump" id="idxJump" type="button" aria-label="Jump to the index">INDEX <span aria-hidden="true">↓</span></button>
 
 <!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
 <div class="lrail" id="lrail">
@@ -896,6 +1040,210 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   transition: opacity .32s cubic-bezier(.22,1,.36,1), transform .32s cubic-bezier(.22,1,.36,1);
 }
 .tv .art.on { opacity: 1; transform: none; }
+
+/* ---- the hero: the prototype's single centred frame ----
+   --hp is raw progress (fades the copy), --ha the eased approach that
+   carries the frame from a distance to full bleed. */
+.hero { position: relative; height: 230vh; --hp: 0; --ha: 0; }
+.hero-stick { position: sticky; top: 0; height: 100vh; overflow: hidden; isolation: isolate; }
+.hero-copy {
+  position: absolute; z-index: 6; left: 4.6vw; top: 12vh; width: min(460px, 42vw);
+  opacity: calc(1 - min(1, var(--hp) * 3.1));
+  transform: translateY(calc(var(--hp) * -38px));
+  pointer-events: none;
+}
+.hero-eyebrow { display: flex; align-items: center; gap: 11px; font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink); }
+.hero-eyebrow::before { content: ''; width: 34px; height: 1px; background: currentColor; }
+.hero-h {
+  margin: 18px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(40px, 4.6vw, 70px); line-height: .96; letter-spacing: 0;
+  -webkit-text-stroke: 1.4px var(--ink); color: var(--ink); text-wrap: balance;
+}
+/* narrow enough to clear the frame's left edge (21vw) at any width */
+.hero-p { margin: 22px 0 0; max-width: min(272px, 15.5vw); font-size: 14.5px; line-height: 1.62; color: var(--muted); text-wrap: pretty; }
+.hero-photo {
+  position: absolute; z-index: 3; left: 50%; top: calc(61% - var(--ha) * 11%);
+  width: calc(58vw + var(--ha) * 42vw); height: calc(43vh + var(--ha) * 57vh);
+  transform: translate(-50%, -50%);
+  overflow: hidden; display: block; background: #ddd8cf; cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 28px 70px -28px rgba(26, 24, 21, .35);
+}
+.hero-photo .rl-visual { transform: scale(calc(1.05 - var(--ha) * .05)); }
+.hero-meta {
+  position: absolute; z-index: 5; left: 50%; top: 84.5%; width: 58vw; transform: translateX(-50%);
+  display: flex; justify-content: space-between; gap: 24px;
+  font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted);
+  font-variant-numeric: tabular-nums lining-nums;
+  opacity: calc(1 - min(1, var(--hp) * 2.3));
+  pointer-events: none;
+}
+.hero-meta span:nth-child(2) { text-transform: none; letter-spacing: .2px; font-weight: 500; font-size: 11.5px; }
+.hero-cue {
+  position: absolute; z-index: 5; right: max(18px, 3.8vw); bottom: 30px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
+  opacity: calc(.78 - min(1, var(--hp) * 2.5));
+  pointer-events: none;
+}
+.hero-cue i { width: 34px; height: 1.5px; background: currentColor; transform-origin: left; animation: heroPulse 1.7s cubic-bezier(.22, 1, .36, 1) infinite; }
+@keyframes heroPulse { 0%, 100% { transform: scaleX(.25); opacity: .35; } 50% { transform: scaleX(1); opacity: 1; } }
+@media (max-width: 820px) {
+  .hero { height: 210vh; }
+  .hero-copy { left: 20px; top: 10vh; width: calc(100vw - 40px); }
+  .hero-p { max-width: 88vw; }   /* the frame sits below the copy here */
+  .hero-photo { width: calc(86vw + var(--ha) * 14vw); height: calc(40vh + var(--ha) * 60vh); }
+  .hero-meta { width: 86vw; }
+  .hero-meta span:nth-child(2) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero { height: 100vh; }
+  .hero-stick { position: relative; }
+  .hero-cue i { animation: none; }
+}
+
+/* ---- the relay: main navigation ----
+   Scroll-driven vars written per frame by the relay loop: --p is the recede,
+   --hand the handoff hairline, --q the next card's rise. All motion is
+   interpolation of the two cards' boxes inside a sticky viewport frame. */
+#heroRise { position: relative; }
+.rly { position: relative; height: 235vh; --p: 0; --hand: 0; --q: 0; }
+.rly.last { height: 175vh; }
+.rl-stick { position: sticky; top: 0; height: 100vh; overflow: hidden; isolation: isolate; }
+.rl-topline {
+  position: absolute; z-index: 6; left: max(18px, 3.8vw); right: max(18px, 3.8vw); top: 24px;
+  display: flex; justify-content: space-between; gap: 24px;
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted);
+  font-variant-numeric: tabular-nums lining-nums;
+  opacity: calc(.25 + var(--p) * .75);
+  pointer-events: none;
+}
+.rl-cur, .rl-next {
+  position: absolute; display: block; overflow: hidden; text-decoration: none;
+  will-change: width, height, top, left;
+}
+.rl-cur {
+  left: calc(var(--p) * 7.4%); top: calc(var(--p) * 12%);
+  width: calc(100% - var(--p) * 56%); height: calc(100% - var(--p) * 55%);
+  z-index: 3; background: #ddd8cf;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, calc(var(--p) * .1)),
+              0 24px 60px -22px rgba(26, 24, 21, calc(var(--p) * .3));
+}
+.rl-visual { position: absolute; inset: 0; display: block; transform-origin: center; }
+.rl-cur .rl-visual { transform: scale(calc(1 + var(--p) * .025)); filter: saturate(calc(1 - var(--p) * .14)); }
+.rl-next .rl-visual { transform: scale(calc(1.035 - var(--q) * .035)); }
+.rl-visual .plate { width: 100%; height: 100%; display: block; }
+/* the shader footage carries a baked matte around the water (content is
+   ~73% of the frame width); the scale crops to the water itself */
+.rl-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.55); }
+.rl-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.rl-braille { background: linear-gradient(180deg, #F6F2EE, #E9E3D6); }
+.rl-braille pre {
+  margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
+  font-size: clamp(11px, 1.55vw, 24px); line-height: 1.25; letter-spacing: .12em;
+  color: #3656D4; text-shadow: 0 0 10px rgba(54, 86, 212, .2);
+}
+.rl-voice { background: #0E0E12; }
+.rl-bars { width: min(62%, 720px); height: auto; display: block; }
+.rl-glyph { background: #101013; }
+.rl-glyph pre {
+  margin: 0; white-space: pre; font-family: var(--mono), monospace;
+  font-size: clamp(12px, 1.7vw, 24px); line-height: 2; letter-spacing: .5em; color: #3A3A42;
+}
+/* the labs arrive as their sections do: the still stands until the real
+   prototype has loaded, then the embed fades over it (the billboard's own
+   pattern). Scenery here, never a control: clicks belong to the card. */
+.rl-embed {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block;
+  opacity: 0; pointer-events: none;
+  transition-property: opacity; transition-duration: .35s; transition-timing-function: ease-out;
+}
+.rl-embed[src] { opacity: 1; }
+.rl-label {
+  position: absolute; z-index: 5;
+  left: calc(4.6vw + var(--p) * 49vw);
+  top: calc(72vh - var(--p) * 44vh);
+  width: min(440px, 38vw);
+  opacity: var(--p);
+  transform: translateY(calc((1 - var(--p)) * 22px));
+  pointer-events: none;
+}
+.rl-no { font-family: var(--mono); font-size: 11px; letter-spacing: 1.6px; color: var(--rl-accent, var(--accent)); }
+.rl-name {
+  margin: 14px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(52px, 6.4vw, 104px); line-height: .94; letter-spacing: 0;
+  -webkit-text-stroke: 1.6px currentColor; color: var(--ink); text-wrap: balance;
+}
+.rl-lede { margin: 18px 0 0; font-size: 14.5px; line-height: 1.62; color: var(--muted); max-width: 380px; text-wrap: pretty; }
+.rl-enter {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 10px 0;
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  color: var(--rl-accent, var(--accent)); text-decoration: none; pointer-events: auto;
+  transition-property: opacity; transition-duration: .15s; transition-timing-function: ease-out;
+}
+.rl-enter:hover { opacity: .65; }
+.rl-handline {
+  position: absolute; z-index: 2; left: 7.4%; right: 7.4%; top: 63%; height: 1px;
+  background: #BCB8B4; transform: scaleX(var(--hand)); transform-origin: left; opacity: var(--hand);
+}
+.rl-handlbl {
+  position: absolute; z-index: 4; left: 7.4%; top: calc(63% + 13px);
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted);
+  font-variant-numeric: tabular-nums lining-nums;
+  opacity: var(--hand); pointer-events: none;
+}
+.rl-next {
+  left: calc(50% - (42vw - var(--q) * 42vw) / 2);
+  top: calc(104% - var(--q) * 104%);
+  width: calc(42vw + var(--q) * 58vw);
+  height: calc(31vh + var(--q) * 69vh);
+  z-index: 8; background: #ddd8cf;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 24px 60px -18px rgba(26, 24, 21, .28);
+}
+.rl-next-title {
+  position: absolute; z-index: 9; left: 5.4vw; bottom: 6.4vh; pointer-events: none;
+  opacity: var(--q); transform: translateY(calc((1 - var(--q)) * 22px));
+}
+.rl-next-title span { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .78; }
+.rl-next-title b {
+  display: block; margin-top: 12px; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(56px, 7.6vw, 128px); line-height: .9; letter-spacing: 0;
+  -webkit-text-stroke: 1.6px currentColor;
+}
+/* the fast path to the ledger: fixed, generous hit box, house press.
+   Difference-blended white so it reads on paper and on the dark cards. */
+.idx-jump {
+  position: fixed; z-index: 8; right: 20px; top: 14px;
+  border: 0; background: transparent; cursor: pointer; padding: 13px 10px;
+  font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+  color: #fff; mix-blend-mode: difference;
+  transition-property: opacity, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
+}
+.idx-jump:hover { opacity: .65; }
+.idx-jump:active { transform: scale(.96); }
+body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
+
+@media (max-width: 820px) {
+  .rly { height: 205vh; }
+  .rly.last { height: 150vh; }
+  .rl-cur { left: calc(var(--p) * 5%); width: calc(100% - var(--p) * 10%); height: calc(100% - var(--p) * 58%); }
+  .rl-label { left: 6vw; top: calc(70vh - var(--p) * 22vh); width: 88vw; }
+  .rl-lede { max-width: 88vw; }
+  .rl-name { font-size: clamp(40px, 10vw, 72px); }
+  .rl-handline { top: 66%; }
+  .rl-handlbl { top: calc(66% + 13px); }
+  .rl-next { left: calc(50% - (84vw - var(--q) * 84vw) / 2); width: calc(84vw + var(--q) * 16vw); height: calc(32vh + var(--q) * 68vh); }
+  .rl-next-title { left: 6vw; bottom: 7vh; }
+  .rl-next-title b { font-size: clamp(40px, 11vw, 72px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* each beat is a still plate: the receded pose with its title, no relay */
+  .rly, .rly.last { height: auto; --p: 1; --hand: 1; --q: 0; }
+  .rl-stick { position: relative; height: 100vh; }
+  .rl-next, .rl-next-title { display: none; }
+  .rl-cur .rl-visual { transform: none; filter: none; }
+  .rl-embed, .idx-jump { transition-duration: .01ms; }
+}
+
 /* ---- hover previewer (prototype-exact) ----
    A large card fixed centre-right, outside the scaled stage so its size is
    true px. Cards stack; the hovered row's card cross-fades in. While the
@@ -1453,9 +1801,8 @@ function fit() {
 }
 addEventListener('resize', fit); fit();
 
-// The name sequence sits above the landing, so scroll 0 is the name, not the
-// hero. Anything that used to mean "back to the top of the stage" means the
-// top of #fit now.
+// The hero and the relay sit above the stage, so scroll 0 is the hero frame.
+// Anything that means "the top of the stage" (the index closing) is #fit.
 function heroTop() { return document.getElementById('fit').offsetTop; }
 
 // ---- the index sticks: once its header reaches the dock line it rides the
@@ -1483,6 +1830,8 @@ function stickTick() {
     if ((over > 0) !== idxDocked) {
       idxDocked = over > 0;
       idxGroup.classList.toggle('docked', idxDocked);
+      /* the jump is redundant while the ledger it points at is docked */
+      if (idxJump) idxJump.classList.toggle('off', idxDocked);
       syncDockPreview();
     }
   }
@@ -1503,6 +1852,134 @@ function syncDockPreview() {
     clearPreview();
   }
 }
+
+// ---- the hero + the relay: scroll writes the hero's approach (--hp/--ha)
+//      and each section's pose (--p recede, --hand handoff, --q rise);
+//      media wake with their sections. Polled per frame like the dock is;
+//      the style writes are settle-skipped. The loop also decides when a
+//      full-bleed card owns the head of the frame, and the docked mark
+//      steps aside (body.relay-live). ----
+(function relayDrive() {
+  var secs = [].slice.call(document.querySelectorAll('.rly'));
+  var hero = document.getElementById('hero');
+  if (!secs.length && !hero) return;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var S = secs.map(function (sec) {
+    return {
+      el: sec, p: -1, hand: -1, q: -1, on: false,
+      hasNext: !!sec.querySelector('.rl-next'),
+      vid: sec.querySelector('.rl-vid'),
+      braille: sec.querySelector('.rl-braille-live'),
+      embeds: [].slice.call(sec.querySelectorAll('.rl-embed'))
+    };
+  });
+  var heroVid = hero ? hero.querySelector('.rl-vid') : null;
+  var heroSt = { hp: -1, ha: -1, on: false };
+  var live = false;
+  function sm(t) { return t * t * (3 - 2 * t); }
+  function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  var brPh = 0, frame = 0;
+  function tick() {
+    frame++;
+    var vh = innerHeight;
+    var band = vh * .1;          /* the mark's zone at the head of the frame */
+    var covered = false;
+    if (hero) {
+      var hr = hero.getBoundingClientRect();
+      var hvis = hr.bottom > 0 && hr.top < vh && state.mode !== 'detail';
+      var ha = 0;
+      if (!reduce) {
+        var hmax = hr.height - vh;
+        var hp = hmax > 0 ? cl(-hr.top / hmax) : 0;
+        ha = sm(cl(hp / .72));
+        if (hvis) {
+          var hpF = +hp.toFixed(4), haF = +ha.toFixed(4);
+          if (hpF !== heroSt.hp) { heroSt.hp = hpF; hero.style.setProperty('--hp', hpF); }
+          if (haF !== heroSt.ha) { heroSt.ha = haF; hero.style.setProperty('--ha', haF); }
+        }
+      }
+      if (hvis !== heroSt.on) {
+        heroSt.on = hvis;
+        if (heroVid) {
+          if (hvis && !reduce) {
+            if (!heroVid.getAttribute('src')) heroVid.src = heroVid.dataset.vid;
+            heroVid.play().catch(function () {});
+          } else if (!heroVid.paused) heroVid.pause();
+        }
+      }
+      if (hvis) {
+        var hStick = Math.min(Math.max(hr.top, 0), hr.bottom - vh);
+        /* the frame's top edge: centre (61% - ha*11%) less half its height */
+        var hTop = hStick + ((.61 - ha * .11) - (.43 + ha * .57) / 2) * vh;
+        if (hTop < band) covered = true;
+      }
+    }
+    S.forEach(function (s) {
+      var r = s.el.getBoundingClientRect();
+      var vis = r.bottom > 0 && r.top < vh && state.mode !== 'detail';
+      if (!reduce && vis) {
+        var max = r.height - vh;
+        var prog = max > 0 ? cl(-r.top / max) : 0;
+        var p = +sm(cl(prog / .62)).toFixed(4);
+        var hand = +sm(cl((prog - .28) / .30)).toFixed(4);
+        var q = +sm(cl((prog - .45) / .5)).toFixed(4);
+        if (p !== s.p) { s.p = p; s.el.style.setProperty('--p', p); }
+        if (hand !== s.hand) { s.hand = hand; s.el.style.setProperty('--hand', hand); }
+        if (q !== s.q) { s.q = q; s.el.style.setProperty('--q', q); }
+      }
+      if (vis !== s.on) {
+        s.on = vis;
+        if (s.vid) {
+          if (vis && !reduce) {
+            if (!s.vid.getAttribute('src')) s.vid.src = s.vid.dataset.vid;
+            s.vid.play().catch(function () {});
+          } else if (!s.vid.paused) s.vid.pause();
+        }
+        /* the labs arrive with their sections (still first, embed fades over
+           it); under reduced motion the stills stand alone */
+        if (vis && !reduce) s.embeds.forEach(function (f) {
+          if (!f.getAttribute('src')) f.src = f.dataset.embed;
+        });
+      }
+      if (vis) {
+        var stickTop = Math.min(Math.max(r.top, 0), r.bottom - vh);
+        var pEff = reduce ? 1 : Math.max(0, s.p);
+        var qEff = reduce ? 0 : Math.max(0, s.q);
+        if (stickTop + pEff * .12 * vh < band) covered = true;
+        if (s.hasNext && stickTop + (1.04 - qEff * 1.04) * vh < band) covered = true;
+      }
+      /* the braille field shimmers only while its card is on screen, at a
+         clocked third of the frame rate - the lab itself runs on a clock */
+      if (s.braille && s.on && !reduce && frame % 3 === 0) {
+        brPh += 0.024;
+        var cols = +s.braille.dataset.cols, rows = +s.braille.dataset.rows;
+        var cx = cols / 2, cy = rows / 2, out = '';
+        for (var y = 0; y < rows; y++) {
+          for (var x = 0; x < cols; x++) {
+            var dist = Math.hypot(x - cx, y - cy);
+            var w = Math.sin(dist * 0.25 - brPh * 2) * 0.5 + 0.5;
+            var w2 = Math.sin(x * 0.12 + y * 0.08 + brPh * 1.3) * 0.5 + 0.5;
+            out += brChar(w * w2 * 0.7);
+          }
+          if (y < rows - 1) out += '\n';
+        }
+        s.braille.textContent = out;
+      }
+    });
+    if (covered !== live) { live = covered; document.body.classList.toggle('relay-live', covered); }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+// the fast path: one press lands the ledger exactly on its dock line
+var idxJump = document.getElementById('idxJump');
+if (idxJump) idxJump.addEventListener('click', function () {
+  scrollTo({
+    top: heroTop() + IDX_TOP * camState.fitS - idxPad(),
+    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+  });
+});
 
 // ---- smooth scroll: the wheel writes a target; a frame loop glides the
 //      page toward it with exponential damping, so the landing reads as one
@@ -1618,6 +2095,11 @@ function clearPreview() {
 addEventListener('load', function () {
   var arm = function () {
     if (ppv) [].forEach.call(ppv.querySelectorAll('.ppv-vid'), function (v) {
+      if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
+    });
+    /* the relay's water card arms the same way: fetched at idle so the
+       first handoff plays without a stutter */
+    [].forEach.call(document.querySelectorAll('.rl-vid'), function (v) {
       if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
     });
     // the billboard's attract loop arms here too: fetched at idle, decoded
