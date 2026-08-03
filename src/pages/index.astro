@@ -2,7 +2,6 @@
 import Bare from '../layouts/Bare.astro';
 import Logo from '../components/Logo.astro';
 import NameIntro from '../components/NameIntro.astro';
-import WindRun from '../components/WindRun.astro';
 import Plate from '../components/Plate.astro';
 import BillboardArt from '../components/BillboardArt.astro';
 /* Fraunces: the Poolside app's display face, used in the billboard UI */
@@ -494,7 +493,7 @@ const INDEX_ROWS = [
         <div class="rl-stick">
           <div class="rl-topline" aria-hidden="true">
             <span>{no} / {p.name}</span>
-            <span>{next ? 'SCROLL — THE NEXT WORK ARRIVES' : 'SCROLL — THE INDEX ARRIVES'}</span>
+            <span>{next ? 'SCROLL — THE NEXT WORK ARRIVES' : 'SCROLL — THE CLOSING ARRIVES'}</span>
           </div>
           <a class="rl-cur" href={`#/p/${p.slug}`} aria-label={`Step into ${p.name}`}>
             <span class="rl-visual">
@@ -533,7 +532,7 @@ const INDEX_ROWS = [
             <a class="rl-enter" href={`#/p/${p.slug}`}>STEP INSIDE <span aria-hidden="true">↗</span></a>
           </div>
           <div class="rl-handline" aria-hidden="true"></div>
-          <div class="rl-handlbl" aria-hidden="true">{next ? `NEXT · ${nextNo} ${next.name}` : 'NEXT · THE FULL INDEX'}</div>
+          <div class="rl-handlbl" aria-hidden="true">{next ? `NEXT · ${nextNo} ${next.name}` : 'NEXT · THE CLOSING'}</div>
           {next && (
             <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true" style={`--rl-next-ink:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
               <span class="rl-visual">
@@ -569,45 +568,45 @@ const INDEX_ROWS = [
   })}
 </div>
 
-<div id="fit">
-  <div class="camera" id="camera">
-  <div class="scene" id="scene">
-
-    <div class="scratch" id="scratch">
-      <!-- the quiet line, revealed as the loud one is scratched away -->
-      <p class="scratch-under" aria-hidden="true">Some take shape.<br>Some simply<br>remain ideas.</p>
-      <h1 aria-label="Ideas, experiments, and lessons.">
-        <span class="t hl" id="hl1" data-x="84" data-w="102" data-captop="229">IDEAS,</span>
-        <span class="t hl" id="hl2" data-x="84" data-w="234" data-captop="302">EXPERIMENTS,</span>
-        <span class="t hl" id="hl3" data-x="86" data-w="218" data-captop="372">AND LESSONS</span>
-      </h1>
-      <canvas class="scratch-cv" id="scratchCv" aria-hidden="true"></canvas>
+<!-- ---- the closing: end of the sequence ----
+     The landing ends here — the full ledger lives in the index overlay
+     (masthead, top right), and the featured five are one click away. -->
+<section class="closing">
+  <div>
+    <div class="cl-kicker">END OF SELECTED SEQUENCE</div>
+    <h2 class="cl-h">BROWSE SLOWLY.<br>JUMP QUICKLY.</h2>
+    <p class="cl-intro">The relay is the default walk. The index holds everything — open it from the masthead, or step straight into a work below.</p>
+    <div class="cl-list">
+      {SHOWN.map((p, i) => (
+        <a class="cl-link" href={`#/p/${p.slug}`}>
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          <strong>{p.name}</strong>
+          <span>{p.tag}</span>
+        </a>
+      ))}
+      <a class="cl-link cl-all" href="/program/">
+        <span aria-hidden="true">→</span>
+        <strong>VIEW ALL WORK</strong>
+        <span>PROGRAM</span>
+      </a>
     </div>
+  </div>
+  <aside class="cl-aside">
+    <p>Each work takes a full visual moment, recedes to its title, and hands the frame to the next. Nothing here is a grid.</p>
+    <button class="cl-replay" id="replay" type="button">REPLAY SEQUENCE</button>
+  </aside>
+</section>
 
-
-
-
-    <!-- the billboard left the hero: it lives on the project pages now
-         (parked in #tvHold below, ridden into each world's poster slot).
-         The index is the hero - left aligned, three quarters wide. -->
-
-    <!-- the header row and the ledger travel as one group: past the fold the
-         group rides the remaining scroll and docks at the top left, its
-         header on the name's own dock line -->
-    <div class="idxgroup" id="idxgroup">
-    <div class="t lbl" style="left:86px; top:660px;">FEATURED WORK</div>
-    <div class="hrule" style="left:210px; top:662px; width:55px; height:1.5px;"></div>
-    <div class="t lbl idxhint" style="left:300px; top:654px;">HOVER TO PREVIEW<br>CLICK TO ENTER</div>
-
-    <div class="hrule idx-r" style="left:1040px; top:667px; width:84px; height:2px;"></div>
-    <a class="t lbl viewall idx-r" href="/program/" style="left:1140px; top:660px;">VIEW ALL WORK</a>
-    <span class="ne-arrow idx-r" style="left:1241px; top:660px;">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M2.5 11.5 L11 3 M4.5 3 H11 V9.5" stroke="#3656D4" stroke-width="1.6"/>
-      </svg>
-    </span>
-
-
+<!-- ---- the index: the ledger, as an overlay view ----
+     The same rows and the same previewer as ever — the split reads
+     ledger-left, preview-right; the preview pane is the fixed .ppv,
+     lit while the panel is open. -->
+<div class="index-panel" id="indexPanel" role="dialog" aria-modal="true" aria-label="Project index" aria-hidden="true">
+  <button class="index-close" id="indexClose" type="button">CLOSE</button>
+  <div class="index-left">
+    <div>
+      <div class="cl-kicker">PROJECT INDEX / 2026</div>
+      <h2 class="ip-h">SELECTED<br>WORK.</h2>
     <div class="pindex" id="pindex">
       <div class="prow phdr" aria-hidden="true">
         <span class="pno">N.</span><span class="pname">P.</span><span class="ptag">T.</span><span class="pmeta">M.</span>
@@ -635,25 +634,10 @@ const INDEX_ROWS = [
       ))}
     </div>
     </div>
-
-    <span class="sig-mark"><Logo height={30} /></span>
-
-    <span class="wave">
-      <svg width="32" height="24" viewBox="0 0 32 24" fill="#1A1815">
-        <rect x="0"  y="11" width="3.4" height="2"/>
-        <rect x="5.4" y="11" width="2" height="2"/>
-        <rect x="9.4" y="8"  width="2" height="8"/>
-        <rect x="13.4" y="4" width="2" height="16"/>
-        <rect x="17.4" y="1" width="2" height="22"/>
-        <rect x="21.4" y="4" width="2" height="16"/>
-        <rect x="25.4" y="8" width="2" height="8"/>
-        <rect x="29.4" y="11" width="2" height="2"/>
-      </svg>
-    </span>
-    <div class="t lbl" style="left:1381px; top:1587px; font-size:9.5px; line-height:13px; letter-spacing:1.3px;">SOUND<br><b id="sndState">OFF</b></div>
-    <button class="sound" id="sound" role="switch" aria-checked="false" aria-label="Room tone"><span class="knob"></span></button>
-
+    <div class="ip-foot">DESIGN × DEVELOPMENT</div>
   </div>
+  <div class="index-preview" aria-hidden="true">
+    <div class="index-hint">HOVER TO PREVIEW · SELECT TO ENTER</div>
   </div>
 </div>
 
@@ -679,11 +663,12 @@ const INDEX_ROWS = [
   </div>
 </div>
 
-<WindRun />
-
-<!-- the fast path: the relay is the default walk; visitors who already know
-     what they want jump straight to the docked ledger -->
-<button class="idx-jump" id="idxJump" type="button" aria-label="Jump to the index">INDEX <span aria-hidden="true">↓</span></button>
+<!-- the masthead: brand left, the index right, difference-blended so both
+     read over paper and over the dark cards alike. The mark holds centre. -->
+<header class="masthead">
+  <a class="mh-brand" href="/">MATT MATTEI</a>
+  <button class="mh-index" id="indexOpen" type="button" aria-haspopup="dialog" aria-controls="indexPanel" aria-expanded="false">INDEX</button>
+</header>
 
 <!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
 <div class="lrail" id="lrail">
@@ -872,26 +857,11 @@ const INDEX_ROWS = [
   src: url('/fonts/big-shoulders-800.woff2') format('woff2');
 }
 
-/* the pushed-in camera's transformed bounds overflow the document; clip (not
-   hide) so no scrollable region exists at all — not even programmatically */
-/* the pushed-in camera overflows sideways, so x stays clipped; y scrolls,
-   because the index runs past the hero */
 html, body { overflow-x: clip; }
-/* the stage's own type metrics; the ground itself comes from global.css.
-   Astro leaves body selectors unscoped, so a background here would silently
-   override the site ground - it did, until this was split out. */
+/* type metrics; the ground itself comes from global.css. Astro leaves body
+   selectors unscoped, so a background here would silently override it. */
 body { font-size: 16px; line-height: normal; }
-/* will-change: the hero rise and the wind run translate #fit every frame;
-   keep it on its own layer instead of re-promoting at each gesture */
-#fit { position: relative; display: flex; align-items: flex-start; justify-content: center; will-change: transform; }
-/* 1024 of hero, then the index: the camera scales from the top edge so the
-   hero still meets the viewport exactly and the rest falls below the fold */
-.camera { width: 1536px; height: 1640px; flex: none; transform-origin: top center; }
-.scene { position: relative; width: 1536px; height: 1640px; }
-.t { position: absolute; color: var(--ink); white-space: nowrap; }
-/* the mockup ran on a global margin reset; scope it to the stage */
-.scene h1, .scene p, #detail h2, #detail p { margin: 0; }
-.scene img, .scene svg { user-select: none; -webkit-user-drag: none; }
+#detail h2, #detail p { margin: 0; }
 
 
 
@@ -943,67 +913,108 @@ body.walked .lrail { opacity: 0; pointer-events: none; }
 .lnav-quiet .lnav-i { opacity: .62; }
 .lnav-quiet .lnav-i:hover { opacity: 1; }
 
-/* ---- headline ---- */
-/* ---- scratch-off heading ----
-   the loud heading is painted onto a canvas the cursor erases; the quiet line
-   underneath shows through where it has been scratched. */
-.scratch { position: absolute; left: 0; top: 0; width: 480px; height: 440px; pointer-events: none; z-index: 3; }
-.scratch-under {
-  position: absolute; left: 86px; top: 236px; margin: 0;
-  font-family: var(--sans); font-weight: 400; font-size: 21px;
-  letter-spacing: .1px; color: var(--ink); opacity: 0;
-  transition: opacity .3s ease;
+/* ---- masthead: brand left, index right, difference-blended over any card;
+   the mark holds the centre. Press scale 0.96, the web press. ---- */
+.masthead {
+  position: fixed; z-index: 8; left: 0; right: 0; top: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; pointer-events: none;
+  color: #fff; mix-blend-mode: difference;
+  transition-property: opacity; transition-duration: .2s; transition-timing-function: ease-out;
 }
-.scratch.armed .scratch-under { opacity: .52; }
-.scratch h1 { position: absolute; inset: 0; }
-/* the DOM heading is the paint source and the a11y text; the canvas covers it */
-.scratch.armed h1 { visibility: hidden; }
-.scratch h1 { pointer-events: none; }
-.scratch-cv {
-  position: absolute; cursor: crosshair; touch-action: none;
-  pointer-events: auto; display: block;   /* transparent until armed; sized in JS to the heading */
+.mh-brand, .mh-index {
+  pointer-events: auto; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+  color: inherit; text-decoration: none; padding: 13px 10px;
+  transition-property: opacity, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
 }
-
-.hl {
-  left: 84px; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: 83px; line-height: 1; letter-spacing: 0;
-  -webkit-text-stroke: 1.4px var(--ink);
-  transform-origin: left top;
-}
-
-/* ---- paragraph ---- */
-.para {
-  left: 86px; top: 470px; font-size: 15.5px; line-height: 22.6px;
-  font-weight: 400; color: var(--ink); letter-spacing: .1px;
-}
-
-/* ---- small labels ---- */
-.lbl { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink); }
-.lbl b { font-weight: 600; }
-a.viewall { text-decoration: none; }
-a.viewall:hover { opacity: .65; }
-/* tactile press on the controls that are actually button-sized. Deliberately
-   not on the ledger rows or the TV: 0.96 of a 1150px row is a 46px lurch,
-   which reads as a glitch rather than a press. Those keep the step-right. */
-a.viewall, .sound, .lrail-strip {
+.mh-brand:hover, .mh-index:hover { opacity: .65; }
+.mh-index:active { transform: scale(.96); }
+body.walked .masthead { opacity: 0; pointer-events: none; }
+.lrail-strip {
   transition-property: transform, opacity, background-color;
   transition-duration: .12s; transition-timing-function: ease-out;
 }
-a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
+.lrail-strip:active { transform: scale(.96); }
 
-/* scroll arrow */
-.scroll-arrow { position: absolute; left: 89px; top: 646px; width: 1.5px; height: 40px; background: var(--ink); }
-.scroll-arrow::after {
-  content: ''; position: absolute; left: -4.4px; bottom: 1.4px;
-  width: 8px; height: 8px;
-  border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink);
-  transform: rotate(45deg);
+/* ---- the closing: end of the sequence ---- */
+.closing {
+  min-height: 100vh; padding: 16vh 4.6vw 12vh;
+  display: grid; grid-template-columns: 1.2fr .8fr; gap: 8vw; align-items: start;
 }
+.cl-kicker { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted); }
+.cl-h {
+  margin: 16px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(52px, 7.4vw, 124px); line-height: .9; letter-spacing: 0;
+  -webkit-text-stroke: 1.8px var(--ink); color: var(--ink); text-wrap: balance;
+}
+.cl-intro { margin: 26px 0 56px; max-width: 440px; font-size: 15px; line-height: 1.7; color: var(--muted); text-wrap: pretty; }
+.cl-list { border-top: 1px solid #BCB8B4; }
+.cl-link {
+  display: grid; grid-template-columns: 46px 1fr auto; gap: 18px; align-items: center;
+  padding: 18px 0 18px 4px; border-bottom: 1px solid #DAD5CE;
+  color: var(--ink); text-decoration: none;
+  transition-property: background-color, padding-left;
+  transition-duration: .15s, .22s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+.cl-link:hover { background: rgba(255, 255, 255, .62); padding-left: 14px; }
+.cl-link strong { font-family: 'BigShoulders', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: .02em; }
+.cl-link span { font-size: 9px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted); font-variant-numeric: tabular-nums lining-nums; }
+.cl-all strong { font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: 2px; color: var(--accent); }
+.cl-aside { padding-top: 12vh; }
+.cl-aside p { margin: 0; max-width: 320px; font-size: 13.5px; line-height: 1.7; color: var(--muted); }
+.cl-replay {
+  margin-top: 24px; padding: 13px 18px; border: 1px solid rgba(26, 24, 21, .28); border-radius: 999px;
+  background: transparent; cursor: pointer;
+  font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
+  transition-property: background-color, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
+}
+.cl-replay:hover { background: rgba(255, 255, 255, .62); }
+.cl-replay:active { transform: scale(.96); }
 
-/* featured / view-all rules */
-.hrule { position: absolute; height: 1px; background: #BCB8B4; }
-.ne-arrow { position: absolute; width: 14px; height: 14px; }
-.ne-arrow svg { display: block; }
+/* ---- the index overlay: ledger left, previewer right ---- */
+.index-panel {
+  position: fixed; inset: 0; z-index: 20;
+  background: rgba(247, 246, 242, .98);
+  display: grid; grid-template-columns: 53vw 1fr;
+  opacity: 0; visibility: hidden;
+  transition-property: opacity, visibility;
+  transition-duration: .35s; transition-timing-function: ease-out;
+  overflow: hidden;
+}
+.index-panel.open { opacity: 1; visibility: visible; }
+.index-close {
+  position: absolute; right: 20px; top: 14px; z-index: 5;
+  border: 0; background: transparent; cursor: pointer; padding: 13px 10px;
+  font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
+  transition-property: opacity, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
+}
+.index-close:hover { opacity: .65; }
+.index-close:active { transform: scale(.96); }
+.index-left {
+  padding: 9vh 3.2vw 5vh 4.6vw; overflow-y: auto;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+}
+.ip-h {
+  margin: 14px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(48px, 6.4vw, 104px); line-height: .9;
+  -webkit-text-stroke: 1.8px var(--ink); color: var(--ink);
+}
+.ip-foot { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted); }
+.index-preview { position: relative; background: #E9E4DC; overflow: hidden; }
+.index-hint {
+  position: absolute; left: 24px; bottom: 20px; z-index: 5;
+  font-size: 9px; font-weight: 600; letter-spacing: 1.6px; color: #fff; mix-blend-mode: difference;
+}
+@media (max-width: 1080px) {
+  .index-panel { grid-template-columns: 1fr; }
+  .index-preview { display: none; }
+}
+@media (max-width: 820px) {
+  .closing { grid-template-columns: 1fr; padding: 14vh 20px 10vh; }
+  .cl-aside { padding-top: 0; }
+  .index-left { padding: 12vh 20px 5vh; }
+}
 
 /* ---- shelf + billboard ---- */
 .tv {
@@ -1209,19 +1220,6 @@ a.viewall:active, .sound:active, .lrail-strip:active { transform: scale(.96); }
   font-size: clamp(56px, 7.6vw, 128px); line-height: .9; letter-spacing: 0;
   -webkit-text-stroke: 1.6px currentColor;
 }
-/* the fast path to the ledger: fixed, generous hit box, house press.
-   Difference-blended white so it reads on paper and on the dark cards. */
-.idx-jump {
-  position: fixed; z-index: 8; right: 20px; top: 14px;
-  border: 0; background: transparent; cursor: pointer; padding: 13px 10px;
-  font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
-  color: #fff; mix-blend-mode: difference;
-  transition-property: opacity, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
-}
-.idx-jump:hover { opacity: .65; }
-.idx-jump:active { transform: scale(.96); }
-body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
-
 @media (max-width: 820px) {
   .rly { height: 205vh; }
   .rly.last { height: 150vh; }
@@ -1244,15 +1242,23 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
   .rl-embed, .idx-jump { transition-duration: .01ms; }
 }
 
-/* ---- hover previewer (prototype-exact) ----
-   A large card fixed centre-right, outside the scaled stage so its size is
-   true px. Cards stack; the hovered row's card cross-fades in. While the
-   index is docked it stays lit with the featured project - the docked state
-   reads as a split: the ledger left, the preview centre-right. */
+/* ---- hover previewer ----
+   The index overlay's right pane: fixed over the panel's preview area,
+   lit only while the panel is open. Cards stack; the hovered row's card
+   cross-fades in - the split reads ledger-left, preview-right. */
 .ppv {
-  position: fixed; z-index: 7; pointer-events: none;
-  right: clamp(24px, 3vw, 46px); top: 50%; transform: translateY(-50%);
-  width: min(38vw, 560px); aspect-ratio: 3 / 2;
+  position: fixed; z-index: 21; pointer-events: none;
+  left: 53vw; right: 0; top: 0; bottom: 0;
+  opacity: 0; visibility: hidden;
+  transition-property: opacity, visibility;
+  transition-duration: .35s; transition-timing-function: ease-out;
+}
+body.index-open .ppv { opacity: 1; visibility: visible; }
+.ppv::after {
+  content: 'HOVER TO PREVIEW · SELECT TO ENTER';
+  position: absolute; left: 24px; bottom: 20px; z-index: 5;
+  font-size: 9px; font-weight: 600; letter-spacing: 1.6px;
+  color: #fff; mix-blend-mode: difference;
 }
 .ppv-card {
   position: absolute; inset: 0; overflow: hidden;
@@ -1267,6 +1273,9 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 .ppv-art { position: absolute; inset: 0; display: block; }
 .ppv-art :global(.plate) { width: 100%; height: 100%; display: block; }
 .ppv-img, .ppv-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* the shader footage carries the recording's chrome around the water;
+   the same crop as the relay cards keeps the pane pure water */
+.ppv-vid { transform: scale(1.55); }
 .ppv-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .ppv-fill.braille { background: linear-gradient(180deg, #F6F2EE, #E9E3D6); }
 .ppv-fill.braille pre { margin: 0; white-space: pre; font-family: 'JetBrains Mono', var(--mono), monospace;
@@ -1290,26 +1299,9 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 @media (max-width: 1080px) { .ppv { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ppv-card { transition-duration: .01ms; } }
 
-/* ---- featured index ----
-   the hero now: left aligned with the heading, three quarters of the
-   stage wide. Hover answers in the fixed previewer, lower right. */
-/* the sticky group: zero-size so it has no hit-test box of its own; its
-   absolute children keep their scene coordinates. The translate lives here,
-   not on .pindex, whose transform the ledgerIn fill owns. */
-.idxgroup { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
-.pindex {
-  position: absolute; left: 86px; top: 704px; width: 1152px;
-  transition: width .34s cubic-bezier(.22,1,.36,1);
-}
-/* docked: the ledger narrows to the left hand of the screen (the tag column
-   gives, ellipsized - the full text lives in the preview card) and the
-   view-all trio rides in. 560, not the 452 the narrowing alone would ask:
-   the monogram docks at stage centre on the same line, so the trio stops
-   short of it (arrow ends at 695, the mark starts near 725). */
-.idxgroup .idx-r { transition: transform .34s cubic-bezier(.22,1,.36,1); }
-.idxgroup.docked .pindex { width: 700px; }
-.idxgroup.docked .idx-r { transform: translateX(-560px); }
-.idxgroup.docked .prow:hover .ptag, .idxgroup.docked .prow:focus-visible .ptag { max-width: 220px; }
+/* ---- the ledger: the index overlay's rows ----
+   Hover answers in the previewer pane at right. */
+.pindex { position: relative; margin-top: 34px; width: 100%; max-width: 1000px; }
 .prow {
   position: relative; display: grid; align-items: center;
   grid-template-columns: 58px 380px 1fr 150px; gap: 16px;
@@ -1378,9 +1370,8 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .pindex, .prow.in { animation: none; }
   .prow { opacity: 1; }
-  a.viewall, .sound, .lrail-strip, .pindex, .idxgroup .idx-r { transition-duration: .01ms; }
+  .lrail-strip, .pindex, .masthead, .index-panel, .index-close, .cl-replay { transition-duration: .01ms; }
 }
-.idxhint { font-size: 9.5px; line-height: 15px; letter-spacing: 1.3px; opacity: .5; }
 
 /* the IsoBasin construction, now only for the phone cloned into the
    Poolside world (rules reused from /poolside/) */
@@ -1445,31 +1436,9 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 .bb-glyph pre { font-size: 19px; line-height: 1.9; letter-spacing: .5em; color: #3A3A42; }
 .glyph-poster pre { font-size: 9px; line-height: 1.7; letter-spacing: .18em; }
 
-/* ---- signature mark ---- */
-.sig-mark { position: absolute; left: 753px; top: 1576px; color: var(--ink); opacity: .8; }
-
-/* ---- sound: room tone, off until asked ---- */
-.wave { position: absolute; left: 1344px; top: 1590px; }
-.sound {
-  position: absolute; left: 1431px; top: 1590px; width: 38px; height: 23px;
-  border-radius: 11.5px; display: block; border: 0; cursor: pointer; background: #FAFAF9;
-  box-shadow:
-    inset 0 0 0 1px rgba(80,68,56,.05),
-    0 1px 2px rgba(80,68,56,.14),
-    0 4px 8px -2px rgba(80,68,56,.14);
-}
-.sound::after { content: ''; position: absolute; inset: -10px; border-radius: 22px; }
-.sound .knob {
-  position: absolute; left: 5px; top: 5px; width: 13px; height: 13px;
-  border-radius: 50%; background: var(--muted);
-  box-shadow: 0 1px 2px rgba(26,24,21,.30);
-  transition: left .18s cubic-bezier(.22,1,.36,1), background .18s;
-}
-.sound[aria-checked="true"] .knob { left: 20px; background: var(--accent); }
-
-/* ---- detail world: inside the billboard ---- */
+/* ---- detail world ---- */
 #detail {
-  position: fixed; inset: 0; z-index: 10; overflow: hidden;
+  position: fixed; inset: 0; z-index: 30; overflow: hidden;
   display: none; opacity: 0;
   background: #060809;
   cursor: grab;
@@ -1482,18 +1451,6 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 #detail.in { opacity: 1; transform: scale(1); }
 #detail:not(.in) { transition-duration: .25s; }
 #detail.grabbing { cursor: grabbing; }
-
-/* landing chrome fades while the camera pushes through the billboard */
-.scene > * { transition-property: opacity; transition-duration: .2s; transition-timing-function: ease-out; }
-/* Entering a world, everything but the billboard and its shelf used to snap
-   to invisible in one frame while the push took 850ms - the one hard cut in
-   an otherwise continuous move. Now the surroundings recede: a short fade and
-   a 6px settle, ~30% of the push so the billboard is clearly what is left. */
-.scene > :not(.tv):not(.shelf) {
-  transition: opacity .26s cubic-bezier(.22,1,.36,1), transform .34s cubic-bezier(.22,1,.36,1);
-}
-.scene.pushing > :not(.tv):not(.shelf) { opacity: 0; transform: translateY(6px); }
-.scene.pushing > * { pointer-events: none; }
 
 .dcam { position: absolute; left: 0; top: 0; height: 1024px; transform-origin: 0 0; }
 .rail { display: flex; align-items: stretch; height: 1024px; }
@@ -1759,100 +1716,6 @@ body.walked .idx-jump, .idx-jump.off { opacity: 0; pointer-events: none; }
 </style>
 
 <script is:inline define:vars={{ PROJECTS: CLIENT_PROJECTS }}>
-// ---- camera: single writer for all scene transforms (fit scale + walk-through push) ----
-var cam = document.getElementById('camera');
-var camState = {
-  fitS: 1,
-  push: 0,                       // 0 = landing, 1 = through the billboard
-  ZMAX: 2.2,
-  FOCUS: { x: 814, y: 387 },     // billboard screen center
-  CENTER: { x: 768, y: 512 }     // scene center
-};
-function applyCamera() {
-  var c = camState;
-  var k = c.fitS * Math.pow(c.ZMAX, c.push);
-  // The camera scales from its top edge, not its middle, so the scene can run
-  // past the fold. That means a point at scene-y Y lands at Y*k: the billboard
-  // at y 387 would slide ~460px down the frame as the push grows. So solve for
-  // the translate that keeps the billboard where the eye already has it, and
-  // walks it to the middle of the frame as push goes 0 -> 1. Anchored, not
-  // drifting: the camera moves toward the billboard rather than under it.
-  var restY = c.FOCUS.y + (c.CENTER.y - c.FOCUS.y) * c.push;   // 387 -> 512
-  var dy = c.fitS * restY - c.FOCUS.y * k;
-  var offX = c.FOCUS.x - c.CENTER.x;                            // 46px off-centre
-  var dx = offX * (c.fitS * (1 - c.push) - k);
-  cam.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
-}
-// the index group's dock: its header row (scene y 654) holds on the name's
-// own dock line, so the two arrivals read as one register
-var IDX_TOP = 654;
-function idxPad() { return Math.max(24, innerHeight * .035); }
-function fit() {
-  // the hero is what has to fit the viewport; the scene continues past it
-  camState.fitS = Math.min(innerWidth / 1536, innerHeight / 1024);
-  // enough run below the hero for the index to reach its dock line before
-  // the page ends, plus slack: page zoom rounds vh-sized blocks by a few px,
-  // and an exact budget leaves the dock a hair short of engaging. Skipped on
-  // small screens, where the scaled stage sits far shorter than the viewport.
-  var h = 1640 * camState.fitS;
-  if (innerWidth > 1080) h = Math.max(h, IDX_TOP * camState.fitS - idxPad() + innerHeight + 48);
-  document.getElementById('fit').style.height = h + 'px';
-  applyCamera();
-}
-addEventListener('resize', fit); fit();
-
-// The hero and the relay sit above the stage, so scroll 0 is the hero frame.
-// Anything that means "the top of the stage" (the index closing) is #fit.
-function heroTop() { return document.getElementById('fit').offsetTop; }
-
-// ---- the index sticks: once its header reaches the dock line it rides the
-//      remaining scroll and holds at the top left. Direct-mapped, not lerped:
-//      a sticky element that trails the wheel swims under the pointer. The
-//      overshoot is divided back by the fit scale because the group lives on
-//      the scaled stage but the scroll is in page px. Polled per frame like
-//      the name is - scroll events drop under load and after programmatic
-//      jumps, and a missed event leaves the group parked mid-ride. ----
-var idxGroup = document.getElementById('idxgroup');
-var idxDocked = false;
-var idxTop = -1;                             // heroTop cached: offsetTop every
-addEventListener('resize', function () { idxTop = -1; });  // frame is a layout read
-// first run via rAF, not synchronously: a load with restored scroll can be
-// past the dock line already, and the sync path would touch state/showPreview
-// before they exist below - the throw would kill the loop for good
-function stickTick() {
-  if (!camState.push) {
-    if (idxTop < 0) idxTop = heroTop();
-    var over = scrollY - (idxTop + IDX_TOP * camState.fitS - idxPad());
-    var t = over > 0
-      ? 'translate3d(0,' + (over / camState.fitS).toFixed(2) + 'px,0)'
-      : '';
-    if (idxGroup.style.transform !== t) idxGroup.style.transform = t;
-    if ((over > 0) !== idxDocked) {
-      idxDocked = over > 0;
-      idxGroup.classList.toggle('docked', idxDocked);
-      /* the jump is redundant while the ledger it points at is docked */
-      if (idxJump) idxJump.classList.toggle('off', idxDocked);
-      syncDockPreview();
-    }
-  }
-  requestAnimationFrame(stickTick);
-}
-requestAnimationFrame(stickTick);
-
-// docked, the previewer holds the featured project so the split reads as
-// list-and-preview; a hover still retargets it, and leaving the list falls
-// back to the featured card instead of going dark
-function syncDockPreview() {
-  var pindexEl = document.getElementById('pindex');
-  if (idxDocked) {
-    if (!pindexEl.matches(':hover')) {
-      showPreview(pindexEl.querySelector('.prow[data-i="' + state.featured + '"]'));
-    }
-  } else if (!pindexEl.matches(':hover')) {
-    clearPreview();
-  }
-}
-
 // ---- the hero + the relay: scroll writes the hero's approach (--hp/--ha)
 //      and each section's pose (--p recede, --hand handoff, --q rise);
 //      media wake with their sections. Polled per frame like the dock is;
@@ -1972,13 +1835,42 @@ function syncDockPreview() {
   requestAnimationFrame(tick);
 })();
 
-// the fast path: one press lands the ledger exactly on its dock line
-var idxJump = document.getElementById('idxJump');
-if (idxJump) idxJump.addEventListener('click', function () {
-  scrollTo({
-    top: heroTop() + IDX_TOP * camState.fitS - idxPad(),
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
-  });
+// ---- the index overlay: opened from the masthead, closed by CLOSE, Escape,
+//      or entering a work. While open the page holds still and the previewer
+//      pane lights with the featured card. ----
+var indexPanel = document.getElementById('indexPanel');
+var indexOpenBtn = document.getElementById('indexOpen');
+function indexIsOpen() { return document.body.classList.contains('index-open'); }
+function openIndex() {
+  if (!indexPanel) return;
+  indexPanel.classList.add('open');
+  indexPanel.setAttribute('aria-hidden', 'false');
+  if (indexOpenBtn) indexOpenBtn.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('index-open');
+  document.body.style.overflow = 'hidden';
+  var row = document.querySelector('#pindex .prow[data-i="' + state.featured + '"]') ||
+            document.querySelector('#pindex .prow:not(.phdr)');
+  if (row) showPreview(row);
+}
+function closeIndex() {
+  if (!indexPanel || !indexIsOpen()) return;
+  indexPanel.classList.remove('open');
+  indexPanel.setAttribute('aria-hidden', 'true');
+  if (indexOpenBtn) indexOpenBtn.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('index-open');
+  document.body.style.overflow = '';
+}
+if (indexOpenBtn) indexOpenBtn.addEventListener('click', openIndex);
+var indexCloseBtn = document.getElementById('indexClose');
+if (indexCloseBtn) indexCloseBtn.addEventListener('click', closeIndex);
+// choosing a work closes the overlay; the hash change walks in over it
+document.querySelectorAll('#pindex .prow[href]').forEach(function (row) {
+  row.addEventListener('click', closeIndex);
+});
+// the closing's replay: back to the top of the sequence
+var replayBtn = document.getElementById('replay');
+if (replayBtn) replayBtn.addEventListener('click', function () {
+  scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
 });
 
 // ---- smooth scroll: the wheel writes a target; a frame loop glides the
@@ -2003,7 +1895,9 @@ if (idxJump) idxJump.addEventListener('click', function () {
     raf = requestAnimationFrame(frame);
   }
   addEventListener('wheel', function (e) {
-    if (state.mode !== 'landing' || e.ctrlKey || e.defaultPrevented) return;
+    /* the overlay owns the wheel while open: the ledger scrolls natively
+       and the page behind holds still (body overflow hidden) */
+    if (state.mode !== 'landing' || indexIsOpen() || e.ctrlKey || e.defaultPrevented) return;
     e.preventDefault();
     var d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
     if (target < 0) cur = target = scrollY;
@@ -2011,13 +1905,6 @@ if (idxJump) idxJump.addEventListener('click', function () {
     if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
   }, { passive: false });
 })();
-// A deep link is already inside a world: land on the hero so stepping back
-// arrives on the landing rather than replaying the name.
-if (/^#\/p\//.test(location.hash)) {
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  addEventListener('load', function () { scrollTo({ top: heroTop(), behavior: 'instant' }); });
-}
-
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
 // ledger rows arrive as they are approached, staggered within each batch
@@ -2121,7 +2008,8 @@ document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
   row.addEventListener('pointerenter', enter);
   row.addEventListener('focus', enter);
 });
-document.getElementById('pindex').addEventListener('pointerleave', clearPreview);
+/* leaving the ledger keeps the last card lit: the overlay's preview pane
+   should never go dark while the panel is open */
 
 // ---- shared WebGL: the Poolside shaders (ported from /poolside/) ----
 var GL_VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
@@ -2878,61 +2766,31 @@ function cubicBezier(x1, y1, x2, y2) {
     return f(t, y1, y2);
   };
 }
-var easePush = cubicBezier(.7, 0, .3, 1);
-
-var pushAnim = null, transTimers = [];
-function animatePush(to, dur, done) {
-  if (pushAnim) cancelAnimationFrame(pushAnim);
-  var from = camState.push, t0 = performance.now();
-  cam.style.willChange = 'transform';
-  function tick(now) {
-    var t = Math.min(1, (now - t0) / dur);
-    camState.push = from + (to - from) * easePush(t);
-    applyCamera();
-    if (t < 1) { pushAnim = requestAnimationFrame(tick); }
-    else {
-      pushAnim = null; cam.style.willChange = '';
-      if (done) done();
-    }
-  }
-  pushAnim = requestAnimationFrame(tick);
-}
+var transTimers = [];
 function clearTransTimers() { transTimers.forEach(clearTimeout); transTimers = []; }
 
-var scene = document.getElementById('scene');
-
+/* entering a world is an overlay arrival now (the billboard walk-through
+   left with the stage): the detail surface fades and settles in over the
+   page, wherever the relay was standing - and exit lands right back there */
 function animEnter(i) {
   state.mode = 'entering';
-  scrollTo({ top: heroTop(), behavior: 'instant' });   // the push is composed on the hero
   setFeatured(i);
   buildDetail(i);
   clearTransTimers();
+  closeIndex();
   document.body.classList.add('walked');
-  scene.classList.add('pushing');
   detail.style.willChange = 'opacity, transform';
-
-  function arrive() {
-    detail.classList.add('on');
-    dfit();
-    void detail.offsetWidth;                 // commit start state before transitioning
-    detail.classList.add('in');
-  }
-  function settle() {
+  detail.classList.add('on');
+  dfit();
+  void detail.offsetWidth;                   // commit start state before transitioning
+  detail.classList.add('in');
+  transTimers.push(setTimeout(function settle() {
     state.mode = 'detail';
-    if (!reduceMotion) { camState.push = 1; applyCamera(); }  // deterministic even if rAF was throttled
     detail.style.willChange = '';
     var f = document.getElementById('dfocus');
     if (f) f.focus({ preventScroll: true });
     route();                                 // catch hash changes made mid-transition
-  }
-  if (reduceMotion) {
-    arrive();
-    transTimers.push(setTimeout(settle, 260));
-  } else {
-    animatePush(1, 850, null);
-    transTimers.push(setTimeout(arrive, 450));
-    transTimers.push(setTimeout(settle, 870));
-  }
+  }, reduceMotion ? 260 : 420));
 }
 
 function animExit() {
@@ -2940,29 +2798,16 @@ function animExit() {
   clearTransTimers();
   detail.classList.remove('in');            // recede + fade (250ms)
   detail.style.willChange = 'opacity, transform';
-
-  function land() {
+  transTimers.push(setTimeout(function land() {
     state.mode = 'landing';
     var bh = document.getElementById('bbHero');
     if (bh && !bh.paused) bh.pause();       // parked again: stop the decode
-    camState.push = 0; applyCamera();        // deterministic even if rAF was throttled
     document.body.classList.remove('walked');
-    scene.classList.remove('pushing');
     detail.classList.remove('on');
     detail.style.willChange = '';
-    var row = document.querySelector('.prow.selected');
-    if (row) row.focus({ preventScroll: true });
     route();
     bbWake();
-  }
-  if (reduceMotion) {
-    scene.classList.remove('pushing');
-    transTimers.push(setTimeout(land, 260));
-  } else {
-    animatePush(0, 650, null);
-    transTimers.push(setTimeout(function () { scene.classList.remove('pushing'); }, 300));
-    transTimers.push(setTimeout(land, 670));
-  }
+  }, reduceMotion ? 260 : 270));
 }
 
 // ---- router: #/ landing, #/p/{slug} detail ----
@@ -2980,8 +2825,6 @@ function route(initial) {
       state.mode = 'detail';
       setFeatured(i); buildDetail(i);
       document.body.classList.add('walked');
-      scene.classList.add('pushing');
-      camState.push = 1; applyCamera();
       detail.classList.add('on'); detail.classList.add('in');
       dfit();
     } else animEnter(i);
@@ -2995,7 +2838,9 @@ addEventListener('hashchange', function () { route(false); });
 
 function enterProject(i) { location.hash = '#/p/' + PROJECTS[i].slug; }
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && state.mode === 'detail') location.hash = '#/';
+  if (e.key !== 'Escape') return;
+  if (indexIsOpen()) { closeIndex(); return; }
+  if (state.mode === 'detail') location.hash = '#/';
 });
 
 // ---- side rail: strip toggles the nav; leaving the rail closes it ----
@@ -3014,190 +2859,5 @@ document.addEventListener('keydown', function (e) {
 route(true);
 bbWake();
 
-// ---- room tone: generated, never autoplayed ----
-var sound = document.getElementById('sound');
-var sndState = document.getElementById('sndState');
-var actx = null, gain = null;
-sound.addEventListener('click', function () {
-  var on = sound.getAttribute('aria-checked') !== 'true';
-  sound.setAttribute('aria-checked', String(on));
-  sndState.textContent = on ? 'ON' : 'OFF';
-  if (!actx && on) {
-    actx = new AudioContext();
-    /* filtered noise: the room the plates are hung in */
-    var len = actx.sampleRate * 4;
-    var buf = actx.createBuffer(1, len, actx.sampleRate);
-    var d = buf.getChannelData(0);
-    var last = 0;
-    for (var i = 0; i < len; i++) {
-      var white = Math.random() * 2 - 1;
-      last = (last + 0.02 * white) / 1.02;
-      d[i] = last * 3.5;
-    }
-    var src = actx.createBufferSource();
-    src.buffer = buf; src.loop = true;
-    var lp = actx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 520; lp.Q.value = 0.6;
-    gain = actx.createGain(); gain.gain.value = 0;
-    src.connect(lp).connect(gain).connect(actx.destination);
-    src.start();
-  }
-  if (actx && gain) {
-    actx.resume();
-    gain.gain.cancelScheduledValues(actx.currentTime);
-    gain.gain.linearRampToValueAtTime(on ? 0.06 : 0, actx.currentTime + 0.6);
-  }
-});
 
-// ---- scratch-off heading ----
-// The loud heading is painted to a canvas (from the calibrated DOM lines, so
-// it matches exactly). The pointer erases it with a soft, slightly ragged
-// brush; the quiet line underneath shows through. Fingers work too. On leave,
-// after a beat, the coating grows back so the interaction can repeat.
-function initScratch() {
-  var wrap = document.getElementById('scratch');
-  var cv = document.getElementById('scratchCv');
-  if (!wrap || !cv) return;
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;                         // no coating; the heading just reads normally
-  var dpr = Math.min(devicePixelRatio || 1, 2);
-  var ctx = cv.getContext('2d');
-  var lines = [].slice.call(wrap.querySelectorAll('.hl'));
-  var under = wrap.querySelector('.scratch-under');
-  var W = 480, H = 440, ox = 0, oy = 0, ink = '#1A1815', paper = '#F7F5F1';
-
-  // the coating is a SOLID slab the exact shape of the heading: each line is a
-  // filled rounded bar behind the letters, so there is a real surface to rub
-  // off, not just glyph strokes. The heading text sits on the slab in paper so
-  // the words still read; scratching removes slab + text together, and the
-  // quiet line shows through.
-  function layout() {
-    // the canvas is exactly the heading's bounding box, so it only catches the
-    // pointer where the letters are - never over the billboard or the rail.
-    var l = 1e9, t = 1e9, r = -1e9, bt = -1e9, pad = 12, CAP = 60;
-    lines.forEach(function (el) {
-      var tx = +el.dataset.x, tw = +el.dataset.w, tcap = +el.dataset.captop;
-      l = Math.min(l, tx); t = Math.min(t, tcap);
-      r = Math.max(r, tx + tw);
-      bt = Math.max(bt, tcap + CAP + 12);          // + a little descender room
-    });
-    ox = l - pad; oy = t - pad; W = (r - l) + pad * 2; H = (bt - t) + pad * 2;
-    cv.style.left = ox + 'px'; cv.style.top = oy + 'px';
-    cv.style.width = W + 'px'; cv.style.height = H + 'px';
-    if (under) {
-      var lh = Math.round(parseFloat(getComputedStyle(under).fontSize) * 1.16);
-      under.style.lineHeight = lh + 'px';
-      var underH = lh * (under.querySelectorAll('br').length + 1);
-      under.style.top = Math.round(t + (bt - t - underH) / 2) + 'px';
-    }
-  }
-
-  function paint(alpha) {
-    cv.width = W * dpr; cv.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalAlpha = alpha == null ? 1 : alpha;
-    // paint each line to the SAME target box calibrate fits the DOM line to
-    // (data-w wide, data-captop down, cap-height 60) - so the coat matches the
-    // heading exactly and there is no size jump when the DOM swaps for canvas.
-    var CAP = 60;
-    lines.forEach(function (el) {
-      var tx = +el.dataset.x, tw = +el.dataset.w, tcap = +el.dataset.captop;
-      var base = 100;
-      ctx.font = "800 " + base + "px 'BigShoulders', sans-serif";
-      ctx.textBaseline = 'alphabetic';
-      var mm = ctx.measureText(el.textContent);
-      var asc = mm.actualBoundingBoxAscent, desc = mm.actualBoundingBoxDescent;
-      var inkW = mm.actualBoundingBoxLeft + mm.actualBoundingBoxRight;
-      var sx = tw / inkW, sy = CAP / asc;
-      ctx.save();
-      ctx.translate(tx - ox, tcap - oy);          // ink-top of the line
-      ctx.scale(sx, sy);
-      // paper slab hugging the glyphs (ground colour, invisible at rest)
-      ctx.fillStyle = paper;
-      roundRect(-mm.actualBoundingBoxLeft - 8, -8, inkW + 16, asc + desc + 16, 8); ctx.fill();
-      // the letters, in ink, drawn from the same baseline as the DOM
-      ctx.fillStyle = ink; ctx.strokeStyle = ink; ctx.lineWidth = 1.4 / sx;
-      ctx.fillText(el.textContent, mm.actualBoundingBoxLeft, asc);
-      ctx.strokeText(el.textContent, mm.actualBoundingBoxLeft, asc);
-      ctx.restore();
-    });
-    ctx.globalAlpha = 1;
-  }
-  function roundRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
-  }
-
-  // gradual rub: each pass removes part of the coat, so a spot needs a couple
-  // of strokes to clear - it feels like rubbing, not a hard cut.
-  var lastX = null, lastY = null;
-  function rub(x, y) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-out';
-    var r = 30;
-    var g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, 'rgba(0,0,0,0.95)');
-    g.addColorStop(0.6, 'rgba(0,0,0,0.7)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
-    ctx.restore();
-  }
-  function rubLine(x1, y1, x2, y2) {
-    var d = Math.hypot(x2 - x1, y2 - y1), n = Math.max(1, d / 5);
-    for (var i = 0; i <= n; i++) rub(x1 + (x2 - x1) * i / n, y1 + (y2 - y1) * i / n);
-  }
-  function toLocal(e) {
-    var b = cv.getBoundingClientRect();   // canvas is always sized now, and paint draws in its space
-    return [(e.clientX - b.left) / b.width * W, (e.clientY - b.top) / b.height * H];
-  }
-
-  var armed = false;
-  function arm() {
-    if (armed) return;
-    armed = true; layout(); wrap.classList.add('armed'); paint(1); lastX = lastY = null;
-  }
-  function onMove(e) {
-    arm();
-    var p2 = toLocal(e);
-    if (lastX == null) { rub(p2[0], p2[1]); } else { rubLine(lastX, lastY, p2[0], p2[1]); }
-    lastX = p2[0]; lastY = p2[1];
-  }
-
-  wrap.addEventListener('pointerenter', onMove);
-  wrap.addEventListener('pointermove', onMove);
-  wrap.addEventListener('pointerdown', onMove);
-  // once scratched it stays scratched: no restore on leave. A fresh page load
-  // (navigate away and back) repaints the coat, which is the only reset.
-  layout();
-  addEventListener('resize', function () { layout(); if (armed) paint(1); });
-}
-
-// headline calibration: pin each line's ink box exactly onto the measured mockup box
-function calibrate() {
-  document.querySelectorAll('.hl').forEach(function (el) {
-    var cs = getComputedStyle(el);
-    var fs = parseFloat(cs.fontSize);
-    var lh = parseFloat(cs.lineHeight);
-    var g = document.createElement('canvas').getContext('2d');
-    g.font = cs.fontWeight + ' ' + fs + 'px ' + cs.fontFamily;
-    var m = g.measureText(el.textContent);
-    var capAsc = m.actualBoundingBoxAscent;
-    var inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
-    var fbAsc = m.fontBoundingBoxAscent, fbDesc = m.fontBoundingBoxDescent;
-    var targetW = parseFloat(el.dataset.w);
-    var targetCapTop = parseFloat(el.dataset.captop);
-    var targetCapH = 60;
-    var sx = targetW / inkW, sy = targetCapH / capAsc;
-    var baselineLocal = (lh - (fbAsc + fbDesc)) / 2 + fbAsc;
-    var inkTopLocal = baselineLocal - capAsc;
-    el.style.left = el.dataset.x + 'px';
-    el.style.top = (targetCapTop - inkTopLocal * sy) + 'px';
-    el.style.transform = 'scale(' + sx + ',' + sy + ')';
-  });
-}
-document.fonts.ready.then(function () { calibrate(); initScratch(); });
 </script>

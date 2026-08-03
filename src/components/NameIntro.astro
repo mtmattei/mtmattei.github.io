@@ -86,24 +86,30 @@ body.relay-live .tmark { pointer-events: none; }
   width: min(64vw, 1180px); height: auto; overflow: visible;
   pointer-events: none;
 }
+/* the reverse plays the forward move backwards: opening, cyan (Matt) draws
+   then red (Mattei) follows; closing, red retracts first, cyan follows, and
+   only once the pen is back inside the M do the mark and 2ei return */
 .tsig-eg path {
   stroke-dasharray: 1; stroke-dashoffset: 1;
   transition-property: stroke-dashoffset;
-  transition-duration: .5s; transition-timing-function: cubic-bezier(.45, .05, .35, 1);
+  transition-timing-function: cubic-bezier(.45, .05, .35, 1);
 }
-.eg-cyan path { transition-delay: .14s; }   /* closing: red retracts first */
-.eg-red path  { transition-delay: 0s; }
+.eg-red path  { transition-delay: 0s; transition-duration: .6s; }     /* closing: red first */
+.eg-cyan path { transition-delay: .2s; transition-duration: .55s; }   /* cyan follows it home */
 #sigdock.open .eg-cyan path { stroke-dashoffset: 0; transition-delay: 0s; transition-duration: .55s; }
 #sigdock.open .eg-red path  { stroke-dashoffset: 0; transition-delay: .2s; transition-duration: .6s; }
 /* the mark's own strokes yield while the plates retrace them, so the
-   multiply blend never doubles the M's ink */
-.tmark-m path { transition-property: opacity; transition-duration: .12s; transition-timing-function: linear; transition-delay: .5s; }
+   multiply blend never doubles the M's ink; they return only at the very
+   end of the retraction */
+.tmark-m path { transition-property: opacity; transition-duration: .12s; transition-timing-function: linear; transition-delay: .68s; }
 #sigdock.open .tmark-m path { opacity: 0; transition-delay: .05s; }
 /* the composition glides left so the finished autograph sits centred:
    half of the plates' extra width (429 units), at the docked scale */
 #sigdock.open .tmark { transform: translateX(calc(min(64vw, 1180px) * -.0979)) scale(.235); }
-/* the exponent gives way to the real tail */
-#sigdock.open .tmark-exp { opacity: 0; transform: translateY(-14%) translateX(10px); }
+/* the exponent gives way to the real tail on open — and stays away until
+   the autograph has fully retracted into the monogram */
+.tmark-exp { transition-delay: .62s; }
+#sigdock.open .tmark-exp { opacity: 0; transform: translateY(-14%) translateX(10px); transition-delay: 0s; }
 
 @media (max-width: 820px) {
   .tmark-m { width: calc(86vw * .167); }
