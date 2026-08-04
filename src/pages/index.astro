@@ -463,12 +463,12 @@ const INDEX_ROWS = [
     </div>
     <a class="hero-photo" href="#/p/poolside" aria-label="Enter Poolside">
       <span class="rl-visual">
-        <Plate slug="poolside" />
-        <video class="rl-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+        <img class="hero-img" src="/landing/favalanciata.webp" width="1538" height="1023"
+             alt="" decoding="async" fetchpriority="high" />
       </span>
     </a>
     <div class="hero-meta" aria-hidden="true">
-      <span>SELECTED WORK 01</span><span>Poolside · runtime SkSL water</span><span>2026</span>
+      <span>SELECTED WORK 01</span><span>Favalanciata · anaglyph engraving</span><span>2026</span>
     </div>
     <div class="hero-cue" aria-hidden="true"><i></i>SCROLL TO ENTER</div>
   </div>
@@ -1104,11 +1104,19 @@ body.walked .rl-embed { display: none; }
   position: absolute; z-index: 3; left: 50%; top: calc(61% - var(--ha) * 11%);
   width: calc(58vw + var(--ha) * 42vw); height: calc(43vh + var(--ha) * 57vh);
   transform: translate(-50%, -50%);
-  overflow: hidden; display: block; background: #ddd8cf; cursor: pointer;
+  overflow: hidden; display: block; background: #A49275; cursor: pointer;
   contain: layout style paint;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 28px 70px -28px rgba(26, 24, 21, .35);
 }
 .hero-photo .rl-visual { transform: translate(-50%, -50%) scale(calc(1.05 - var(--ha) * .05)); }
+/* the hero still: the anaglyph engraving, covering the constant
+   full-viewport layer the card crops. At rest the letterbox holds the
+   mountain and the hill town; the rest of the plate opens outward as the
+   card grows to full bleed. */
+.hero-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
 .hero-meta {
   position: absolute; z-index: 5; left: 50%; top: 84.5%; width: 58vw; transform: translateX(-50%);
   display: flex; justify-content: space-between; gap: 24px;
