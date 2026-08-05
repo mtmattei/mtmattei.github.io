@@ -29,7 +29,8 @@ type Extra = {
   body?: string;
   rows?: string[];
   items?: { no: string; title: string; body: string; read?: string; lead?: string }[];
-  /* a note panel may carry the project's video beside the text */
+  /* a note panel may carry the project's own media beside the text —
+     footage plays, a capture renders as a still */
   video?: { src: string; cap: string; sub: string };
 };
 type Proj = {
@@ -56,6 +57,14 @@ type Proj = {
   /* the case-study page head, carried into the title panel */
   lede?: string;
   facts?: string[];
+};
+
+/* the ink the next card's title prints in: per artwork, not per world —
+   PaperNotes' sheet is pale even though it rises out of a dark frame */
+const RELAY_ART_INK: Record<string, string> = {
+  poolside: '#F6F2EE',
+  papernotes: '#2A2A28',
+  lightwidget: '#F2EDE6',
 };
 
 const PROJECTS: Proj[] = [
@@ -128,6 +137,88 @@ const PROJECTS: Proj[] = [
           { no: '02', title: 'Cache the builder', body: 'SKRuntimeShaderBuilder is created once and reused. Disposing it per frame frees native state shared with the effect, and the next render access-violates.', read: 'build once · feed uniforms' },
           { no: '03', title: 'Zero-alloc loop', body: 'The render loop rides CompositionTarget.Rendering, snapshots inputs to plain fields, and reuses uniform buffers. At 0% intensity it stops painting.', read: 'vsync · idle at 0%' },
           { no: '04', title: 'GLSL to SkSL', body: 'No varyings, no gl_FragColor. Return a half4 from main(float2 fragCoord). Coordinates arrive in element DIPs, Y down; normalize and flip yourself.', read: 'half4 · Y-down DIPs' },
+        ],
+      },
+    ],
+  },
+  {
+    /* paper world: PaperNotes is a ruled sheet, so its world is the stock
+       it prints on — warm paper, graphite ink, the red of its comments */
+    slug: 'papernotes', name: 'PAPERNOTES', tag: 'UNO PLATFORM · RULED TYPE · IME',
+    deep: '#E7E5DE', accent: '#A33A2A', ink: '#2A2A28', base: '#F1F0EB',
+    meta: 'ONE SHEET · SIX PASSES',
+    lede: 'A note taken as a ruled sheet rather than a text field. Every line is numbered, indentation reads as elevation, and the rules stay under the words while you write — which turned out to be the hard part.',
+    facts: [
+      'Uno Platform · net10.0 · desktop + Android',
+      'Martian Mono / Newsreader · Skia weight manifests',
+      'JSON NoteStore · debounced autosave · .bak recovery',
+      'Tests 23/23 · 0 warnings',
+    ],
+    pre: [
+      {
+        kind: 'note', label: 'SHEET', title: 'Indentation as elevation.',
+        body: 'The sheet is the interface: a 28px ruled grid, numbers in the gutter baseline-aligned at 9px, keyword weights swapped per row between display and edit. Comments set in red Newsreader italic, so an aside looks like an aside. Nothing here is a text box wearing a costume — the rules are a Skia layer under a Perlin grain, and the type sits on them.',
+        rows: ['28px grid', 'martian mono', 'newsreader', 'skia rules'],
+      },
+      {
+        kind: 'note', label: 'CARET', title: 'The caret ignores your line height.',
+        body: 'On the Uno Skia text stack the caret is drawn from natural font metrics and ignores any LineHeight stamped on the internal text view. A 17px caret sat at the top of a 34px box, misaligned with its own glyphs, and grew 17→34 on the first keystroke. The fix was not markup: MartianMono-Sheet.ttf is the same face with its vertical metrics patched — ascent 1750, descent −250 at upm 1000, typo, hhea and win all aligned — so the natural line box IS the ruled grid and the baseline sits low on the rule.',
+        rows: ['fonttools', 'ascent 1750', 'descent −250', 'use_typo_metrics'],
+      },
+    ],
+    iters: [],
+    post: [
+      {
+        kind: 'note', label: 'IME', title: 'Per-row editing lost to the keyboard.',
+        body: 'Editing each line as its own TextBox is unworkable against the Android IME, in three verified ways: soft keyboards never deliver Enter or backspace-at-position-0 as KeyDown; a zero-width sentinel with a SelectionChanged guard scrambles batch commits, landing text reversed; and any per-keystroke managed read of TextBox.Text during composition races the native-to-managed sync and reorders fast input. Mobile now hands the whole sheet to one native multiline TextBox and parses on commit — signalled by InputPane.Hiding, because window-resize heuristics never fire.',
+        rows: ['unified editing', 'inputpane.hiding', 'parse on commit'],
+      },
+      {
+        kind: 'parts', label: 'NOTES', title: 'Field notes',
+        items: [
+          { no: '01', title: 'Let the IME own the text', body: 'Every attempt to supervise composition per keystroke corrupted it. The keyboard wins; read the result once, when it is done.', read: 'commit, not keystroke' },
+          { no: '02', title: 'Patch the font, not the layout', body: 'When the caret follows natural metrics and nothing else, the metrics are the layout. Retuning the face beat fighting the text view.', read: 'metrics are layout' },
+          { no: '03', title: 'Lazy content views measure at zero', body: "Uno's TextBox content view is created on the first layout pass after it becomes visible, and starts unmeasured — a collapsed-then-shown box renders its text invisible until something re-measures.", read: 'stamp from LayoutUpdated' },
+          { no: '04', title: 'Fractional DPI drifts the grid', body: 'UseLayoutRounding pushed rows off the rule at non-integer scale factors. Turning it off put the numbers back on their lines.', read: 'UseLayoutRounding=false' },
+        ],
+      },
+    ],
+  },
+  {
+    /* dark world: Light is an ambient surface, so its world is the room it
+       sits in — the panel is the only thing giving off light */
+    slug: 'lightwidget', name: 'LIGHT', tag: 'AMBIENT · SOLAR MODEL · SKIASHARP',
+    deep: '#2B2E44', accent: '#E8A184', ink: '#F2EDE6', base: '#15161F',
+    meta: 'THREE STATES · ONE SURFACE',
+    lede: 'An ambient clock that reports the time as a quality of light instead of a number to be read. The centre form is the sun, not a dial: where it sits on the arc decides which way the light spreads, which way the surface falls into shadow, how warm it runs, and how bright the panel reads.',
+    facts: [
+      'Uno Platform · net10.0-desktop · SkiaSharp',
+      'Solar model · latitude / longitude / time zone',
+      'Not one tappable element',
+      'After the "Light" concept by Naoto Fukasawa',
+    ],
+    pre: [
+      {
+        kind: 'note', label: 'STATES', title: 'Tokyo, New York, London.',
+        body: 'The same surface at three points in the day, driven only by coordinates and the clock. Tokyo at 09:22 runs cream and open, nine and a half hours of daylight still ahead. New York at 20:22 is past sunset, the panel gone coral into violet. London at 01:22 is night: the beam collapses to nothing, the disc reads as a moon, and the footer counts to sunrise instead.',
+        rows: ['daylight', 'dusk', 'night', 'one model'],
+        video: { src: '/projects/lightwidget-cities.webp', cap: 'Three cities, one surface', sub: 'Uno Platform · SkiaSharp · solar model' },
+      },
+      {
+        kind: 'note', label: 'RESTRAINT', title: 'There is nothing to press.',
+        body: 'Interaction of any kind is out of scope, and adding one would break it. State changes come from the clock and the sun, never from the user — so the surface has no affordances to design, only a condition to report. The numeric time is present and deliberately demoted by weight rather than by size.',
+        rows: ['no controls', 'terminal surface', 'weight, not size'],
+      },
+    ],
+    iters: [],
+    post: [
+      {
+        kind: 'parts', label: 'NOTES', title: 'Field notes',
+        items: [
+          { no: '01', title: 'The canvas does ride a scale', body: 'A Viewbox wrapping a fixed-size grid scales an SKCanvasElement and XAML text together and keeps them pixel-registered. Design at literal spec coordinates and let the Viewbox size the surface.', read: 'viewbox · uniform' },
+          { no: '02', title: 'CharacterSpacing does nothing here', body: 'On the Skia text stack, 120 units at 72.5px moved the measured ink width by zero pixels — silently, with no analyzer warning. Letterspaced display type is laid out one character per TextBlock in a spaced StackPanel.', read: '0px at 0.12em' },
+          { no: '03', title: 'Do not resize the window', body: 'AppWindow.Resize grows the frame before the Skia surface follows, so the app lays out to the new size against the old surface and renders clipped. Pin the content instead and let the window be whatever it is.', read: 'pin content, not frame' },
+          { no: '04', title: 'Sigmas stay in design units', body: 'The renderer receives the unscaled design size, so blur radii and stroke widths are written at their real numbers and never carry manual DPI maths.', read: 'no DPI arithmetic' },
         ],
       },
     ],
@@ -205,6 +296,14 @@ const INDEX_ROWS = [
                   <Plate slug="poolside" />
                   <video class="rl-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
                 </>
+              ) : p.slug === 'papernotes' ? (
+                <span class="rl-fill rl-paper">
+                  <img class="rl-shot" src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" />
+                </span>
+              ) : p.slug === 'lightwidget' ? (
+                <span class="rl-fill rl-light">
+                  <img class="rl-shot" src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
+                </span>
               ) : (
                 <Plate slug={p.slug} />
               )}
@@ -222,14 +321,21 @@ const INDEX_ROWS = [
               on the board there is nothing to hand to, so both the rising card
               and its title stay out of the DOM until a second world exists. */}
           {next && (
-            <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true" style="--rl-next-ink:#F6F2EE">
+            <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true"
+               style={`--rl-next-ink:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
               <span class="rl-visual">
-                <Plate slug={next.slug} />
+                {next.slug === 'papernotes' ? (
+                  <span class="rl-fill rl-paper"><Plate slug="papernotes" /></span>
+                ) : next.slug === 'lightwidget' ? (
+                  <span class="rl-fill rl-light"><Plate slug="lightwidget" /></span>
+                ) : (
+                  <Plate slug={next.slug} />
+                )}
               </span>
             </a>
           )}
           {next && (
-            <div class="rl-next-title" aria-hidden="true" style="color:#F6F2EE">
+            <div class="rl-next-title" aria-hidden="true" style={`color:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
               <span>{nextNo} / {next.tag}</span>
               <b>{next.name}</b>
             </div>
@@ -351,6 +457,11 @@ const INDEX_ROWS = [
       <span class="ppv-art">
         {r.slug === 'poolside' ? (
           <video class="ppv-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+        ) : r.slug === 'papernotes' ? (
+          /* the previewer card is 4:5, so the sheet very nearly fills it */
+          <img class="ppv-img" src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" style="object-position:50% 0" />
+        ) : r.slug === 'lightwidget' ? (
+          <img class="ppv-img" src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
         ) : (
           <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
         )}
@@ -769,6 +880,19 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
 /* the shader footage carries a baked matte around the water (content is
    ~73% of the frame width); the scale crops to the water itself */
 .rl-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.55); }
+/* These cards carry screens of real interfaces, so they are fitted whole
+   rather than cropped: .rl-visual is a constant 100vw x 100vh layer the
+   card clips, and `cover` magnifies a portrait sheet until only two words
+   are left on screen. `contain` keeps the app legible at every card size,
+   and the fill's own ground carries the letterbox — which is also the
+   fallback while the capture loads. */
+.rl-fill { position: absolute; inset: 0; overflow: hidden; display: block; }
+.rl-shot {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; display: block;
+}
+.rl-paper { background: #EFEEE9; }
+.rl-light { background: #141416; }
 .rl-label {
   position: absolute; z-index: 5;
   left: calc(4.6vw + var(--p) * 49vw);
@@ -1086,7 +1210,8 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 .dnote-media { width: 1420px; display: flex; align-items: center; gap: 70px; padding-top: 0; }
 .dnote-media .dnote-text { max-width: 680px; }
 .dnote-media .videocard { flex: none; width: 520px; }
-.dnote-media .videocard video { display: block; width: 100%; border-radius: 6px; }
+.dnote-media .videocard video,
+.dnote-media .videocard img { display: block; width: 100%; border-radius: 6px; }
 /* the key passages, in the site's srcblock grammar */
 .dcode { width: 980px; padding: 90px 0 0 60px; }
 .dcode .dh { font-size: 56px; }
@@ -1770,9 +1895,15 @@ function extraHtml(p, x) {
     '<div class="dh">' + esc(x.title || '') + '</div>' +
     '<p class="dcap">' + esc(x.body || '') + '</p>' + rowsHtml(x.rows);
   if (x.video) {
-    // the project's own footage rides beside the note (videocard as on the page)
+    // the project's own media rides beside the note (videocard as on the
+    // page). Footage plays; a capture is a still — Light has no motion to
+    // show, so its three cities arrive as one image.
+    var isVid = /\.(mp4|webm|mov)$/i.test(x.video.src);
+    var media = isVid
+      ? '<video controls muted playsinline preload="metadata" src="' + esc(x.video.src) + '"></video>'
+      : '<img src="' + esc(x.video.src) + '" alt="" loading="lazy" decoding="async" />';
     return '<div class="dpanel dnote dnote-media"><div class="dnote-text">' + noteInner + '</div>' +
-      '<div class="videocard"><video controls muted playsinline preload="metadata" src="' + esc(x.video.src) + '"></video>' +
+      '<div class="videocard">' + media +
       '<div class="cap"><b>' + esc(x.video.cap) + '</b><span class="mono">' + esc(x.video.sub) + '</span></div></div>' +
       '</div>';
   }

@@ -1,9 +1,9 @@
 ---
 /* BillboardArt - what plays on the billboard screen, one variant per project.
-   Poolside is the only variant on the board; every project added back brings
-   its own branch. The water canvas is animated by the landing's own script;
-   without it the Plate underneath is the still fallback, which is what it was
-   always for. */
+   Poolside runs its real UI in landscape, water canvas and all; the other two
+   show their own captures, which are the apps themselves rather than mockups.
+   The water canvas is animated by the landing's own script; without it the
+   Plate underneath is the still fallback, which is what it was always for. */
 import Plate from './Plate.astro';
 
 interface Props { slug: string }
@@ -71,6 +71,18 @@ const { slug } = Astro.props;
           <span class="bb-warn">Clarity has slipped 18 points over three weeks. A shock this week holds it clear.</span>
         </span>
       </span>
+    </span>
+  )}
+
+  {slug === 'papernotes' && (
+    <span class="bb-shot paper">
+      <img src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" />
+    </span>
+  )}
+
+  {slug === 'lightwidget' && (
+    <span class="bb-shot light">
+      <img src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
     </span>
   )}
 
@@ -190,4 +202,13 @@ const { slug } = Astro.props;
     rgba(255,255,255,.10) 0%, rgba(255,255,255,.035) 16%,
     rgba(255,255,255,0) 34%, rgba(255,255,255,0) 100%);
 }
+
+/* ---- captures: the app's own screen, fitted whole ----
+   These are real interfaces, so they are shown entire rather than cropped
+   to fill; a portrait sheet cropped to a landscape panel loses the thing
+   worth looking at. The panel's own ground carries the letterbox. */
+.bb-shot { position: absolute; inset: 0; overflow: hidden; display: block; }
+.bb-shot img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.bb-shot.paper { background: #EFEEE9; }
+.bb-shot.light { background: #141416; }
 </style>
