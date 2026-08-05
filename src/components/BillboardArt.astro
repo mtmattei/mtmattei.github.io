@@ -74,15 +74,13 @@ const { slug } = Astro.props;
     </span>
   )}
 
-  {slug === 'papernotes' && (
-    <span class="bb-shot paper">
-      <img src="/projects/papernotes-hero.webp" width="1920" height="1080" alt="" decoding="async" loading="lazy" />
-    </span>
-  )}
-
-  {slug === 'lightwidget' && (
-    <span class="bb-shot light">
-      <img src="/projects/lightwidget-hero.webp" width="1920" height="1080" alt="" decoding="async" loading="lazy" />
+  {(slug === 'papernotes' || slug === 'lightwidget') && (
+    /* the work's poster, same sheet as the relay card and the previewer —
+       this panel rides into the detail world's poster slot, so it should
+       be showing the poster */
+    <span class="bb-shot">
+      <img src={`/projects/${slug}-poster.webp`} width="1100" height="1556"
+           alt="" decoding="async" loading="lazy" />
     </span>
   )}
 
@@ -203,12 +201,10 @@ const { slug } = Astro.props;
     rgba(255,255,255,0) 34%, rgba(255,255,255,0) 100%);
 }
 
-/* ---- heroes: one 16:9 canvas per project, filling the panel ----
-   The billboard is 16:9 and so is every hero, so `cover` is a 1:1 fill
-   with no crop at all. The composing happens offline, where each capture
-   is seated on its project's own ground. */
-.bb-shot { position: absolute; inset: 0; overflow: hidden; display: block; }
-.bb-shot img { width: 100%; height: 100%; display: block; object-fit: cover; }
-.bb-shot.paper { background: #EFEEE9; }
-.bb-shot.light { background: #141416; }
+/* ---- the work's poster, seated in the panel ----
+   The panel is landscape and the sheet is portrait, so the poster is
+   fitted whole on the press stock rather than cropped to fill — cropping
+   a poster is the one thing that stops it being one. */
+.bb-shot { position: absolute; inset: 0; overflow: hidden; display: block; background: #E4E0D6; }
+.bb-shot img { width: 100%; height: 100%; display: block; object-fit: contain; }
 </style>
