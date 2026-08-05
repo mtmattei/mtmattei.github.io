@@ -1,53 +1,116 @@
-# HANDOFF — Relay navigation landing
-Updated: 2026-08-03 (session 2 revisions)
+# HANDOFF — the relay landing, five works
+Updated: 2026-08-05
 
 ## Where we are
 
-The landing is now fully prototype-shaped, committed on main @ a1dd53a:
+The board was cleared to Poolside alone and rebuilt to five works. Live at
+`https://mtmattei.github.io`, deployed from `main` on every push.
 
-1. **Opening**: M² monogram docked centre-top from the first frame (NameIntro.astro static; M cloned from the signature's opening stroke). **Hover easter egg**: the pen finishes the autograph out of the M (cyan *Matt* then red *Mattei*, dashoffset draw, composition glides to stay centred, ²ei yields). **Reverse mirrors forward**: red retracts 0–.6s, cyan .2–.75s, and ²ei + the mark's own strokes return only at the end (.62s/.68s delays) — verified via computed styles.
-2. **Masthead** (fixed, difference-blended): **INDEX** alone at right — the monogram is the brand (no MATT MATTEI text, no DESIGN × DEVELOPMENT labels anywhere; removed @ 352f0f7). Hidden while walked into a world.
-3. **Hero** (230vh): copy top-left, single centred live frame (Poolside water, chrome-cropped `scale(1.55)`) expanding to full bleed.
-4. **Relay** (five 235vh sections, last 175vh): recede → label → next rises. Projects' own media (video / Plate / braille shimmer / two live lab embeds). Cards walk into `#/p/slug` worlds.
-5. **Closing**: BROWSE SLOWLY / JUMP QUICKLY + the featured five + VIEW ALL WORK (→ /program/) + REPLAY SEQUENCE. **No ledger at the bottom anymore.**
-6. **Index overlay** (`#indexPanel`, z20): opened from the masthead — ledger rows left (all 25 INDEX_ROWS, same .prow grammar), the previewer (.ppv, z21) as the right pane, lit while open, featured card default, hover cross-fades, row click closes + walks in. ESC/CLOSE dismiss; body scroll locks; the landing wheel-glide yields while open.
-7. **Worlds arrive as overlays now**: the camera walk-through was retired with the stage — detail fades/settles in over wherever the relay stood, and exit lands back there. Deep links open directly. Removed: camera/fit/push machinery, dock loop, scratch heading, room tone, WindRun usage.
+**The five works, in relay order:**
+
+| # | Work | What it is |
+|---|---|---|
+| 01 | POOLSIDE | Pool chemistry app; water is a runtime SkSL shader on SkiaSharp |
+| 02 | PAPERNOTES | A note as a ruled sheet; Uno Platform, desktop + Android |
+| 03 | LIGHT | Ambient daylight clock; solar model, no interaction at all |
+| 04 | MISREGISTRATION | A card where two plates walk into register. Exhibit, no repo |
+| 05 | TRALLALLÀ | *Vino, Amici & Trallallà* — an illustrated print |
+
+## The landing
+
+1. **Opening**: M² monogram docked centre-top, INDEX at right. Headline top-left,
+   two lines. A single centred frame holds the Favalanciata anaglyph engraving.
+2. **Hero** (230vh): the frame expands to full bleed and becomes card 01.
+3. **Relay**: one section per work. Card holds the frame → recedes to reveal its
+   title and lede → hands off to the next. The last card closes onto the closing.
+4. **Closing**: BROWSE SLOWLY / JUMP QUICKLY, the five works, VIEW ALL WORK.
+5. **Index overlay** (`#indexPanel`): five ledger rows left, previewer right.
+   Opened from the masthead. ESC or CLOSE dismisses.
+6. **Worlds**: clicking any card walks into `#/p/slug`, an overlay that fades in
+   over wherever the relay stood. Deep links open directly.
+
+## Posters — the thing to understand first
+
+**Every relay card is that work's poster, and every poster is the same
+1100 × 1556 sheet.** That is load-bearing: the relay *is* the navigation, and
+when the cards were different shapes the walk read as uneven. All five cards
+measure identically (verified 1745 × 886 at a 1745px viewport).
+
+Each poster is written in **its own project's design language**, not a shared
+house style:
+
+- **Poolside** — a press separation proof. Its subject is a shader, so the four
+  stages print as separations. The conceit is exact: the shader samples red and
+  blue at `disp × ±0.06`, which is chromatic dispersion in the app and
+  *misregistration* on a press. Set in Sarpanch + Yantramanav.
+- **PaperNotes** — a page of the app. 28px ruled grid at poster scale, gutter
+  numerals, copy typed onto the rules, asides in red Newsreader italic. Set in
+  the app's real faces: Martian Mono + Newsreader.
+- **Light** — the panel. Daylight wash, one hairline arc, one warm disc at 05:21,
+  type at weight 200, most of the sheet deliberately empty.
+- **Misregistration** — the card enlarged. Cream stock, black plate window,
+  italic serif title, wide-tracked caps.
+- **Trallallà** — the print itself, seated on the sheet over its own stock
+  (sampled from the border so the pad is invisible). Not redesigned.
+
+### How posters are made
+
+1. `poster/work-posters.html` — all four *designed* sheets in one file, fonts
+   inlined as base64 (~1.8 MB). Open it directly; it prints to A2.
+2. Capture rig: pin each sheet with `position: fixed` at a known offset and
+   screenshot two slices. **Do not scroll to position them** — the browser window
+   resizes between calls and the geometry drifts.
+3. `scripts/build-poster-heroes.mjs` — stitches the slices and normalises to
+   1100 × 1556. Slice geometry is hardcoded per capture session; update it when
+   you re-shoot.
+4. `scripts/build-print-posters.mjs` — Trallallà only (no capture needed).
+5. `scripts/import-project-media.mjs` — pulls project screens into
+   `public/projects/` at web sizes.
+
+**sharp runs `resize` BEFORE `composite` in one pipeline.** Chaining them pastes
+full-size halves onto an already-shrunk canvas. The stitcher does two passes;
+keep it that way.
+
+## Traps that have already cost time
+
+- **`.gitignore` had a blanket `*.mp4`** with one exemption for `public/videos/`.
+  The misregistration encode lives in `public/projects/`, so it built into `dist`
+  locally, passed every build and asset audit, and **404'd in production.** The
+  exemption is now `public/**/*.mp4`. A build-time check cannot catch this class
+  of bug — only hitting the live URL does.
+- **The hero image is late to paint.** It rides a constant 100vw × 100vh layer
+  that the card crops, and on a cold load that layer can come up unpainted,
+  leaving the opening frame a flat `#A49275` slab. Mitigated with a 102-byte
+  blurred LQIP as the card's background, so the worst case is a soft version of
+  the right image. Root cause not identified; `contain` was investigated and
+  ruled out.
+- **Class-name collisions on the shared poster sheet.** `.plates` and `.rule` are
+  Poolside's; its `left` beat another sheet's `right`. Scope new sheet classes.
+- **The relay pose is rAF-driven**, so it freezes when the Chrome tab is
+  occluded. Any style mutation forces a repaint, which makes screenshot debugging
+  confounding — a mutation can look like a fix. Verify from cold loads.
 
 ## Last verified state
 
-- Build: `astro build` passes (16 pages).
-- Runtime (Chrome MCP; tab OS-occluded, so rAF/compositing frozen — verified what's verifiable): no console errors; full interaction chain asserted via JS (panel open→preview lit→ESC close→world enter overlay→exit); easter-egg forward/reverse delays confirmed by computed styles; relay/hero pose geometry verified earlier by the numbers. **Feel pass in a visible window still owed** (scroll rhythm, panel fade, easter-egg draw, mark step-aside).
-- Git: main @ a1dd53a, tree clean except HANDOFF.md.
+- Build: `astro build` passes, 7 pages.
+- Assets: 15 referenced from the built landing (including JS-built world panels),
+  0 missing. All five posters + the card video serve 200 live.
+- Runtime: five relay sections, five ledger rows, five previewer cards, five
+  billboard panels; every world builds its panels; all cards identical size.
+- Git: `main`, clean, level with `origin/main`.
 
-## Performance audit (@ 0185af1)
+## Next actions
 
-User-reported jitter/fragments/flashes/stale frames → render-path fixes: `.rl-visual` is a constant 100vw×100vh layer the card merely clips (no more per-frame iframe-canvas rebuilds / braille-pre reflow / SVG re-raster); drive loop batches all rect reads before var writes (was up to 6 forced reflows/frame); embeds fade on `load` not `[src]` (blank-iframe flash); hero↔card-1 video clock sync at the handoff (stale-frame pop); relay-live hysteresis .09/.12 (mark strobe); masthead lost `mix-blend-mode: difference` (whole-page compositing group) → relay-live ink/paper swap; bogus `will-change` → `contain: layout style paint`; landing `visibility: hidden` while walked. Note: cards now show a *centre crop* of each visual while small, revealing outward as they grow — intended consequence of the fixed-layer design.
-
-## Session 2 later revisions (@ 161af0a)
-
-- **lrail retired** — masthead is the single header; rail links absorbed into the index overlay (Logo import dropped).
-- **Index overlay gains the notes ledger**: NOTES / TEXTS section (WRITING galleys — title, count, SET/COMPOSING accent state, → /texts/) + quiet PROGRAM / ALL TEXTS / CONTACT foot line.
-- **Signature close**: composition holds still through the retraction; glide back to centre + monogram + ²ei all return together at .68s.
-- **Ledger rows stagger on every panel open** (staggerLedger()); load-time IO removed (never fired below the fold; reduced-motion left rows invisible — both fixed).
-- **Archive folds (@ 4203e21)**: the 19 listed-only repos collapse behind an ARCHIVE row (caret + count, 0fr→1fr grid transition, closed on every panel open); six enterable works + notes stay in view.
-
-## Next actions (in order)
-
-1. Live pass, **visible window** (blocked while Chrome is minimized — everything below is user-eyes work): jitter/flash symptoms gone at feel level; easter-egg draw + hold-then-glide close; relay beats; panel open row stagger + archive fold; frame lines over full-bleed cards; two-line hero.
-2. Mobile + reduced-motion passes (queries written; a minimized window reports the desktop viewport, so these could not be emulated).
-
-Done since: lab embeds undisplay behind an open world (rAF quiesces, resume without reload) and the 53vw split is single-sourced as `--index-split` (@ e9cb6da). Hero is headline-only, two lines (@ b7bb458). Android wrap tried + reverted (@ a4a8fe2).
-
-## Open questions
-
-- `?intro=type` query variant is gone with the intro; remove any references elsewhere if found.
-- If the top-bar band should go transparent while a card owns the frame, key it off `body.relay-live` (one line).
-
-## Android
-
-Tried and reverted same-day (added @ 40c44be, removed next commit): the Capacitor wrap was a mistake — the site stays web-only. The app is uninstalled from the Pixel 8. If on-device testing is ever wanted again, prefer `astro dev --host` + phone browser over a wrapper.
+1. **Watch the relay on a visible screen.** Everything verified so far is DOM and
+   geometry — the motion itself has never been seen, because rAF stays frozen in
+   an occluded tab. This is the one real gap.
+2. Mobile + reduced-motion passes (queries written, never exercised).
+3. Bump `actions/checkout@v4`, `setup-node@v4`, `upload-artifact@v4` to v5 —
+   the runner warns they target deprecated Node 20.
 
 ## Relaunch
 
+```
 cd C:\Users\Platform006\portfolio-instrument
-npx astro dev --background   # http://localhost:4321
+npx astro dev --background     # http://localhost:4321
+```

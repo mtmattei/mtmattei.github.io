@@ -865,8 +865,15 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
   position: absolute; z-index: 3; left: 50%; top: calc(61% - var(--ha) * 11%);
   width: calc(58vw + var(--ha) * 42vw); height: calc(43vh + var(--ha) * 57vh);
   transform: translate(-50%, -50%);
-  overflow: hidden; display: block; background: #A49275; cursor: pointer;
+  overflow: hidden; display: block; cursor: pointer;
   contain: layout style paint;
+  /* The ground under the frame is a blurred thumbnail of the engraving
+     itself, not a flat tone. The picture rides a constant 100vw x 100vh
+     layer that this card crops, and that layer can be late to paint on
+     first load — which left the opening frame as a solid #A49275 slab,
+     the first thing anyone saw. A 20px LQIP costs about a kilobyte and
+     means the worst case is a soft version of the right image. */
+  background: #A49275 url('data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoYABAAPrlMoEqnJCMhsAgA4BcJQBOmUI7gBTeC+Vnq4HwWwAD+6nkUPNGCqLgY8DlFsPlki77kSY8HudZAgBR29bXBgQjh2VtNHPgA') center / cover no-repeat;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 28px 70px -28px rgba(26, 24, 21, .35);
 }
 .hero-photo .rl-visual { transform: translate(-50%, -50%) scale(calc(1.05 - var(--ha) * .05)); }
