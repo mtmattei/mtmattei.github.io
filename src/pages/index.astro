@@ -23,7 +23,7 @@ type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: strin
    note = a prose panel; app = the running interface; parts = a card grid;
    stack = the exploded shader deck with its legend (from /poolside/) */
 type Extra = {
-  kind: 'note' | 'app' | 'parts' | 'stack' | 'exploded' | 'code';
+  kind: 'note' | 'app' | 'parts' | 'stack' | 'exploded' | 'code' | 'figure';
   label: string;
   title?: string;
   body?: string;
@@ -32,6 +32,10 @@ type Extra = {
   /* a note panel may carry the project's own media beside the text —
      footage plays, a capture renders as a still */
   video?: { src: string; cap: string; sub: string };
+  /* a figure panel is the image at plate size, with the reading beneath.
+     ratio is the capture's own w/h, which sets the panel's width so the
+     rail measures it correctly. */
+  fig?: { src: string; cap: string; sub: string; ratio: number };
 };
 type Proj = {
   slug: string;
@@ -189,7 +193,7 @@ const PROJECTS: Proj[] = [
        sits in — the panel is the only thing giving off light */
     slug: 'lightwidget', name: 'LIGHT', tag: 'AMBIENT · SOLAR MODEL · SKIASHARP',
     deep: '#2B2E44', accent: '#E8A184', ink: '#F2EDE6', base: '#15161F',
-    meta: 'THREE STATES · ONE SURFACE',
+    meta: 'FIVE FRAMES · ONE SURFACE',
     lede: 'An ambient clock that reports the time as a quality of light instead of a number to be read. The centre form is the sun, not a dial: where it sits on the arc decides which way the light spreads, which way the surface falls into shadow, how warm it runs, and how bright the panel reads.',
     facts: [
       'Uno Platform · net10.0-desktop · SkiaSharp',
@@ -199,10 +203,29 @@ const PROJECTS: Proj[] = [
     ],
     pre: [
       {
-        kind: 'note', label: 'STATES', title: 'Tokyo, New York, London.',
-        body: 'The same surface at three points in the day, driven only by coordinates and the clock. Tokyo at 09:22 runs cream and open, nine and a half hours of daylight still ahead. New York at 20:22 is past sunset, the panel gone coral into violet. London at 01:22 is night: the beam collapses to nothing, the disc reads as a moon, and the footer counts to sunrise instead.',
-        rows: ['daylight', 'dusk', 'night', 'one model'],
-        video: { src: '/projects/lightwidget-cities.webp', cap: 'Three cities, one surface', sub: 'Uno Platform · SkiaSharp · solar model' },
+        kind: 'figure', label: 'OBJECT', title: 'A panel, not a screen.',
+        body: 'It is meant to be looked at rather than used, so it is built as an object first: a square face with a generous radius, a soft ground shadow, and a surface that carries light the way a sheet of glass over paper would. Nothing on it is chrome.',
+        fig: { src: '/projects/light-object.webp', cap: 'The widget entire', sub: 'Uno Platform · net10.0-desktop · SkiaSharp', ratio: 1.523 },
+      },
+      {
+        kind: 'figure', label: '05:21', title: 'Half an hour after sunrise.',
+        body: 'The sun has just cleared 4:51 and sits low on the left of the arc. The panel runs warm cream, the disc burns orange, and the reading underneath is thirteen hours and twenty-one minutes of daylight left. You are not meant to read that line — you are meant to have absorbed it before you get there.',
+        fig: { src: '/projects/light-0521.webp', cap: 'Tokyo · 05:21 · sunrise', sub: '13h 21m left · highest at 11:47', ratio: 1.051 },
+      },
+      {
+        kind: 'figure', label: '16:20', title: 'The same day, eleven hours later.',
+        body: 'Same city, same date, same surface. The sun has crossed to the right of the arc and the whole panel has cooled out of cream into blue and lilac, with the warmth pushed into the corner the light now comes from. Two hours and twenty-two minutes left. This pair is the entire argument: the time is legible as a temperature before it is legible as a number.',
+        fig: { src: '/projects/light-1620.webp', cap: 'Tokyo · 16:20 · late afternoon', sub: '2h 22m left · sunset 18:42', ratio: 1.0 },
+      },
+      {
+        kind: 'figure', label: 'DETAIL', title: 'The corner.',
+        body: 'Close in, the disc is a soft body of light rather than a dot with a glow behind it, and the arc it rides is a hairline that never announces itself. The radius is large enough that the face reads as a slab.',
+        fig: { src: '/projects/light-corner.webp', cap: 'Radius, arc, and the disc at 4:51', sub: 'detail crop', ratio: 0.969 },
+      },
+      {
+        kind: 'figure', label: 'CITIES', title: 'Tokyo, New York, London.',
+        body: 'One model, three coordinates, one moment. Tokyo at 09:22 runs cream and open. New York at 20:22 is past sunset, the panel gone coral into violet. London at 01:22 is night: the beam collapses to nothing, the disc reads as a moon, and the footer counts to sunrise instead of away from it.',
+        fig: { src: '/projects/lightwidget-cities.webp', cap: 'Three cities, one surface', sub: 'daylight · dusk · night', ratio: 1.448 },
       },
       {
         kind: 'note', label: 'RESTRAINT', title: 'There is nothing to press.',
@@ -1212,6 +1235,22 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 .dnote-media .videocard { flex: none; width: 520px; }
 .dnote-media .videocard video,
 .dnote-media .videocard img { display: block; width: 100%; border-radius: 6px; }
+
+/* ---- figure: the capture at plate size ----
+   Every figure stands 760px tall so a run of them reads as one shelf;
+   the width follows each picture's own ratio. */
+.dfigure { padding: 60px 0 0 60px; }
+.dfig-h { font-size: 40px; margin-bottom: 18px; }
+.dfig-img {
+  display: block; object-fit: cover; border-radius: 8px;
+  background: rgba(127, 127, 127, .12);
+}
+.dfig-cap {
+  display: flex; align-items: baseline; gap: 16px; margin-top: 14px;
+}
+.dfig-cap b { font-size: 14px; font-weight: 600; }
+.dfig-cap .mono { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .6; }
+.dfig-body { max-width: 720px; margin-top: 14px; }
 /* the key passages, in the site's srcblock grammar */
 .dcode { width: 980px; padding: 90px 0 0 60px; }
 .dcode .dh { font-size: 56px; }
@@ -1888,6 +1927,24 @@ function extraHtml(p, x) {
       '<div class="dh">' + esc(x.title || '') + '</div>' +
       '<p class="dcap">' + esc(x.body || '') + '</p>' +
       '<div class="dcode-hold"></div>' +
+      '</div>';
+  }
+  if (x.kind === 'figure') {
+    // the capture at plate size: image first, the reading under it. The
+    // panel is as wide as the picture, so the rail measures real widths.
+    // Every figure stands the same height, so a run of them reads as one
+    // shelf. 600 is what leaves the caption and the reading above the fold
+    // once the heading and the stage's own padding are counted.
+    var FH = 600;
+    var fw = Math.round(FH * (x.fig.ratio || 1));
+    return '<div class="dpanel dfigure" style="width:' + (fw + 120) + 'px">' +
+      '<div class="dv" style="color:' + p.accent + '">' + esc(x.label) + '</div>' +
+      '<div class="dh dfig-h">' + esc(x.title || '') + '</div>' +
+      '<img class="dfig-img" src="' + esc(x.fig.src) + '" alt="" loading="lazy" decoding="async"' +
+      ' style="width:' + fw + 'px;height:' + FH + 'px" />' +
+      '<div class="dfig-cap"><b>' + esc(x.fig.cap) + '</b>' +
+      '<span class="mono">' + esc(x.fig.sub) + '</span></div>' +
+      (x.body ? '<p class="dcap dfig-body">' + esc(x.body) + '</p>' : '') +
       '</div>';
   }
   var noteInner =
