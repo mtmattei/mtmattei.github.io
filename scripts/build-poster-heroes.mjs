@@ -35,7 +35,14 @@ const works = [
     slug: 'lightwidget',
     slices: ['screenshot-1785903736538-13.jpg', 'screenshot-1785903752530-14.jpg'],
   },
-].map((w) => ({ ...w, cropW: CROP_W, sliceH: SLICE_H }));
+  {
+    /* shot in a slightly different viewport, so it carries its own crop */
+    slug: 'misregistration',
+    slices: ['screenshot-1785906152839-29.jpg', 'screenshot-1785906091836-28.jpg'],
+    cropW: Math.round(1253 * (1544 / 1745)),   // 1109
+    sliceH: 784,
+  },
+].map((w) => ({ cropW: CROP_W, sliceH: SLICE_H, ...w }));
 
 for (const w of works) {
   const halves = [];

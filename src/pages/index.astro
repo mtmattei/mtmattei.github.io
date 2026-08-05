@@ -69,6 +69,8 @@ const RELAY_ART_INK: Record<string, string> = {
   poolside: '#F6F2EE',
   papernotes: '#2A2A28',
   lightwidget: '#F2EDE6',
+  misregistration: '#EFEDE7',
+  trallala: '#1C1B19',
 };
 
 const PROJECTS: Proj[] = [
@@ -245,6 +247,61 @@ const PROJECTS: Proj[] = [
         ],
       },
     ],
+  },
+  {
+    /* dark world: the card lives against black, and so should its room */
+    slug: 'misregistration', name: 'MISREGISTRATION', tag: 'PRINT · INTERACTION · TWO PLATES',
+    deep: '#1C1B19', accent: '#C0407A', ink: '#EFEDE7', base: '#0B0B0C',
+    meta: 'TWO PLATES · ONE SHEET',
+    lede: 'Two plates laid down out of register, the way a press lays them down when the sheet has shifted between passes. Press the control and they walk back into alignment, the colour collapsing out of the fringe and into the image.',
+    facts: [
+      'Two plates · one sheet',
+      'Magenta over cyan',
+      'One control: REGISTER PLATES',
+      'Exhibit · no source repository',
+    ],
+    pre: [
+      {
+        kind: 'note', label: 'THE ERROR', title: 'The mistake is the subject.',
+        body: 'Misregistration is a press fault: the sheet moves a fraction between passes and every plate lands slightly off, so colour escapes the edges it was meant to fill. Held still it reads as damage. Given a control that undoes it, it reads as a mechanism — and you cannot un-see the fringe afterwards. The card exists to make that one second of correction available on demand.',
+        rows: ['two plates', 'one sheet', 'one control'],
+        video: { src: '/projects/misregistration.mp4', cap: 'The plates walking into register', sub: 'press to register · 12s loop' },
+      },
+      {
+        kind: 'note', label: 'KIN', title: 'The same idea Poolside runs by accident.',
+        body: 'Poolside samples red, green and blue at offset positions — disp × ±0.06 — because water disperses light. That is chromatic dispersion in a shader and misregistration on a press: the same displacement, one intended and one a fault. Its poster prints the collision deliberately; this card animates it.',
+        rows: ['disp ±0.06', 'dispersion = misregistration'],
+      },
+    ],
+    iters: [],
+    post: [],
+  },
+  {
+    /* paper world: a print hangs on a wall, and the wall is its own stock */
+    slug: 'trallala', name: 'TRALLALLÀ', tag: 'PRINT · ILLUSTRATION · FOUR INKS',
+    deep: '#E8CE97', accent: '#B0402C', ink: '#1B1A18', base: '#F3D5A1',
+    meta: 'FOUR INKS · ONE TABLE',
+    lede: 'Vino, amici & trallallà. An Italian table at the end of the night, cut as a print: grappa, three glasses, papers, a Bertolli ashtray and a plate that has been picked at for an hour. Nothing on it is arranged.',
+    facts: [
+      'Four inks on warm stock',
+      'Hand-lettered display',
+      'Cut-print texture · flat shadow',
+      'Print · no screen version',
+    ],
+    pre: [
+      {
+        kind: 'figure', label: 'THE PRINT', title: 'Vino, amici & trallallà.',
+        body: 'The table is lit from one side and everything casts the same hard shadow, which is what makes it read as cut rather than drawn. The palette is four inks — black, ochre, a red that only appears on the salami and the Bertolli mark, and a blue-green kept for the olives and the grapes on the ashtray.',
+        fig: { src: '/projects/trallala-poster.webp', cap: 'Vino, Amici & Trallallà', sub: 'four inks · warm stock', ratio: 0.7069 },
+      },
+      {
+        kind: 'note', label: 'THE TITLE', title: 'Two lines, hand-cut.',
+        body: 'The display is lettered rather than set: the letters lean, the comma sits low, and the accent on TRALLALLÀ is a stroke instead of a mark. It is the one part of the image that is obviously made by a hand, which is why it carries the joke.',
+        rows: ['hand-lettered', 'no typeface', 'two lines'],
+      },
+    ],
+    iters: [],
+    post: [],
   },
 ];
 
