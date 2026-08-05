@@ -313,23 +313,15 @@ const INDEX_ROWS = [
             <span>{next ? 'SCROLL — THE NEXT WORK ARRIVES' : 'SCROLL — THE CLOSING ARRIVES'}</span>
           </div>
           <a class="rl-cur" href={`#/p/${p.slug}`} aria-label={`Step into ${p.name}`}>
+            {/* every card carries that work's poster, and every poster is
+                the same 1100x1556 sheet on the same stock — so the cards
+                pose identically and the walk reads even. */}
             <span class="rl-visual">
-              {p.slug === 'poolside' ? (
-                <>
-                  <Plate slug="poolside" />
-                  <video class="rl-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
-                </>
-              ) : p.slug === 'papernotes' ? (
-                <span class="rl-fill rl-paper">
-                  <img class="rl-shot" src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" />
-                </span>
-              ) : p.slug === 'lightwidget' ? (
-                <span class="rl-fill rl-light">
-                  <img class="rl-shot" src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
-                </span>
-              ) : (
-                <Plate slug={p.slug} />
-              )}
+              <span class="rl-fill rl-sheet">
+                <img class="rl-shot" src={`/projects/${p.slug}-poster.webp`}
+                     width="1100" height="1556" alt={`${p.name} — poster`}
+                     decoding="async" loading={i === 0 ? 'eager' : 'lazy'} />
+              </span>
             </span>
           </a>
           <div class="rl-label">
@@ -347,13 +339,10 @@ const INDEX_ROWS = [
             <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true"
                style={`--rl-next-ink:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
               <span class="rl-visual">
-                {next.slug === 'papernotes' ? (
-                  <span class="rl-fill rl-paper"><Plate slug="papernotes" /></span>
-                ) : next.slug === 'lightwidget' ? (
-                  <span class="rl-fill rl-light"><Plate slug="lightwidget" /></span>
-                ) : (
-                  <Plate slug={next.slug} />
-                )}
+                <span class="rl-fill rl-sheet">
+                  <img class="rl-shot" src={`/projects/${next.slug}-poster.webp`}
+                       width="1100" height="1556" alt="" decoding="async" loading="lazy" />
+                </span>
               </span>
             </a>
           )}
@@ -478,13 +467,11 @@ const INDEX_ROWS = [
   {INDEX_ROWS.map((r, i) => (
     <div class="ppv-card" data-card={i}>
       <span class="ppv-art">
-        {r.slug === 'poolside' ? (
-          <video class="ppv-vid" data-vid="/videos/water-shader.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
-        ) : r.slug === 'papernotes' ? (
-          /* the previewer card is 4:5, so the sheet very nearly fills it */
-          <img class="ppv-img" src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" style="object-position:50% 0" />
-        ) : r.slug === 'lightwidget' ? (
-          <img class="ppv-img" src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
+        {r.slug ? (
+          /* the previewer card is 4:5 and the sheet is 0.707, so the poster
+             very nearly fills it — same card, same crop, every row */
+          <img class="ppv-img ppv-sheet" src={`/projects/${r.slug}-poster.webp`}
+               width="1100" height="1556" alt="" decoding="async" loading="lazy" />
         ) : (
           <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
         )}
@@ -903,19 +890,19 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
 /* the shader footage carries a baked matte around the water (content is
    ~73% of the frame width); the scale crops to the water itself */
 .rl-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.55); }
-/* These cards carry screens of real interfaces, so they are fitted whole
-   rather than cropped: .rl-visual is a constant 100vw x 100vh layer the
-   card clips, and `cover` magnifies a portrait sheet until only two words
-   are left on screen. `contain` keeps the app legible at every card size,
-   and the fill's own ground carries the letterbox — which is also the
-   fallback while the capture loads. */
+/* Every card carries that work's poster (poster/work-posters.html, stitched
+   by scripts/build-poster-heroes.mjs). All three are the same 1100 x 1556
+   sheet on the same stock, so the cards letterbox by the same amount and
+   the walk reads even — the relay is the navigation, and cards of
+   different shapes made it feel wonky. `contain`, because a poster cropped
+   to fill is no longer a poster. */
 .rl-fill { position: absolute; inset: 0; overflow: hidden; display: block; }
 .rl-shot {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: contain; display: block;
 }
-.rl-paper { background: #EFEEE9; }
-.rl-light { background: #141416; }
+/* the press stock, so the letterbox reads as the sheet's own margin */
+.rl-sheet { background: #E4E0D6; }
 .rl-label {
   position: absolute; z-index: 5;
   left: calc(4.6vw + var(--p) * 49vw);
@@ -1023,6 +1010,8 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 /* the shader footage carries the recording's chrome around the water;
    the same crop as the relay cards keeps the pane pure water */
 .ppv-vid { transform: scale(1.55); }
+/* the poster seats whole in the previewer, on the same stock as the cards */
+.ppv-sheet { object-fit: contain; background: #E4E0D6; }
 .ppv-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .ppv-fill.wordmark {
   background: hsl(var(--hue, 40) 14% 88%);

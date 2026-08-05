@@ -76,13 +76,13 @@ const { slug } = Astro.props;
 
   {slug === 'papernotes' && (
     <span class="bb-shot paper">
-      <img src="/projects/papernotes-sheet.webp" width="844" height="1052" alt="" decoding="async" loading="lazy" />
+      <img src="/projects/papernotes-hero.webp" width="1920" height="1080" alt="" decoding="async" loading="lazy" />
     </span>
   )}
 
   {slug === 'lightwidget' && (
     <span class="bb-shot light">
-      <img src="/projects/lightwidget-cities.webp" width="1600" height="1105" alt="" decoding="async" loading="lazy" />
+      <img src="/projects/lightwidget-hero.webp" width="1920" height="1080" alt="" decoding="async" loading="lazy" />
     </span>
   )}
 
@@ -203,12 +203,12 @@ const { slug } = Astro.props;
     rgba(255,255,255,0) 34%, rgba(255,255,255,0) 100%);
 }
 
-/* ---- captures: the app's own screen, fitted whole ----
-   These are real interfaces, so they are shown entire rather than cropped
-   to fill; a portrait sheet cropped to a landscape panel loses the thing
-   worth looking at. The panel's own ground carries the letterbox. */
+/* ---- heroes: one 16:9 canvas per project, filling the panel ----
+   The billboard is 16:9 and so is every hero, so `cover` is a 1:1 fill
+   with no crop at all. The composing happens offline, where each capture
+   is seated on its project's own ground. */
 .bb-shot { position: absolute; inset: 0; overflow: hidden; display: block; }
-.bb-shot img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.bb-shot img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .bb-shot.paper { background: #EFEEE9; }
 .bb-shot.light { background: #141416; }
 </style>
