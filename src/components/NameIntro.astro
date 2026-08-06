@@ -42,9 +42,9 @@
   pointer-events: none;
   transition-property: opacity; transition-duration: .35s; transition-timing-function: ease-out;
 }
-/* the mark prints on paper: while a full-bleed card owns the head of the
-   frame it steps aside, and returns as the card recedes */
-body.relay-live #sigdock, body.walked #sigdock { opacity: 0; }
+/* the mark prints on paper: it holds the head of the page, and steps aside
+   only once a work has been walked into */
+body.walked #sigdock { opacity: 0; }
 .tmark {
   position: relative; display: flex; align-items: flex-start;
   /* the docked scale of the retired rise (.235 of the full plate), so the
@@ -59,7 +59,7 @@ body.relay-live #sigdock, body.walked #sigdock { opacity: 0; }
      the monogram's return */
   transition-delay: .68s;
 }
-body.relay-live .tmark { pointer-events: none; }
+body.walked .tmark { pointer-events: none; }
 /* the hover field: generous, and wide enough that following the pen to
    either end of the drawn autograph never drops the hover */
 .tmark::after { content: ''; position: absolute; inset: -40px -520px -60px; }

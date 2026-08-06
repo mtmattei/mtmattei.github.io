@@ -11,12 +11,15 @@ import '../styles/poolside-app.css';
 import { highlightSource } from '../data/portfolio';
 import { DISPERSION_SRC, CAUSTIC_SRC } from '../data/poolside-src';
 
-/* The landing rebuilt from the billboard mockup (mockup-landing, SPEC.md):
-   a fixed 1536×1024 stage fit-scaled to the viewport. Entering a project is
-   a walk through the billboard; inside, the project reads as a horizontal
-   timeline of its iterations. Exiting reverses the walk.
-   Portfolio identity kept: the M mark, the Plates (art drawn by the page),
-   the house blue accent for state, Instrument Sans / IBM Plex Mono. */
+/* The landing is a belt: the five posters travel right to left on a loop
+   with no beginning, and the centre of the screen is a threshold every
+   sheet passes through — a lens column with the Poolside field in it,
+   drawn per-position, never per-hover. INDEX compresses the belt into one
+   stack at the right and puts the ledger on the left. Selecting a work
+   expands its sheet to full bleed and hands over to the same horizontal
+   detail world as before, which is untouched.
+   Portfolio identity kept: the M² mark and its autograph easter egg, the
+   Plates, the house blue accent for state, Geist / IBM Plex Mono. */
 
 type Iter = { v: string; title: string; cap: string; rows: string[]; fig?: string };
 /* extra world panels beyond the iteration timeline:
@@ -41,6 +44,9 @@ type Proj = {
   slug: string;
   name: string;
   tag: string;
+  /* what the work IS, one or two words — the index's medium column and the
+     belt's centre readout both print this */
+  medium: string;
   /* absent href = no case study yet; linkLabel names the destination */
   href?: string;
   linkLabel?: string;
@@ -79,7 +85,7 @@ const PROJECTS: Proj[] = [
        site; each iteration's artifact is the live WebGL stage from /poolside/ */
     /* the world IS the Poolside detail page: /poolside/ replicated for the
        horizontal scrolling concept */
-    slug: 'poolside', name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM',
+    slug: 'poolside', name: 'POOLSIDE', tag: 'UI · SKIASHARP · UNO PLATFORM', medium: 'APPLICATION',
     deep: '#EFE7DD', accent: '#0A6C88', ink: '#1A1815', base: '#F6F2EE',
     meta: '4 STAGES · ONE PASS',
     lede: 'A pool chemistry companion created to explore real-time shaders with SkiaSharp. The experience became a playground for exploring water caustics, real-time shaders, and interactive rendering with SkiaSharp.',
@@ -150,7 +156,7 @@ const PROJECTS: Proj[] = [
   {
     /* paper world: PaperNotes is a ruled sheet, so its world is the stock
        it prints on — warm paper, graphite ink, the red of its comments */
-    slug: 'papernotes', name: 'PAPERNOTES', tag: 'UNO PLATFORM · RULED TYPE · IME',
+    slug: 'papernotes', name: 'PAPERNOTES', tag: 'UNO PLATFORM · RULED TYPE · IME', medium: 'APPLICATION',
     deep: '#E7E5DE', accent: '#A33A2A', ink: '#2A2A28', base: '#F1F0EB',
     meta: 'ONE SHEET · SIX PASSES',
     lede: 'A note taken as a ruled sheet rather than a text field. Every line is numbered, indentation reads as elevation, and the rules stay under the words while you write — which turned out to be the hard part.',
@@ -193,7 +199,7 @@ const PROJECTS: Proj[] = [
   {
     /* dark world: Light is an ambient surface, so its world is the room it
        sits in — the panel is the only thing giving off light */
-    slug: 'lightwidget', name: 'LIGHT', tag: 'AMBIENT · SOLAR MODEL · SKIASHARP',
+    slug: 'lightwidget', name: 'LIGHT', tag: 'AMBIENT · SOLAR MODEL · SKIASHARP', medium: 'AMBIENT OBJECT',
     deep: '#2B2E44', accent: '#E8A184', ink: '#F2EDE6', base: '#15161F',
     meta: 'FIVE FRAMES · ONE SURFACE',
     lede: 'An ambient clock that reports the time as a quality of light instead of a number to be read. The centre form is the sun, not a dial: where it sits on the arc decides which way the light spreads, which way the surface falls into shadow, how warm it runs, and how bright the panel reads.',
@@ -250,7 +256,7 @@ const PROJECTS: Proj[] = [
   },
   {
     /* dark world: the card lives against black, and so should its room */
-    slug: 'misregistration', name: 'MISREGISTRATION', tag: 'PRINT · INTERACTION · TWO PLATES',
+    slug: 'misregistration', name: 'MISREGISTRATION', tag: 'PRINT · INTERACTION · TWO PLATES', medium: 'INTERACTIVE CARD',
     deep: '#1C1B19', accent: '#C0407A', ink: '#EFEDE7', base: '#0B0B0C',
     meta: 'TWO PLATES · ONE SHEET',
     lede: 'Two plates laid down out of register, the way a press lays them down when the sheet has shifted between passes. Press the control and they walk back into alignment, the colour collapsing out of the fringe and into the image.',
@@ -278,7 +284,7 @@ const PROJECTS: Proj[] = [
   },
   {
     /* paper world: a print hangs on a wall, and the wall is its own stock */
-    slug: 'trallala', name: 'TRALLALLÀ', tag: 'PRINT · ILLUSTRATION · FOUR INKS',
+    slug: 'trallala', name: 'TRALLALLÀ', tag: 'PRINT · ILLUSTRATION · FOUR INKS', medium: 'PRINT',
     deep: '#E8CE97', accent: '#B0402C', ink: '#1B1A18', base: '#F3D5A1',
     meta: 'FOUR INKS · ONE TABLE',
     lede: 'Vino, amici & trallallà. An Italian table at the end of the night, cut as a print: grappa, three glasses, papers, a Bertolli ashtray and a plate that has been picked at for an hour. Nothing on it is arranged.',
@@ -307,20 +313,18 @@ const PROJECTS: Proj[] = [
 
 /* client copy of the data — palette, copy, and route per project */
 const SHOWN = PROJECTS.filter((p) => !p.hidden);
-const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts }) => ({
-  slug, name, tag, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
+const CLIENT_PROJECTS = SHOWN.map(({ slug, name, tag, medium, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts }) => ({
+  slug, name, tag, medium, href, linkLabel, deep, accent, ink, base, iters, pre, post, question, meta, lede, facts,
 }));
 
-/* the index: one row per work with a world to walk into. Cleared to Poolside
-   alone on 2026-08-04; a project joins this list once its world is built. */
-const INDEX_ROWS = [
-  /* M. is the year for every row, so the column reads as one thing. The
-     descriptor lines (4 STAGES - ONE PASS) still head each detail world. */
-  ...SHOWN.map((p) => ({
-    name: p.name, tag: p.tag, meta: '2026',
-    href: `#/p/${p.slug}`, slug: p.slug, preview: true,
-  })),
-].map((r, i) => ({ ...r, no: String(i + 1).padStart(3, '0') }));
+/* the index: one row per work with a world to walk into. The year is the
+   same for every row, so the column reads as one thing; the descriptor
+   (4 STAGES - ONE PASS) still heads each detail world. */
+const INDEX_ROWS = SHOWN.map((p, i) => ({
+  no: String(i + 1).padStart(2, '0'),
+  name: p.name, tag: p.tag, medium: p.medium, meta: '2026',
+  href: `#/p/${p.slug}`, slug: p.slug,
+}));
 ---
 <Bare
   title="Index"
@@ -328,161 +332,73 @@ const INDEX_ROWS = [
 
 <NameIntro />
 
-<!-- ---- the hero: one work at a distance ----
-     The page opens with the mark docked centre-top and a single centred
-     frame — the featured work, live — that expands as the page scrolls
-     until it IS the first project, full bleed, and the relay takes over.
-     The head copy stands top-left and yields to the approach. -->
-<section class="hero" id="hero" style="--hp:0; --ha:0">
-  <div class="hero-stick">
-    <div class="hero-copy">
-      <h1 class="hero-h">SOME TAKE SHAPE.<br>SOME SIMPLY REMAIN IDEAS.</h1>
-    </div>
-    <a class="hero-photo" href="#/p/poolside" aria-label="Enter Poolside">
-      <span class="rl-visual">
-        <img class="hero-img" src="/landing/favalanciata.webp" width="1538" height="1023"
-             alt="" decoding="async" fetchpriority="high" />
-      </span>
-    </a>
-    <div class="hero-meta" aria-hidden="true">
-      <span>SELECTED WORK 01</span><span>Favalanciata · anaglyph engraving</span><span>2026</span>
-    </div>
-    <div class="hero-cue" aria-hidden="true"><i></i>SCROLL TO ENTER</div>
-  </div>
-</section>
+<!-- ---- the belt: the landing is one moving archive ----
+     Five sheets travel right to left on a loop that has no beginning. The
+     canvas draws every poster and owns the centre effect; the anchors over
+     it carry the link, the label and the keyboard, and hold the <img> that
+     stands in when there is no WebGL. -->
+<h1 class="sr-only">Matt Mattei — selected work</h1>
 
-<!-- ---- the relay: the landing's main navigation ----
-     Each featured project holds the full frame, recedes to reveal its title,
-     and hands the stage to the next — scroll carries the handoff. The hero
-     expands into the first card, and the last card closes onto the index,
-     which keeps its dock and its previewer as the fast path. Clicking any
-     card walks into that project's world, same as the ledger rows. -->
-<div id="heroRise">
-  {SHOWN.map((p, i) => {
-    const next = SHOWN[i + 1];
-    const no = String(i + 1).padStart(2, '0');
-    const nextNo = String(i + 2).padStart(2, '0');
-    return (
-      <section class:list={['rly', { last: !next }]} id={`rly-${p.slug}`} data-slug={p.slug} style={`--rl-accent:${p.accent}`}>
-        <div class="rl-stick">
-          <div class="rl-topline" aria-hidden="true">
-            <span>{no} / {p.name}</span>
-            <span>{next ? 'SCROLL — THE NEXT WORK ARRIVES' : 'SCROLL — THE CLOSING ARRIVES'}</span>
-          </div>
-          <a class="rl-cur" href={`#/p/${p.slug}`} aria-label={`Step into ${p.name}`}>
-            {/* every card carries that work's poster, and every poster is
-                the same 1100x1556 sheet on the same stock — so the cards
-                pose identically and the walk reads even. */}
-            <span class="rl-visual">
-              <span class="rl-fill rl-sheet">
-                <img class="rl-shot" src={`/projects/${p.slug}-poster.webp`}
-                     width="1100" height="1556" alt={`${p.name} — poster`}
-                     decoding="async" loading={i === 0 ? 'eager' : 'lazy'} />
-              </span>
-            </span>
-          </a>
-          <div class="rl-label">
-            <div class="rl-no">{no} / {p.tag}</div>
-            <h2 class="rl-name">{p.name}</h2>
-            {p.lede && <p class="rl-lede">{p.lede}</p>}
-            <a class="rl-enter" href={`#/p/${p.slug}`}>STEP INSIDE <span aria-hidden="true">↗</span></a>
-          </div>
-          <div class="rl-handline" aria-hidden="true"></div>
-          <div class="rl-handlbl" aria-hidden="true">{next ? `NEXT · ${nextNo} ${next.name}` : 'NEXT · THE CLOSING'}</div>
-          {/* the hand-off: the next card rises behind this one. With one work
-              on the board there is nothing to hand to, so both the rising card
-              and its title stay out of the DOM until a second world exists. */}
-          {next && (
-            <a class="rl-next" href={`#/p/${next.slug}`} tabindex="-1" aria-hidden="true"
-               style={`--rl-next-ink:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
-              <span class="rl-visual">
-                <span class="rl-fill rl-sheet">
-                  <img class="rl-shot" src={`/projects/${next.slug}-poster.webp`}
-                       width="1100" height="1556" alt="" decoding="async" loading="lazy" />
-                </span>
-              </span>
-            </a>
-          )}
-          {next && (
-            <div class="rl-next-title" aria-hidden="true" style={`color:${RELAY_ART_INK[next.slug] || '#F6F2EE'}`}>
-              <span>{nextNo} / {next.tag}</span>
-              <b>{next.name}</b>
-            </div>
-          )}
-        </div>
-      </section>
-    );
-  })}
-</div>
+<main class="belt" id="belt">
+  <canvas class="belt-gl" id="beltGl" aria-hidden="true"></canvas>
 
-<!-- ---- the closing: end of the sequence ----
-     The landing ends here — the full ledger lives in the index overlay
-     (masthead, top right), and the featured five are one click away. -->
-<section class="closing">
-  <div>
-    <div class="cl-kicker">END OF SELECTED SEQUENCE</div>
-    <h2 class="cl-h">BROWSE SLOWLY.<br>JUMP QUICKLY.</h2>
-    <p class="cl-intro">The relay is the default walk. The index holds everything — open it from the masthead, or step straight into a work below.</p>
-    <div class="cl-list">
-      {SHOWN.map((p, i) => (
-        <a class="cl-link" href={`#/p/${p.slug}`}>
-          <span>{String(i + 1).padStart(2, '0')}</span>
-          <strong>{p.name}</strong>
-          <span>{p.tag}</span>
-        </a>
-      ))}
-      <a class="cl-link cl-all" href="/program/">
-        <span aria-hidden="true">→</span>
-        <strong>VIEW ALL WORK</strong>
-        <span>PROGRAM</span>
+  <div class="belt-hit" id="beltHit">
+    {SHOWN.map((p, i) => (
+      <a class="pst" href={`#/p/${p.slug}`} data-p={i} aria-label={`${p.name} — ${p.tag}`}>
+        <img class="pst-img" src={`/projects/${p.slug}-poster.webp`}
+             width="1100" height="1556" alt={`${p.name} — poster`}
+             decoding="async" loading={i < 2 ? 'eager' : 'lazy'} />
       </a>
-    </div>
+    ))}
   </div>
-  <aside class="cl-aside">
-    <p>Each work takes a full visual moment, recedes to its title, and hands the frame to the next. Nothing here is a grid.</p>
-    <button class="cl-replay" id="replay" type="button">REPLAY SEQUENCE</button>
-  </aside>
-</section>
 
-<!-- ---- the index: the ledger, as an overlay view ----
-     The same rows and the same previewer as ever — the split reads
-     ledger-left, preview-right; the preview pane is the fixed .ppv,
-     lit while the panel is open. -->
-<div class="index-panel" id="indexPanel" role="dialog" aria-modal="true" aria-label="Project index" aria-hidden="true">
-  <button class="index-close" id="indexClose" type="button">CLOSE</button>
-  <div class="index-left">
+  <!-- the threshold the sheets pass through: two ticks on the centre line -->
+  <div class="thr" aria-hidden="true"><i></i><i></i></div>
+
+  <!-- the readout: whatever is standing in the centre right now -->
+  <div class="now" id="now">
+    <div class="now-line">
+      <span class="now-no" id="nowNo">01</span>
+      <span class="now-med" id="nowMed">APPLICATION</span>
+    </div>
+    <div class="now-name" id="nowName">POOLSIDE</div>
+    <div class="now-tag" id="nowTag">UI · SKIASHARP · UNO PLATFORM</div>
+  </div>
+
+  <div class="belt-cue" aria-hidden="true"><i></i>DRAG THE BELT · SELECT TO STEP INSIDE</div>
+</main>
+
+<!-- ---- the index: the belt compressed into a stack ----
+     The ledger takes the left. The stack the engine flies to centre-right is
+     the preview: pointing at a row brings that sheet to the front of it. -->
+<section class="ix" id="ix" aria-hidden="true">
+  <div class="ix-left">
     <div>
-      <div class="cl-kicker">PROJECT INDEX / 2026</div>
-      <h2 class="ip-h">SELECTED<br>WORK.</h2>
-    <div class="pindex" id="pindex">
-      <div class="prow phdr" aria-hidden="true">
-        <span class="pno">N.</span><span class="pname">P.</span><span class="ptag">T.</span><span class="pmeta">M.</span>
-      </div>
-      {INDEX_ROWS.map((r, i) => (
-        r.href ? (
-          <a
-            class:list={['prow', { selected: i === 0, listed: !r.preview }]}
-            href={r.href} data-slug={r.slug} data-i={r.preview ? i : null}
-            style={`--i:${i}`} data-n={i} aria-label={r.name}
-          >
+      <div class="cl-kicker">INDEX / SELECTED WORK</div>
+      <div class="pindex" id="pindex">
+        <div class="prow phdr" aria-hidden="true">
+          <span class="pno">N.</span><span class="pname">PROJECT</span><span class="ptag">MEDIUM</span><span class="pmeta">YEAR</span>
+        </div>
+        {INDEX_ROWS.map((r, i) => (
+          <a class:list={['prow', { selected: i === 0 }]} href={r.href}
+             data-slug={r.slug} data-i={i} data-n={i} style={`--i:${i}`} aria-label={r.name}>
             <span class="pno">{r.no}</span>
             <span class="pname">{r.name}</span>
-            <span class="ptag">{r.tag}</span>
+            <span class="ptag">{r.medium}</span>
             <span class="pmeta">{r.meta}</span>
           </a>
-        ) : null
-      ))}
+        ))}
+      </div>
+      <p class="ix-note" id="ixNote"></p>
     </div>
-    </div>
-    <div class="ip-nav">
-      <a href="/program/">PROGRAM</a>
-      <a href="/contact/">CONTACT</a>
+    <div class="ix-foot">
+      <div class="ip-nav">
+        <a href="/program/">PROGRAM</a>
+        <a href="/contact/">CONTACT</a>
+      </div>
     </div>
   </div>
-  <div class="index-preview" aria-hidden="true">
-    <div class="index-hint">HOVER TO PREVIEW · SELECT TO ENTER</div>
-  </div>
-</div>
+</section>
 
 <!-- the billboard's holder: the live element parks here on the landing and
      rides into a project's poster slot when a world is entered -->
@@ -516,27 +432,6 @@ const INDEX_ROWS = [
      column, hairline-ruled over everything the page scrolls past -->
 <div class="frame" aria-hidden="true"></div>
 
-<!-- the Shell's side rail, incorporated: a strip that reveals the nav -->
-<!-- the previewer: lifted out of the scaled stage so its size is real px,
-     not camera-scaled. A large 4:5 card anchored lower-right that cross-fades
-     to the row under the pointer - the prototype's behaviour verbatim. -->
-<div class="ppv" id="ppv" aria-hidden="true">
-  {INDEX_ROWS.map((r, i) => (
-    <div class="ppv-card" data-card={i}>
-      <span class="ppv-art">
-        {r.slug ? (
-          /* the previewer card is 4:5 and the sheet is 0.707, so the poster
-             very nearly fills it — same card, same crop, every row */
-          <img class="ppv-img ppv-sheet" src={`/projects/${r.slug}-poster.webp`}
-               width="1100" height="1556" alt="" decoding="async" loading="lazy" />
-        ) : (
-          <span class="ppv-fill wordmark" style={`--hue:${(i * 47) % 360}`}>{r.name}</span>
-        )}
-      </span>
-      <span class="ppv-info"><span>{r.name}</span><span>{r.no}</span></span>
-    </div>
-  ))}
-</div>
 
 <div id="detail" role="region" aria-label="Project detail">
   <div class="dcam" id="dcam"><div class="rail" id="rail"></div></div>
@@ -676,36 +571,22 @@ body { font-size: 16px; line-height: normal; }
   position: fixed; z-index: 8; left: 0; right: 0; top: 0;
   display: flex; justify-content: flex-end; align-items: center;
   padding: 14px 20px; pointer-events: none;
-  /* ink over paper, paper over a full-bleed card - driven by the same
-     relay-live signal as the mark. Difference-blending here forced the
-     whole page into one compositing group, repainted on every scroll. */
   color: var(--ink);
   transition-property: opacity, color; transition-duration: .2s, .25s; transition-timing-function: ease-out;
 }
-body.relay-live .masthead { color: #F6F2EE; }
-/* the shell's grid lines: a 66px top-bar row (the masthead's band, the
-   mark docked inside it) and the old rail's 34px side-bar column, both
-   washed with translucent paper so the frame reads over any card */
-/* the shell's grid, kept as lines. Both bands are one measure, so the
-   frame reads as an even margin rather than a wide top and a thin side —
-   change --frame once and both follow. */
+/* the shell's grid, kept as one line: the 66px top-bar band the mark docks
+   into. The old side column is gone - the belt runs the full width now, and
+   a rule down the left would cut every sheet that passes it. */
 .frame {
   --frame: 66px;
   position: fixed; inset: 0; z-index: 7; pointer-events: none;
   transition: opacity .2s ease-out;
-}
-.frame::before {
-  content: ''; position: absolute; left: 0; top: var(--frame); bottom: 0; width: var(--frame);
-  background: rgba(246, 242, 238, .55); border-right: var(--bw) solid var(--line);
 }
 .frame::after {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: var(--frame);
   background: rgba(246, 242, 238, .55); border-bottom: var(--bw) solid var(--line);
 }
 body.walked .frame { opacity: 0; }
-@media (max-width: 820px) {
-  .frame::before { display: none; }   /* copy hugs the edge here */
-}
 .mh-index {
   pointer-events: auto; border: 0; background: transparent; cursor: pointer;
   font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
@@ -715,96 +596,139 @@ body.walked .frame { opacity: 0; }
 .mh-index:hover { opacity: .65; }
 .mh-index:active { transform: scale(.96); }
 body.walked .masthead { opacity: 0; pointer-events: none; }
-/* the landing stops painting under an open world (layout height stays,
-   so the exit lands back on the same scroll position) */
-body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hidden; }
 
-/* ---- the closing: end of the sequence ---- */
-.closing {
-  min-height: 100vh; padding: 16vh 4.6vw 12vh;
-  display: grid; grid-template-columns: 1.2fr .8fr; gap: 8vw; align-items: start;
-}
 .cl-kicker { font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted); }
-.cl-h {
-  margin: 16px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: clamp(52px, 7.4vw, 124px); line-height: .9; letter-spacing: 0;
-  -webkit-text-stroke: 1.8px var(--ink); color: var(--ink); text-wrap: balance;
-}
-.cl-intro { margin: 26px 0 56px; max-width: 440px; font-size: 15px; line-height: 1.7; color: var(--muted); text-wrap: pretty; }
-.cl-list { border-top: 1px solid #BCB8B4; }
-.cl-link {
-  display: grid; grid-template-columns: 46px 1fr auto; gap: 18px; align-items: center;
-  padding: 18px 0 18px 4px; border-bottom: 1px solid #DAD5CE;
-  color: var(--ink); text-decoration: none;
-  transition-property: background-color, padding-left;
-  transition-duration: .15s, .22s; transition-timing-function: cubic-bezier(.22, 1, .36, 1);
-}
-.cl-link:hover { background: rgba(255, 255, 255, .62); padding-left: 14px; }
-.cl-link strong { font-family: 'BigShoulders', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: .02em; }
-.cl-link span { font-size: 9px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted); font-variant-numeric: tabular-nums lining-nums; }
-.cl-all strong { font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: 2px; color: var(--accent); }
-.cl-aside { padding-top: 12vh; }
-.cl-aside p { margin: 0; max-width: 320px; font-size: 13.5px; line-height: 1.7; color: var(--muted); }
-.cl-replay {
-  margin-top: 24px; padding: 13px 18px; border: 1px solid rgba(26, 24, 21, .28); border-radius: 999px;
-  background: transparent; cursor: pointer;
-  font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
-  transition-property: background-color, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
-}
-.cl-replay:hover { background: rgba(255, 255, 255, .62); }
-.cl-replay:active { transform: scale(.96); }
 
-/* ---- the index overlay: ledger left, previewer right ----
-   the split is shared with the fixed .ppv pane - one number, two rules */
-:root { --index-split: 53vw; }
-.index-panel {
-  position: fixed; inset: 0; z-index: 20;
-  background: rgba(247, 246, 242, .98);
-  display: grid; grid-template-columns: var(--index-split) 1fr;
-  opacity: 0; visibility: hidden;
-  transition-property: opacity, visibility;
-  transition-duration: .35s; transition-timing-function: ease-out;
-  overflow: hidden;
+/* ---- the belt ----
+   The landing is one surface: a fixed canvas the engine draws every sheet
+   into, and a layer of anchors above it that carry the links. Nothing here
+   scrolls; the belt is the only thing that moves. */
+html, body { height: 100%; overflow: hidden; }
+.belt {
+  position: fixed; inset: 0; z-index: 1;
+  cursor: grab; touch-action: none;
+  transition: opacity .3s ease-out;
 }
-.index-panel.open { opacity: 1; visibility: visible; }
-.index-close {
-  position: absolute; right: 20px; top: 14px; z-index: 5;
-  border: 0; background: transparent; cursor: pointer; padding: 13px 10px;
-  font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
-  transition-property: opacity, transform; transition-duration: .15s, .12s; transition-timing-function: ease-out;
+.belt.grabbing { cursor: grabbing; }
+.belt.locked { pointer-events: none; }
+.belt-gl { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+/* the anchors: the engine writes translate + scale on a 100x100 box, so a
+   pose costs one composited transform and never a layout pass */
+.belt-hit { position: absolute; inset: 0; z-index: 2; }
+.pst {
+  position: absolute; left: 0; top: 0; width: 100px; height: 100px;
+  transform-origin: 0 0; display: block; text-decoration: none;
+  will-change: transform;
 }
-.index-close:hover { opacity: .65; }
-.index-close:active { transform: scale(.96); }
-.index-left {
-  padding: 9vh 3.2vw 5vh 4.6vw; overflow-y: auto;
+.pst-img { width: 100%; height: 100%; object-fit: fill; display: block; }
+/* WebGL draws the sheets; the img is only the fallback, and only then */
+.belt-hit.gl .pst-img { opacity: 0; }
+.pst:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+/* before the engine runs (and with no script at all) the anchors read as a
+   plain horizontal shelf, so the work is still there to be opened */
+.belt-hit:not(.ready) {
+  display: flex; align-items: center; gap: 3vw; overflow-x: auto;
+  padding: 0 6vw; inset: 12vh 0 12vh;
+}
+.belt-hit:not(.ready) .pst { position: static; flex: none; width: auto; height: 62vh; transform: none; }
+.belt-hit:not(.ready) .pst-img { width: auto; height: 100%; object-fit: contain; }
+
+/* the threshold: two ticks on the centre line, and nothing else */
+.thr {
+  position: absolute; z-index: 3; left: 50%; top: 0; bottom: 0; width: 1px;
+  transform: translateX(-50%); pointer-events: none;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 13vh 0 12vh;
+  transition: opacity .3s ease-out;
+}
+.thr i { display: block; width: 1px; height: 26px; background: var(--line-2); }
+
+/* the readout: the sheet standing in the centre, named. Swaps as the belt
+   hands the threshold from one work to the next. */
+.now {
+  position: absolute; z-index: 3; left: 50%; bottom: 7.4vh;
+  transform: translateX(-50%); width: min(560px, 84vw);
+  text-align: center; pointer-events: none;
+  transition: opacity .18s ease-out, transform .34s cubic-bezier(.22, 1, .36, 1);
+}
+.now.swap { opacity: 0; transform: translateX(-50%) translateY(7px); }
+.now-line {
+  display: flex; justify-content: center; gap: 14px; align-items: baseline;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1.8px; color: var(--muted);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.now-name {
+  margin: 9px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
+  font-size: clamp(34px, 3.6vw, 58px); line-height: .94; letter-spacing: 0;
+  -webkit-text-stroke: 1.2px var(--ink); color: var(--ink);
+}
+.now-tag { margin-top: 7px; font-size: 10px; font-weight: 600; letter-spacing: 1.6px; color: var(--muted); }
+
+.belt-cue {
+  position: absolute; z-index: 3; right: max(18px, 3.8vw); bottom: 30px;
+  display: flex; align-items: center; gap: 10px; pointer-events: none;
+  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted);
+  transition: opacity .3s ease-out;
+}
+.belt-cue i { width: 30px; height: 1.5px; background: currentColor; transform-origin: right; animation: beltPulse 2.4s cubic-bezier(.22, 1, .36, 1) infinite; }
+@keyframes beltPulse { 0%, 100% { transform: scaleX(.2); opacity: .3; } 45% { transform: scaleX(1); opacity: .9; } }
+
+/* the index takes the centre readout and the cue off the stage */
+body.index-open .now, body.index-open .belt-cue, body.index-open .thr { opacity: 0; }
+body.walked .belt, body.entering .now, body.entering .belt-cue, body.entering .thr { opacity: 0; }
+body.walked .belt { pointer-events: none; }
+
+/* ---- the index: ledger left, the stack (drawn by the engine) at right ----
+   The panel is only the left half; the sheets on the right are the same
+   canvas that was carrying the belt a moment ago. */
+.ix {
+  position: fixed; z-index: 6; left: 0; top: 0; bottom: 0;
+  width: min(52vw, 720px);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition-property: opacity, visibility, transform;
+  transition-duration: .3s; transition-timing-function: ease-out;
+  transform: translateX(-14px);
+}
+body.index-open .ix { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+body.entering .ix { opacity: 0; }
+.ix-left {
+  height: 100%; padding: 12vh 3.2vw 5vh 4.6vw; overflow-y: auto;
   display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
 }
-.ip-h {
-  margin: 14px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: clamp(48px, 6.4vw, 104px); line-height: .9;
-  -webkit-text-stroke: 1.8px var(--ink); color: var(--ink);
+.ix-foot { flex: none; }
+/* the supporting line: it answers the row under the pointer, and sits with
+   the ledger rather than at the foot, so the two read as one column */
+.ix-note {
+  margin: 30px 0 0; min-height: 3.4em; max-width: 420px; padding-left: 4px;
+  font-size: 13.5px; line-height: 1.62; color: var(--muted); text-wrap: pretty;
+  transition: opacity .16s ease-out;
 }
-/* the index foot line: the quiet nav under the ledger */
-.ip-nav { display: flex; gap: 26px; margin-top: 48px; }
+.ix-note.swap { opacity: 0; }
+.ip-nav { display: flex; gap: 26px; }
 .ip-nav a {
   font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted); text-decoration: none;
   transition-property: color; transition-duration: .15s; transition-timing-function: ease-out;
 }
 .ip-nav a:hover { color: var(--ink); }
-.index-preview { position: relative; background: #E9E4DC; overflow: hidden; }
-.index-hint {
-  position: absolute; left: 24px; bottom: 20px; z-index: 5;
-  font-size: 9px; font-weight: 600; letter-spacing: 1.6px; color: #fff; mix-blend-mode: difference;
+/* under the ledger, a wash: at rest the stack stands clear of it, but every
+   sheet crosses this ground on its way there, and the type has to hold */
+.ix::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, rgba(248, 247, 243, .985) 0 76%, rgba(248, 247, 243, 0));
 }
-@media (max-width: 1080px) {
-  .index-panel { grid-template-columns: 1fr; }
-  .index-preview { display: none; }
+
+@media (max-width: 900px) {
+  .ix { width: 100vw; }
+  .ix::before { background: linear-gradient(180deg, rgba(248, 247, 243, .97) 0 68%, rgba(248, 247, 243, .74)); }
+  .ix-left { padding: 12vh 20px 5vh; }
+  .now-name { font-size: clamp(26px, 7vw, 40px); }
+  .belt-cue { display: none; }
 }
-@media (max-width: 820px) {
-  .closing { grid-template-columns: 1fr; padding: 14vh 20px 10vh; }
-  .cl-aside { padding-top: 0; }
-  .index-left { padding: 12vh 20px 5vh; }
+@media (prefers-reduced-motion: reduce) {
+  .belt-cue i { animation: none; }
+  .now, .ix, .ix-note { transition-duration: .01ms; }
 }
+
 
 /* ---- shelf + billboard ---- */
 .tv {
@@ -842,271 +766,20 @@ body.walked .hero, body.walked #heroRise, body.walked .closing { visibility: hid
 }
 .tv .art.on { opacity: 1; transform: none; }
 
-/* ---- the hero: the prototype's single centred frame ----
-   --hp is raw progress (fades the copy), --ha the eased approach that
-   carries the frame from a distance to full bleed. */
-.hero { position: relative; height: 230vh; --hp: 0; --ha: 0; }
-.hero-stick { position: sticky; top: 0; height: 100vh; overflow: hidden; isolation: isolate; }
-.hero-copy {
-  /* two set lines, sized to themselves - the card starts low enough that
-     the long second line can run past its left edge without meeting it */
-  position: absolute; z-index: 6; left: 4.6vw; top: 12vh;
-  width: max-content; max-width: 90vw;
-  opacity: calc(1 - min(1, var(--hp) * 3.1));
-  transform: translateY(calc(var(--hp) * -38px));
-  pointer-events: none;
-}
-.hero-h {
-  margin: 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: clamp(40px, 4.6vw, 70px); line-height: .96; letter-spacing: 0;
-  -webkit-text-stroke: 1.4px var(--ink); color: var(--ink); text-wrap: balance;
-}
-.hero-photo {
-  position: absolute; z-index: 3; left: 50%; top: calc(61% - var(--ha) * 11%);
-  width: calc(58vw + var(--ha) * 42vw); height: calc(43vh + var(--ha) * 57vh);
-  transform: translate(-50%, -50%);
-  overflow: hidden; display: block; cursor: pointer;
-  contain: layout style paint;
-  /* The ground under the frame is a blurred thumbnail of the engraving
-     itself, not a flat tone. The picture rides a constant 100vw x 100vh
-     layer that this card crops, and that layer can be late to paint on
-     first load — which left the opening frame as a solid #A49275 slab,
-     the first thing anyone saw. A 20px LQIP costs about a kilobyte and
-     means the worst case is a soft version of the right image. */
-  background: #A49275 url('data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoYABAAPrlMoEqnJCMhsAgA4BcJQBOmUI7gBTeC+Vnq4HwWwAD+6nkUPNGCqLgY8DlFsPlki77kSY8HudZAgBR29bXBgQjh2VtNHPgA') center / cover no-repeat;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 28px 70px -28px rgba(26, 24, 21, .35);
-}
-.hero-photo .rl-visual { transform: translate(-50%, -50%) scale(calc(1.05 - var(--ha) * .05)); }
-/* the hero still: the anaglyph engraving, covering the constant
-   full-viewport layer the card crops. At rest the letterbox holds the
-   mountain and the hill town; the rest of the plate opens outward as the
-   card grows to full bleed. */
-.hero-img {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; display: block;
-}
-.hero-meta {
-  position: absolute; z-index: 5; left: 50%; top: 84.5%; width: 58vw; transform: translateX(-50%);
-  display: flex; justify-content: space-between; gap: 24px;
-  font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: var(--muted);
-  font-variant-numeric: tabular-nums lining-nums;
-  opacity: calc(1 - min(1, var(--hp) * 2.3));
-  pointer-events: none;
-}
-.hero-meta span:nth-child(2) { text-transform: none; letter-spacing: .2px; font-weight: 500; font-size: 11.5px; }
-.hero-cue {
-  position: absolute; z-index: 5; right: max(18px, 3.8vw); bottom: 30px;
-  display: flex; align-items: center; gap: 10px;
-  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--ink);
-  opacity: calc(.78 - min(1, var(--hp) * 2.5));
-  pointer-events: none;
-}
-.hero-cue i { width: 34px; height: 1.5px; background: currentColor; transform-origin: left; animation: heroPulse 1.7s cubic-bezier(.22, 1, .36, 1) infinite; }
-@keyframes heroPulse { 0%, 100% { transform: scaleX(.25); opacity: .35; } 50% { transform: scaleX(1); opacity: 1; } }
-@media (max-width: 820px) {
-  .hero { height: 210vh; }
-  .hero-copy { left: 20px; top: 10vh; width: calc(100vw - 40px); max-width: none; }
-  .hero-photo { width: calc(86vw + var(--ha) * 14vw); height: calc(40vh + var(--ha) * 60vh); }
-  .hero-meta { width: 86vw; }
-  .hero-meta span:nth-child(2) { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero { height: 100vh; }
-  .hero-stick { position: relative; }
-  .hero-cue i { animation: none; }
-}
+/* (the hero, the relay and the hover previewer lived here; the belt replaced
+   all three, and its rules sit with the masthead above) */
 
-/* ---- the relay: main navigation ----
-   Scroll-driven vars written per frame by the relay loop: --p is the recede,
-   --hand the handoff hairline, --q the next card's rise. All motion is
-   interpolation of the two cards' boxes inside a sticky viewport frame. */
-#heroRise { position: relative; }
-.rly { position: relative; height: 235vh; --p: 0; --hand: 0; --q: 0; }
-.rly.last { height: 175vh; }
-.rl-stick { position: sticky; top: 0; height: 100vh; overflow: hidden; isolation: isolate; }
-.rl-topline {
-  position: absolute; z-index: 6; left: max(18px, 3.8vw); right: max(18px, 3.8vw); top: 24px;
-  display: flex; justify-content: space-between; gap: 24px;
-  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted);
-  font-variant-numeric: tabular-nums lining-nums;
-  opacity: calc(.25 + var(--p) * .75);
-  pointer-events: none;
-}
-.rl-cur, .rl-next {
-  position: absolute; display: block; overflow: hidden; text-decoration: none;
-  /* the boxes animate layout properties, so keep each card's reflow and
-     repaint fenced inside the card (will-change on box props composits
-     nothing and only pinned extra layers) */
-  contain: layout style paint;
-}
-.rl-cur {
-  left: calc(var(--p) * 7.4%); top: calc(var(--p) * 12%);
-  width: calc(100% - var(--p) * 56%); height: calc(100% - var(--p) * 55%);
-  z-index: 3; background: #ddd8cf;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, calc(var(--p) * .1)),
-              0 24px 60px -22px rgba(26, 24, 21, calc(var(--p) * .3));
-}
-/* the visual is a constant full-viewport layer; the card is only a clip
-   window sliding over it. Sizing content to the animating box relaid out
-   an iframe (the labs rebuild their canvases on resize — the flashes),
-   a ~2000-glyph pre, and an SVG every scroll frame; at a fixed size the
-   subtree lays out once and the box just crops it. */
-.rl-visual {
-  position: absolute; left: 50%; top: 50%; width: 100vw; height: 100vh;
-  display: block; transform-origin: center; transform: translate(-50%, -50%);
-}
-.rl-cur .rl-visual { transform: translate(-50%, -50%) scale(calc(1 + var(--p) * .025)); filter: saturate(calc(1 - var(--p) * .14)); }
-.rl-next .rl-visual { transform: translate(-50%, -50%) scale(calc(1.035 - var(--q) * .035)); }
-.rl-visual .plate { width: 100%; height: 100%; display: block; }
-/* the shader footage carries a baked matte around the water (content is
-   ~73% of the frame width); the scale crops to the water itself */
-.rl-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.55); }
-/* Every card carries that work's poster (poster/work-posters.html, stitched
-   by scripts/build-poster-heroes.mjs). All three are the same 1100 x 1556
-   sheet on the same stock, so the cards letterbox by the same amount and
-   the walk reads even — the relay is the navigation, and cards of
-   different shapes made it feel wonky. `contain`, because a poster cropped
-   to fill is no longer a poster. */
-.rl-fill { position: absolute; inset: 0; overflow: hidden; display: block; }
-.rl-shot {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: contain; display: block;
-}
-/* the press stock, so the letterbox reads as the sheet's own margin */
-.rl-sheet { background: #E4E0D6; }
-.rl-label {
-  position: absolute; z-index: 5;
-  left: calc(4.6vw + var(--p) * 49vw);
-  top: calc(72vh - var(--p) * 44vh);
-  width: min(440px, 38vw);
-  opacity: var(--p);
-  transform: translateY(calc((1 - var(--p)) * 22px));
-  pointer-events: none;
-}
-.rl-no { font-family: var(--mono); font-size: 11px; letter-spacing: 1.6px; color: var(--rl-accent, var(--accent)); }
-.rl-name {
-  margin: 14px 0 0; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: clamp(52px, 6.4vw, 104px); line-height: .94; letter-spacing: 0;
-  -webkit-text-stroke: 1.6px currentColor; color: var(--ink); text-wrap: balance;
-}
-.rl-lede { margin: 18px 0 0; font-size: 14.5px; line-height: 1.62; color: var(--muted); max-width: 380px; text-wrap: pretty; }
-.rl-enter {
-  display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 10px 0;
-  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 2px;
-  color: var(--rl-accent, var(--accent)); text-decoration: none; pointer-events: auto;
-  transition-property: opacity; transition-duration: .15s; transition-timing-function: ease-out;
-}
-.rl-enter:hover { opacity: .65; }
-.rl-handline {
-  position: absolute; z-index: 2; left: 7.4%; right: 7.4%; top: 63%; height: 1px;
-  background: #BCB8B4; transform: scaleX(var(--hand)); transform-origin: left; opacity: var(--hand);
-}
-.rl-handlbl {
-  position: absolute; z-index: 4; left: 7.4%; top: calc(63% + 13px);
-  font-size: 10px; font-weight: 600; letter-spacing: 1.8px; color: var(--muted);
-  font-variant-numeric: tabular-nums lining-nums;
-  opacity: var(--hand); pointer-events: none;
-}
-.rl-next {
-  left: calc(50% - (42vw - var(--q) * 42vw) / 2);
-  top: calc(104% - var(--q) * 104%);
-  width: calc(42vw + var(--q) * 58vw);
-  height: calc(31vh + var(--q) * 69vh);
-  z-index: 8; background: #ddd8cf;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 24px 60px -18px rgba(26, 24, 21, .28);
-}
-.rl-next-title {
-  position: absolute; z-index: 9; left: 5.4vw; bottom: 6.4vh; pointer-events: none;
-  opacity: var(--q); transform: translateY(calc((1 - var(--q)) * 22px));
-}
-.rl-next-title span { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1.8px; opacity: .78; }
-.rl-next-title b {
-  display: block; margin-top: 12px; font-family: 'BigShoulders', sans-serif; font-weight: 800;
-  font-size: clamp(56px, 7.6vw, 128px); line-height: .9; letter-spacing: 0;
-  -webkit-text-stroke: 1.6px currentColor;
-}
-@media (max-width: 820px) {
-  .rly { height: 205vh; }
-  .rly.last { height: 150vh; }
-  .rl-cur { left: calc(var(--p) * 5%); width: calc(100% - var(--p) * 10%); height: calc(100% - var(--p) * 58%); }
-  .rl-label { left: 6vw; top: calc(70vh - var(--p) * 22vh); width: 88vw; }
-  .rl-lede { max-width: 88vw; }
-  .rl-name { font-size: clamp(40px, 10vw, 72px); }
-  .rl-handline { top: 66%; }
-  .rl-handlbl { top: calc(66% + 13px); }
-  .rl-next { left: calc(50% - (84vw - var(--q) * 84vw) / 2); width: calc(84vw + var(--q) * 16vw); height: calc(32vh + var(--q) * 68vh); }
-  .rl-next-title { left: 6vw; bottom: 7vh; }
-  .rl-next-title b { font-size: clamp(40px, 11vw, 72px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* each beat is a still plate: the receded pose with its title, no relay */
-  .rly, .rly.last { height: auto; --p: 1; --hand: 1; --q: 0; }
-  .rl-stick { position: relative; height: 100vh; }
-  .rl-next, .rl-next-title { display: none; }
-  .rl-cur .rl-visual { transform: translate(-50%, -50%); filter: none; }
-  .idx-jump { transition-duration: .01ms; }
-}
 
-/* ---- hover previewer ----
-   The index overlay's right pane: fixed over the panel's preview area,
-   lit only while the panel is open. Cards stack; the hovered row's card
-   cross-fades in - the split reads ledger-left, preview-right. */
-.ppv {
-  position: fixed; z-index: 21; pointer-events: none;
-  left: var(--index-split); right: 0; top: 0; bottom: 0;
-  opacity: 0; visibility: hidden;
-  transition-property: opacity, visibility;
-  transition-duration: .35s; transition-timing-function: ease-out;
-}
-body.index-open .ppv { opacity: 1; visibility: visible; }
-.ppv::after {
-  content: 'HOVER TO PREVIEW · SELECT TO ENTER';
-  position: absolute; left: 24px; bottom: 20px; z-index: 5;
-  font-size: 9px; font-weight: 600; letter-spacing: 1.6px;
-  color: #fff; mix-blend-mode: difference;
-}
-.ppv-card {
-  position: absolute; inset: 0; overflow: hidden;
-  opacity: 0; transform: translateY(12px) scale(.985);
-  /* fast cross-fade: moving down the index should feel like flipping
-     through work, not waiting for dissolves */
-  transition: opacity .12s ease-out, transform .26s cubic-bezier(.22,1,.36,1);
-  box-shadow: 0 18px 45px rgba(15,15,10,.12), 0 0 0 1px rgba(0,0,0,.08);
-  background: #ddd8cf;
-}
-.ppv-card.on { opacity: 1; transform: translateY(0) scale(1); }
-.ppv-art { position: absolute; inset: 0; display: block; }
-.ppv-art :global(.plate) { width: 100%; height: 100%; display: block; }
-.ppv-img, .ppv-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-/* the shader footage carries the recording's chrome around the water;
-   the same crop as the relay cards keeps the pane pure water */
-.ppv-vid { transform: scale(1.55); }
-/* the poster seats whole in the previewer, on the same stock as the cards */
-.ppv-sheet { object-fit: contain; background: #E4E0D6; }
-.ppv-fill { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.ppv-fill.wordmark {
-  background: hsl(var(--hue, 40) 14% 88%);
-  font-family: var(--sans); font-weight: 600; font-size: 30px; letter-spacing: -.02em;
-  color: rgba(26,24,21,.28); text-align: center; padding: 0 8%; line-height: 1.05;
-}
-/* name + number, bottom, difference-blended so it reads on any art */
-.ppv-info {
-  position: absolute; z-index: 3; left: 18px; right: 18px; bottom: 16px;
-  display: flex; justify-content: space-between; gap: 16px;
-  color: #fff; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
-  font-variant-numeric: tabular-nums lining-nums; mix-blend-mode: difference;
-}
-@media (max-width: 1080px) { .ppv { display: none; } }
-@media (prefers-reduced-motion: reduce) { .ppv-card { transition-duration: .01ms; } }
-
-/* ---- the ledger: the index overlay's rows ----
-   Hover answers in the previewer pane at right. */
+/* ---- the ledger: the index's rows ----
+   Hover answers twice — in the note under the list, and by fronting that
+   work's sheet in the stack at right. Four columns and no more: the ledger
+   is a contents page, not a file browser. */
 .pindex { position: relative; margin-top: 34px; width: 100%; max-width: 1000px; }
 .prow {
   position: relative; display: grid; align-items: center;
-  grid-template-columns: 58px 380px 1fr 150px; gap: 16px;
-  height: 22px; padding: 0 0 0 4px;
-  font-size: 13px; line-height: 1;
+  grid-template-columns: 46px 1fr 168px 62px; gap: 16px;
+  height: 34px; padding: 0 0 0 4px;
+  font-size: 14px; line-height: 1;
   color: var(--ink); text-decoration: none;
   border-top: 1px solid transparent;
   transition-property: background-color, border-color, padding-left, opacity;
@@ -1152,25 +825,18 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 .pname { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pname::after { content: ' ↗'; font-size: .8em; opacity: 0; transition: opacity .18s ease-out; }
 .prow:hover .pname::after, .prow:focus-visible .pname::after { opacity: 1; }
-.ptag, .pmeta { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* the descriptor is clipped to its column at rest; the row under the pointer
-   lets it run over the year and the empty space to its right, on a solid
-   ground so it stays legible. The very longest still clip at the row edge -
-   the full text lives in the preview card. */
-.prow:hover .ptag, .prow:focus-visible .ptag {
-  overflow: visible; text-overflow: clip; position: relative; z-index: 2;
-  padding-right: 14px; width: max-content; max-width: 760px;
-  background: linear-gradient(90deg, #FBFAF7 0 92%, transparent);
+.pname { font-size: 15px; }
+/* medium and year are the quiet columns: mono, so the four rows line up as
+   a set of readings rather than as four sentences */
+.ptag, .pmeta {
+  opacity: .62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
 }
-/* listed only: in the index, nothing to open yet */
-.prow.listed { cursor: default; }
-.prow.listed .pname { font-weight: 400; }
-.prow.listed .pname::after { content: none; }
-.prow.listed .ptag:empty::before { content: '—'; opacity: .35; }
+.pmeta { text-align: right; }
 @media (prefers-reduced-motion: reduce) {
   .pindex, .prow.in { animation: none; }
   .prow { opacity: 1; }
-  .pindex, .masthead, .index-panel, .index-close, .cl-replay, .pfold, .pfold-caret { transition-duration: .01ms; }
+  .pindex, .masthead, .prow { transition-duration: .01ms; }
 }
 
 /* the IsoBasin construction, now only for the phone cloned into the
@@ -1456,190 +1122,79 @@ body.index-open .ppv { opacity: 1; visibility: visible; }
 </style>
 
 <script is:inline define:vars={{ PROJECTS: CLIENT_PROJECTS }}>
-// ---- the hero + the relay: scroll writes the hero's approach (--hp/--ha)
-//      and each section's pose (--p recede, --hand handoff, --q rise);
-//      media wake with their sections. Polled per frame like the dock is;
-//      the style writes are settle-skipped. The loop also decides when a
-//      full-bleed card owns the head of the frame, and the docked mark
-//      steps aside (body.relay-live). ----
-(function relayDrive() {
-  var secs = [].slice.call(document.querySelectorAll('.rly'));
-  var hero = document.getElementById('hero');
-  if (!secs.length && !hero) return;
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var S = secs.map(function (sec) {
-    return {
-      el: sec, p: -1, hand: -1, q: -1, on: false,
-      hasNext: !!sec.querySelector('.rl-next'),
-      vid: sec.querySelector('.rl-vid')
-    };
-  });
-  var heroVid = hero ? hero.querySelector('.rl-vid') : null;
-  var heroSt = { hp: -1, ha: -1, on: false };
-  var live = false;
-  function sm(t) { return t * t * (3 - 2 * t); }
-  function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-  var frame = 0;
-  /* the hero and the first card play the same footage from two elements;
-     starting the joiner on the leaver's clock keeps the handoff on the
-     same frame of water instead of jumping */
-  function syncClock(v, from) {
-    if (v && from && from.duration && !from.paused) {
-      try { v.currentTime = from.currentTime; } catch (err) {}
-    }
-  }
-  function tick() {
-    frame++;
-    var vh = innerHeight;
-    /* the mark's zone at the head of the frame, with hysteresis: a single
-       threshold rode the scroll noise and strobed the mark at the edge */
-    var band = vh * (live ? .12 : .09);
-    var covered = false;
-    var inDetail = state.mode === 'detail';
-    /* read phase - every rect up front. A custom-property write below
-       invalidates style, and a rect read after it forces a synchronous
-       reflow; interleaved per section that was up to six layouts a frame. */
-    var hr = hero ? hero.getBoundingClientRect() : null;
-    var R = S.map(function (s) { return s.el.getBoundingClientRect(); });
-    /* write phase */
-    if (hero) {
-      var hvis = hr.bottom > 0 && hr.top < vh && !inDetail;
-      var ha = 0;
-      if (!reduce) {
-        var hmax = hr.height - vh;
-        var hp = hmax > 0 ? cl(-hr.top / hmax) : 0;
-        ha = sm(cl(hp / .72));
-        if (hvis) {
-          var hpF = +hp.toFixed(4), haF = +ha.toFixed(4);
-          if (hpF !== heroSt.hp) { heroSt.hp = hpF; hero.style.setProperty('--hp', hpF); }
-          if (haF !== heroSt.ha) { heroSt.ha = haF; hero.style.setProperty('--ha', haF); }
-        }
-      }
-      if (hvis !== heroSt.on) {
-        heroSt.on = hvis;
-        if (heroVid) {
-          if (hvis && !reduce) {
-            if (!heroVid.getAttribute('src')) heroVid.src = heroVid.dataset.vid;
-            syncClock(heroVid, S.length ? S[0].vid : null);
-            heroVid.play().catch(function () {});
-          } else if (!heroVid.paused) heroVid.pause();
-        }
-      }
-      if (hvis) {
-        var hStick = Math.min(Math.max(hr.top, 0), hr.bottom - vh);
-        /* the frame's top edge: centre (61% - ha*11%) less half its height */
-        var hTop = hStick + ((.61 - ha * .11) - (.43 + ha * .57) / 2) * vh;
-        if (hTop < band) covered = true;
-      }
-    }
-    S.forEach(function (s, i) {
-      var r = R[i];
-      var vis = r.bottom > 0 && r.top < vh && !inDetail;
-      if (!reduce && vis) {
-        var max = r.height - vh;
-        var prog = max > 0 ? cl(-r.top / max) : 0;
-        var p = +sm(cl(prog / .62)).toFixed(4);
-        var hand = +sm(cl((prog - .28) / .30)).toFixed(4);
-        var q = +sm(cl((prog - .45) / .5)).toFixed(4);
-        if (p !== s.p) { s.p = p; s.el.style.setProperty('--p', p); }
-        if (hand !== s.hand) { s.hand = hand; s.el.style.setProperty('--hand', hand); }
-        if (q !== s.q) { s.q = q; s.el.style.setProperty('--q', q); }
-      }
-      if (vis !== s.on) {
-        s.on = vis;
-        if (s.vid) {
-          if (vis && !reduce) {
-            if (!s.vid.getAttribute('src')) s.vid.src = s.vid.dataset.vid;
-            if (i === 0) syncClock(s.vid, heroVid);
-            s.vid.play().catch(function () {});
-          } else if (!s.vid.paused) s.vid.pause();
-        }
-      }
-      if (vis) {
-        var stickTop = Math.min(Math.max(r.top, 0), r.bottom - vh);
-        var pEff = reduce ? 1 : Math.max(0, s.p);
-        var qEff = reduce ? 0 : Math.max(0, s.q);
-        if (stickTop + pEff * .12 * vh < band) covered = true;
-        if (s.hasNext && stickTop + (1.04 - qEff * 1.04) * vh < band) covered = true;
-      }
-    });
-    if (covered !== live) { live = covered; document.body.classList.toggle('relay-live', covered); }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-})();
-
-// ---- the index overlay: opened from the masthead, closed by CLOSE, Escape,
-//      or entering a work. While open the page holds still and the previewer
-//      pane lights with the featured card. ----
-var indexPanel = document.getElementById('indexPanel');
+// ---- the index: the belt, compressed ----
+//      Opening freezes the belt, collapses every sheet inward into one stack
+//      and flies that stack to the centre-right; the ledger arrives at the
+//      left. Closing redistributes the stack back onto the belt. The sheets
+//      are drawn by the belt engine below - this drives the ledger and asks.
+var ixEl = document.getElementById('ix');
 var indexOpenBtn = document.getElementById('indexOpen');
+var ixNote = document.getElementById('ixNote');
+var ixNoteT = 0;
 function indexIsOpen() { return document.body.classList.contains('index-open'); }
 function openIndex() {
-  if (!indexPanel) return;
-  indexPanel.classList.add('open');
-  indexPanel.setAttribute('aria-hidden', 'false');
-  if (indexOpenBtn) indexOpenBtn.setAttribute('aria-expanded', 'true');
+  if (!ixEl || indexIsOpen() || state.mode !== 'landing') return;
   document.body.classList.add('index-open');
-  document.body.style.overflow = 'hidden';
+  ixEl.setAttribute('aria-hidden', 'false');
+  if (indexOpenBtn) { indexOpenBtn.setAttribute('aria-expanded', 'true'); indexOpenBtn.textContent = 'CAROUSEL'; }
   staggerLedger();
-  var row = document.querySelector('#pindex .prow[data-i="' + state.featured + '"]') ||
-            document.querySelector('#pindex .prow:not(.phdr)');
-  if (row) showPreview(row);
+  if (beltApi) beltApi.toIndex(1);
+  var row = document.querySelector('#pindex .prow.selected') || document.querySelector('#pindex .prow:not(.phdr)');
+  if (row) previewRow(row);
 }
-function closeIndex() {
-  if (!indexPanel || !indexIsOpen()) return;
-  indexPanel.classList.remove('open');
-  indexPanel.setAttribute('aria-hidden', 'true');
-  if (indexOpenBtn) indexOpenBtn.setAttribute('aria-expanded', 'false');
+/* quiet: used while a work is being walked into, where the stack is already
+   busy expanding and must not redistribute itself underneath the sheet */
+function closeIndex(quiet) {
+  if (!ixEl || !indexIsOpen()) return;
   document.body.classList.remove('index-open');
-  document.body.style.overflow = '';
+  ixEl.setAttribute('aria-hidden', 'true');
+  if (indexOpenBtn) { indexOpenBtn.setAttribute('aria-expanded', 'false'); indexOpenBtn.textContent = 'INDEX'; }
+  if (beltApi) beltApi.toIndex(0, quiet === true);
 }
-if (indexOpenBtn) indexOpenBtn.addEventListener('click', openIndex);
-var indexCloseBtn = document.getElementById('indexClose');
-if (indexCloseBtn) indexCloseBtn.addEventListener('click', closeIndex);
-// choosing a work closes the overlay; the hash change walks in over it
-document.querySelectorAll('#pindex .prow[href]').forEach(function (row) {
-  row.addEventListener('click', closeIndex);
-});
-// the closing's replay: back to the top of the sequence
-var replayBtn = document.getElementById('replay');
-if (replayBtn) replayBtn.addEventListener('click', function () {
-  scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+if (indexOpenBtn) indexOpenBtn.addEventListener('click', function () {
+  indexIsOpen() ? closeIndex() : openIndex();
 });
 
-// ---- smooth scroll: the wheel writes a target; a frame loop glides the
-//      page toward it with exponential damping, so the landing reads as one
-//      continuous camera move instead of the wheel's 100px steps. Scrollbar,
-//      keyboard and touch stay native; the detail rail keeps its own wheel. ----
-(function smoothWheel() {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var target = -1, cur = 0, raf = 0, last = 0;
-  var RATE = 5;                   // 1/s damping: a glide that coasts ~.9s
-  var MULT = 2;                   // input gain: a notch is 100px of a 2250px
-                                  // choreography - undoctored, the sequence
-                                  // parks mid-pose every notch and reads as
-                                  // stuck. Doubled, a gesture carries a beat.
-  function maxY() { return document.documentElement.scrollHeight - innerHeight; }
-  function frame(now) {
-    var dt = Math.min(.05, (now - last) / 1000); last = now;
-    cur += (target - cur) * (1 - Math.exp(-RATE * dt));
-    if (Math.abs(target - cur) < .5) cur = target;
-    scrollTo(0, cur);
-    if (cur === target) { raf = 0; target = -1; return; }
-    raf = requestAnimationFrame(frame);
+/* the first sentence of the work's own lede, which is what the note under
+   the ledger answers a hover with */
+function ledeLine(p) {
+  if (!p) return '';
+  if (!p.lede) return p.tag;
+  var m = p.lede.match(/^[^.]+\./);
+  return m ? m[0] : p.lede;
+}
+/* pointing at a row brings that sheet to the front of the stack; the note
+   under the ledger changes with it. Focus does exactly the same. */
+function previewRow(row) {
+  if (!row) return;
+  var i = +row.dataset.i;
+  if (isNaN(i)) return;
+  document.querySelectorAll('#pindex .prow').forEach(function (r) {
+    r.classList.toggle('selected', r === row);
+  });
+  if (beltApi) beltApi.front(i);
+  var p = PROJECTS[i];
+  if (ixNote) {
+    ixNote.classList.add('swap');
+    clearTimeout(ixNoteT);
+    ixNoteT = setTimeout(function () {
+      ixNote.textContent = ledeLine(p);
+      ixNote.classList.remove('swap');
+    }, 150);
   }
-  addEventListener('wheel', function (e) {
-    /* the overlay owns the wheel while open: the ledger scrolls natively
-       and the page behind holds still (body overflow hidden) */
-    if (state.mode !== 'landing' || indexIsOpen() || e.ctrlKey || e.defaultPrevented) return;
+}
+document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
+  row.addEventListener('pointerenter', function () { previewRow(row); });
+  row.addEventListener('focus', function () { previewRow(row); });
+  /* selecting a row does not jump: the sheet leaves the stack and expands,
+     and the hash is written partway through that move */
+  row.addEventListener('click', function (e) {
     e.preventDefault();
-    var d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
-    if (target < 0) cur = target = scrollY;
-    target = Math.max(0, Math.min(maxY(), target + d * MULT));
-    if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
-  }, { passive: false });
-})();
+    if (beltApi) beltApi.enter(+row.dataset.i);
+    else location.hash = row.getAttribute('href');
+  });
+});
+
 // ---- landing state: featured project (index into PROJECTS) ----
 var state = { mode: 'landing', featured: 0 };
 // ledger rows enter with the panel, staggered in order, and the entrance
@@ -1682,66 +1237,15 @@ function setFeatured(i) {
   bbWake();
 }
 
-/* The billboard holds one hero now; the index answers a hover in the fixed
-   previewer, lower-right. The card cross-fades to the row under the pointer. */
-var ppv = document.getElementById('ppv');
-var ppvCards = ppv ? [].slice.call(ppv.querySelectorAll('.ppv-card')) : [];
-function showPreview(row) {
-  if (!ppv || !row) return;
-  var n = +row.dataset.n;
-  ppvCards.forEach(function (c, k) {
-    var on = k === n;
-    c.classList.toggle('on', on);
-    var v = c.querySelector('.ppv-vid');
-    if (v) {
-      if (on) {
-        if (!v.getAttribute('src')) { v.src = v.dataset.vid; }
-        v.play().catch(function(){});
-      } else v.pause();
-    }
-  });
-}
-function clearPreview() {
-  ppvCards.forEach(function (c) {
-    c.classList.remove('on');
-    var v = c.querySelector('.ppv-vid');
-    if (v && v.getAttribute('src')) v.pause();
-  });
-}
-
-/* previews answer instantly: video sources attach once at idle, so a
-   hover only plays - no fetch, no src churn between rows */
+/* the billboard's attract loop arms at idle: fetched once the page is quiet,
+   decoded only when it rides into a project's poster slot */
 addEventListener('load', function () {
   var arm = function () {
-    if (ppv) [].forEach.call(ppv.querySelectorAll('.ppv-vid'), function (v) {
-      if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
-    });
-    /* the relay's water card arms the same way: fetched at idle so the
-       first handoff plays without a stutter */
-    [].forEach.call(document.querySelectorAll('.rl-vid'), function (v) {
-      if (!v.getAttribute('src')) { v.preload = 'auto'; v.src = v.dataset.vid; v.load(); }
-    });
-    // the billboard's attract loop arms here too: fetched at idle, decoded
-    // only once it actually rides into a poster
     var bh = document.getElementById('bbHero');
     if (bh && bh.preload === 'none') { bh.preload = 'auto'; bh.load(); }
   };
   ('requestIdleCallback' in window) ? requestIdleCallback(arm, { timeout: 2500 }) : setTimeout(arm, 800);
 });
-
-// pointing at a row is what loads the billboard; the click still walks in
-document.querySelectorAll('#pindex .prow:not(.phdr)').forEach(function (row) {
-  function enter() {
-    if (state.mode !== 'landing') return;
-    showPreview(row);
-    var i = row.dataset.i === undefined ? -1 : +row.dataset.i;
-    if (i >= 0 && state.featured !== i) setFeatured(i);
-  }
-  row.addEventListener('pointerenter', enter);
-  row.addEventListener('focus', enter);
-});
-/* leaving the ledger keeps the last card lit: the overlay's preview pane
-   should never go dark while the panel is open */
 
 // ---- shared WebGL: the Poolside shaders (ported from /poolside/) ----
 var GL_VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=p*0.5+0.5;gl_Position=vec4(p,0.0,1.0);}';
@@ -2260,15 +1764,17 @@ function cubicBezier(x1, y1, x2, y2) {
 var transTimers = [];
 function clearTransTimers() { transTimers.forEach(clearTimeout); transTimers = []; }
 
-/* entering a world is an overlay arrival now (the billboard walk-through
-   left with the stage): the detail surface fades and settles in over the
-   page, wherever the relay was standing - and exit lands right back there */
+/* entering a world lands on top of the belt's own move: by the time the hash
+   is written the chosen sheet is already expanding to full bleed, so the
+   detail surface fades in over it and the two read as one walk. The ledger
+   is closed quietly, because the stack behind the sheet must not redistribute
+   itself while the sheet is still growing. */
 function animEnter(i) {
   state.mode = 'entering';
   setFeatured(i);
   buildDetail(i);
   clearTransTimers();
-  closeIndex();
+  closeIndex(true);
   document.body.classList.add('walked');
   detail.style.willChange = 'opacity, transform';
   detail.classList.add('on');
@@ -2287,13 +1793,17 @@ function animEnter(i) {
 function animExit() {
   state.mode = 'exiting';
   clearTransTimers();
+  /* the belt comes back BEFORE the detail surface fades, not after: the
+     sheet has to be there, shrinking out of full bleed, for the world to
+     recede onto something rather than onto nothing */
+  document.body.classList.remove('walked');
+  if (beltApi) beltApi.exit();
   detail.classList.remove('in');            // recede + fade (250ms)
   detail.style.willChange = 'opacity, transform';
   transTimers.push(setTimeout(function land() {
     state.mode = 'landing';
     var bh = document.getElementById('bbHero');
     if (bh && !bh.paused) bh.pause();       // parked again: stop the decode
-    document.body.classList.remove('walked');
     detail.classList.remove('on');
     detail.style.willChange = '';
     route();
@@ -2327,12 +1837,551 @@ function route(initial) {
 }
 addEventListener('hashchange', function () { route(false); });
 
-function enterProject(i) { location.hash = '#/p/' + PROJECTS[i].slug; }
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   if (indexIsOpen()) { closeIndex(); return; }
   if (state.mode === 'detail') location.hash = '#/';
 });
+
+// ---- the belt: the landing's one moving part ----
+//      Every sheet on this page is a rectangle drawn by one WebGL surface,
+//      so the conveyor, the index stack and the walk into a work are the
+//      same handful of animated boxes rather than three separate machines.
+//      The anchors above the canvas carry the link, the label and the
+//      keyboard; the <img> inside each one is what shows if WebGL never
+//      arrives. Nothing here scrolls - the belt is the only thing moving.
+var beltApi = null;
+(function beltDrive() {
+  var belt = document.getElementById('belt');
+  var cv = document.getElementById('beltGl');
+  var hit = document.getElementById('beltHit');
+  if (!belt || !cv || !hit) return;
+
+  var N = PROJECTS.length;
+  var ASPECT = 1100 / 1556;            // the sheet: every poster is the same one
+  var BASE = 58;                       // px/s — the belt's own pace
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function cl(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function mix(a, b, t) { return a + (b - a) * t; }
+  function sm(t) { return t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t); }
+  function eio(t) { return t <= 0 ? 0 : t >= 1 ? 1 : (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); }
+  function approach(a, b, s) { return a < b ? Math.min(b, a + s) : Math.max(b, a - s); }
+
+  // ---- geometry: one measure drives the canvas, the anchors and the loop ----
+  var G = { vw: 0, vh: 0, dpr: 1, pw: 0, ph: 0, pitch: 0, slots: 0, loop: 0, cx: 0, cy: 0 };
+  var A = [];                          // the anchors, one per slot
+  function measure() {
+    G.vw = innerWidth; G.vh = innerHeight;
+    G.dpr = Math.min(devicePixelRatio || 1, 2);
+    /* the sheet is capped by height and by its share of the width. On a wide
+       screen that share is small, so several sheets stand on the belt at
+       once; on a phone there is only room for one to matter, so it takes
+       most of the width instead of shrinking to a stamp. */
+    var share = G.vw < 760 ? 0.62 : 0.34;
+    G.ph = Math.max(190, Math.min(G.vh * 0.62, (G.vw * share) / ASPECT, 780));
+    G.pw = G.ph * ASPECT;
+    G.pitch = G.pw * 1.34;
+    /* enough slots that the loop is always wider than the viewport plus two
+       sheets, and always a whole number of cycles so the sequence has no
+       seam — a visitor can never reach a beginning or an end */
+    var need = Math.ceil(G.vw / G.pitch) + 4;
+    G.slots = Math.max(N * 2, Math.ceil(need / N) * N);
+    G.loop = G.slots * G.pitch;
+    G.cx = G.vw / 2; G.cy = G.vh * 0.46;
+    cv.width = Math.round(G.vw * G.dpr); cv.height = Math.round(G.vh * G.dpr);
+    cv.style.width = G.vw + 'px'; cv.style.height = G.vh + 'px';
+    fitSlots();
+  }
+  function fitSlots() {
+    var list = [].slice.call(hit.querySelectorAll('.pst'));
+    while (list.length < G.slots) {
+      var c = list[list.length % N].cloneNode(true);
+      c.setAttribute('aria-hidden', 'true'); c.setAttribute('tabindex', '-1');
+      hit.appendChild(c); list.push(c);
+    }
+    while (list.length > G.slots) hit.removeChild(list.pop());
+    list.forEach(function (el, k) { el.dataset.k = k; el.dataset.p = k % N; });
+    A = list;
+    hit.classList.add('ready');
+  }
+
+  // ---- state ----
+  var off = 0, mom = 0;                              // belt position, coasting speed
+  var dragging = false, moved = 0, lastX = 0, vx = 0, lastT = 0;
+  var glide = null;                                  // a sheet travelling to the threshold
+  var idx = { t: 0, to: 0, dur: 0.92, delay: [], pick: [] };
+  var ent = { t: 0, to: 0, slot: -1, proj: -1, fired: false, dur: 0.58 };
+  var lift = [], liftTo = [], ROT = [];
+  for (var q = 0; q < N; q++) {
+    lift.push(0); liftTo.push(0);
+    ROT.push(((q % 2 ? 1 : -1) * (0.5 + (q * 0.37) % 1.1)) * Math.PI / 180);
+  }
+  function wrap(d) { var L = G.loop; d = (d + L * 0.5) % L; if (d < 0) d += L; return d - L * 0.5; }
+  function nearest(p) {                              // the slot of work p closest to the centre
+    var k = -1, d = 1e9;
+    for (var i = 0; i < A.length; i++) {
+      if (i % N !== p) continue;
+      var dd = Math.abs(wrap(i * G.pitch - off));
+      if (dd < d) { d = dd; k = i; }
+    }
+    return k;
+  }
+
+  // ---- the index: collapse inward, stack, travel right ----
+  function toIndex(v, quiet) {
+    if (v) {
+      /* the sheet of each work nearest the threshold is the one that joins
+         the stack; its copies further down the loop fade as they converge */
+      idx.pick = [];
+      for (var p = 0; p < N; p++) idx.pick.push(nearest(p));
+      var order = idx.pick.slice().sort(function (a, b) {
+        return Math.abs(wrap(a * G.pitch - off)) - Math.abs(wrap(b * G.pitch - off));
+      });
+      idx.delay = [];
+      for (var k = 0; k < A.length; k++) {
+        var r = order.indexOf(k);
+        idx.delay[k] = (r < 0 ? 0 : r) * 0.06;       // the stack builds centre-out
+      }
+      for (var i = 0; i < N; i++) liftTo[i] = 0;
+    }
+    idx.to = v ? 1 : 0;
+    /* a work being walked into owns the sheets: the ledger may record where
+       it wants to be, but it must not yank the stack out from under a sheet
+       that is halfway to full bleed */
+    if (ent.to !== 1 && (reduce || quiet === true)) idx.t = idx.to;
+    show();
+  }
+  function setFront(p) {
+    for (var i = 0; i < N; i++) liftTo[i] = (i === p ? 1 : 0);
+    show();
+  }
+
+  // ---- selecting a work ----
+  function enter(p) {
+    if (ent.to === 1 || state.mode !== 'landing' || p < 0 || p >= N) return;
+    ent.proj = p; ent.fired = false;
+    document.body.classList.add('entering');
+    mom = 0;
+    /* whatever the index was doing, it stops where it stands — a selection
+       made mid-collapse must not leave the stack still assembling itself
+       behind the sheet that is on its way to full bleed */
+    idx.to = idx.t;
+    var k = (idx.t > 0 && idx.pick.length === N) ? idx.pick[p] : nearest(p);
+    if (k < 0) k = nearest(p);
+    if (k < 0) return;
+    ent.slot = k;
+    if (idx.t > 0.02) {                    // off the belt already: expand from where it is
+      ent.to = 1; ent.t = 0;
+      show();
+      return;
+    }
+    /* on the belt the chosen sheet travels to the threshold first, and only
+       then expands — so the walk in starts from where the eye already is */
+    var dx = wrap(k * G.pitch - off);
+    glide = {
+      from: off, to: off + dx, t: 0,
+      dur: reduce ? 0.001 : Math.min(0.52, 0.16 + Math.abs(dx) / 2600),
+      then: function () { ent.to = 1; ent.t = 0; }
+    };
+    show();
+  }
+  function exit() {
+    ent.to = 0;
+    document.body.classList.remove('entering');
+    if (reduce) { ent.t = 0; ent.slot = -1; }
+    show();
+  }
+
+  // ---- the centre readout ----
+  var nowEl = document.getElementById('now');
+  var nowNo = document.getElementById('nowNo'), nowMed = document.getElementById('nowMed');
+  var nowName = document.getElementById('nowName'), nowTag = document.getElementById('nowTag');
+  var shown = 0, swapT = 0;
+  function readout(p) {
+    if (p < 0 || p === shown || !nowEl) return;
+    shown = p;
+    var pr = PROJECTS[p];
+    nowEl.classList.add('swap');
+    clearTimeout(swapT);
+    swapT = setTimeout(function () {
+      nowNo.textContent = String(p + 1).padStart(2, '0');
+      nowMed.textContent = pr.medium || '';
+      nowName.textContent = pr.name;
+      nowTag.textContent = pr.tag;
+      nowEl.classList.remove('swap');
+    }, 150);
+  }
+
+  // ---- WebGL: one program for the sheets, one for their contact shadows ----
+  var VS =
+    'attribute vec2 a;uniform vec2 uRes;uniform vec4 uRect;uniform float uPad;uniform float uRot;' +
+    'varying vec2 vUv;varying vec2 vScr;' +
+    'void main(){vec2 p=a*(uRect.zw+2.0*uPad)-uPad;vUv=p/uRect.zw;' +
+    'vec2 c=uRect.zw*0.5;vec2 d=p-c;float s=sin(uRot),co=cos(uRot);' +
+    'd=vec2(d.x*co-d.y*s,d.x*s+d.y*co);vec2 scr=uRect.xy+c+d;vScr=scr;' +
+    'vec2 n=scr/uRes*2.0-1.0;gl_Position=vec4(n.x,-n.y,0.0,1.0);}';
+  /* the field the sheets are warped by is Poolside's own: the same hashed
+     lattice, the same cubic fade, four octaves — the shader this site is
+     partly about, borrowed to bend the sheet that advertises it */
+  var NOISE =
+    'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}' +
+    'float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);' +
+    'float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));' +
+    'vec2 u=f*f*(3.0-2.0*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}' +
+    'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*vnoise(p);p=p*2.02+vec2(1.7,9.2);a*=0.5;}return v;}';
+  /* The threshold. A sheet is affected by how far its own centre stands from
+     the centre of the screen (uW), and within the sheet by how close each
+     pixel stands to the centre line (col) — so this is a field the archive
+     passes through, never a filter on a hovered card.
+       lens      a cylindrical column: sampling is pulled toward the axis, so
+                 the sheet compresses at the shoulders and opens at the core
+       liquid    the fbm field above, drifting
+       fringe    red and blue sampled either side of green. Poolside disperses
+                 light at disp x ±0.06 for the same reason a press
+                 misregisters, and both of those works are on this belt
+       smear     a directional blur that peaks half-in and RESOLVES to nothing
+                 at dead centre, so arriving reads as coming into focus
+
+     THE MOTION BELONGS TO THE CROSSING, NOT TO THE CENTRE. A sheet standing
+     in the threshold is the one you are trying to read, and a live wobble on
+     it is exhausting within seconds — so `calm` rises over the last stretch
+     of the approach and takes the drifting field and the smear back out.
+     What survives at dead centre is still: the lens bend, a hairline of
+     misregistration, and a little light in the core. Full expression, held. */
+  var FS_P =
+    'precision highp float;varying vec2 vUv;varying vec2 vScr;' +
+    'uniform sampler2D uTex;uniform float uHas;uniform float uTime;uniform float uW;uniform float uN;' +
+    'uniform float uCx;uniform float uColR;uniform vec2 uPx;uniform float uAlpha;uniform float uCalm;' + NOISE +
+    'vec3 tap(vec2 p,vec2 d){return (texture2D(uTex,clamp(p,0.0,1.0)).rgb' +
+    '+texture2D(uTex,clamp(p+d*0.5,0.0,1.0)).rgb+texture2D(uTex,clamp(p+d,0.0,1.0)).rgb)/3.0;}' +
+    'void main(){' +
+    'float sxn=(vScr.x-uCx)/uColR;' +
+    'float col=exp(-sxn*sxn*1.35);' +
+    'float A=uW*mix(0.42,1.0,col);' +
+    'float lens=sxn*exp(-sxn*sxn*1.35);' +
+    'float live=1.0-uCalm;' +                               // the crossing, not the standing
+    'vec2 uv=vUv;' +
+    'if(A>0.002){' +
+    'uv.x-=A*0.030*lens;' +
+    'vec2 w=vec2(fbm(vUv*3.2+uTime*0.045),fbm(vUv*3.2-uTime*0.055+5.0))-0.5;' +
+    'uv+=A*live*0.011*w;}' +
+    'vec2 e=min(uv,1.0-uv);' +
+    'float m=smoothstep(0.0,uPx.x,e.x)*smoothstep(0.0,uPx.y,e.y);' +
+    'vec3 c=vec3(0.894,0.878,0.839);' +
+    'if(uHas>0.5){' +
+    'if(A>0.002){' +
+    'float E=4.0*uW*(1.0-uW)*live;' +
+    'vec2 d=vec2(E*(uN<0.0?-0.014:0.014),0.0);' +
+    'float disp=A*0.0026*(0.30+abs(lens)*1.7);' +
+    'c.r=tap(uv+vec2(disp,0.0),d).r;' +
+    'c.g=tap(uv,d).g;' +
+    'c.b=tap(uv-vec2(disp,0.0),d).b;' +
+    '}else{c=texture2D(uTex,clamp(uv,0.0,1.0)).rgb;}}' +
+    'c+=vec3(1.0,0.985,0.95)*(A*0.050*col*col);' +          // the core of the column lights
+    'float t=(abs(sxn)-0.85)*3.0;' +
+    'c*=1.0-A*0.055*exp(-t*t);' +                           // and its shoulders read as thickness
+    'c=mix(c,vec3(0.949,0.937,0.921),(1.0-uW)*0.12);' +     // away from centre, back into the paper
+    'gl_FragColor=vec4(c,m*uAlpha);}';
+  var FS_S =
+    'precision mediump float;varying vec2 vUv;varying vec2 vScr;' +
+    'uniform float uAlpha;uniform vec2 uFeat;' +
+    'void main(){vec2 e=min(vUv,1.0-vUv);' +
+    'float m=smoothstep(-uFeat.x,uFeat.x,e.x)*smoothstep(-uFeat.y,uFeat.y,e.y);' +
+    'gl_FragColor=vec4(0.106,0.094,0.082,m*m*uAlpha);}';
+
+  var gl = null, progP = null, progS = null, quad = null, tex = [], ready = [];
+  function build(g, vs, fs) {
+    function sh(t, s) { var x = g.createShader(t); g.shaderSource(x, s); g.compileShader(x); return x; }
+    var pr = g.createProgram();
+    g.attachShader(pr, sh(g.VERTEX_SHADER, vs));
+    g.attachShader(pr, sh(g.FRAGMENT_SHADER, fs));
+    g.linkProgram(pr);
+    if (!g.getProgramParameter(pr, g.LINK_STATUS)) return null;
+    var o = { p: pr, u: {}, a: g.getAttribLocation(pr, 'a') };
+    var n = g.getProgramParameter(pr, g.ACTIVE_UNIFORMS);
+    for (var i = 0; i < n; i++) {
+      var nm = g.getActiveUniform(pr, i).name;
+      o.u[nm] = g.getUniformLocation(pr, nm);
+    }
+    return o;
+  }
+  function initGL() {
+    var opt = { alpha: true, antialias: true, premultipliedAlpha: false };
+    try { gl = cv.getContext('webgl2', opt) || cv.getContext('webgl', opt); } catch (err) { gl = null; }
+    if (!gl) return false;
+    progP = build(gl, VS, FS_P); progS = build(gl, VS, FS_S);
+    if (!progP || !progS) { gl = null; return false; }
+    quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    /* the sheets are 1100x1556 — not a power of two, so mipmaps only exist
+       on WebGL2. Without them a sheet minifies to a shimmer at small sizes. */
+    var mip = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    PROJECTS.forEach(function (p, i) {
+      tex[i] = gl.createTexture(); ready[i] = false;
+      gl.bindTexture(gl.TEXTURE_2D, tex[i]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([228, 224, 214, 255]));      // the stock, until the sheet lands
+      var img = new Image();
+      img.decoding = 'async';
+      img.onload = function () {
+        gl.bindTexture(gl.TEXTURE_2D, tex[i]);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        if (mip) {
+          gl.generateMipmap(gl.TEXTURE_2D);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        } else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        ready[i] = true; show();
+      };
+      img.src = '/projects/' + p.slug + '-poster.webp';
+    });
+    hit.classList.add('gl');
+    return true;
+  }
+  var SHADOW = 30;
+  function paint(cards, time) {
+    gl.viewport(0, 0, cv.width, cv.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    var i, c;
+    gl.useProgram(progS.p);
+    gl.enableVertexAttribArray(progS.a);
+    gl.vertexAttribPointer(progS.a, 2, gl.FLOAT, false, 0, 0);
+    gl.uniform2f(progS.u.uRes, G.vw, G.vh);
+    for (i = 0; i < cards.length; i++) {
+      c = cards[i]; if (c.a <= 0.004) continue;
+      gl.uniform4f(progS.u.uRect, c.x, c.y + c.h * 0.022, c.w, c.h);
+      gl.uniform1f(progS.u.uPad, SHADOW);
+      gl.uniform1f(progS.u.uRot, c.rot);
+      gl.uniform2f(progS.u.uFeat, SHADOW / c.w, SHADOW / c.h);
+      gl.uniform1f(progS.u.uAlpha, 0.19 * c.a);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+    gl.useProgram(progP.p);
+    gl.enableVertexAttribArray(progP.a);
+    gl.vertexAttribPointer(progP.a, 2, gl.FLOAT, false, 0, 0);
+    gl.uniform2f(progP.u.uRes, G.vw, G.vh);
+    gl.uniform1i(progP.u.uTex, 0);
+    gl.uniform1f(progP.u.uTime, time);
+    gl.uniform1f(progP.u.uCx, G.cx);
+    gl.uniform1f(progP.u.uColR, G.pw * 0.66);
+    gl.activeTexture(gl.TEXTURE0);
+    for (i = 0; i < cards.length; i++) {
+      c = cards[i]; if (c.a <= 0.004) continue;
+      gl.bindTexture(gl.TEXTURE_2D, tex[c.p]);
+      gl.uniform4f(progP.u.uRect, c.x, c.y, c.w, c.h);
+      gl.uniform1f(progP.u.uPad, c.w * 0.09);      // bleed, so the lens can pull past the edge
+      gl.uniform1f(progP.u.uRot, c.rot);
+      gl.uniform1f(progP.u.uHas, ready[c.p] ? 1 : 0);
+      gl.uniform1f(progP.u.uW, c.W);
+      gl.uniform1f(progP.u.uN, c.n);
+      /* the last stretch of the approach, where the sheet settles and the
+         drifting field lets go of it: 0 until W passes .82, 1 at dead centre */
+      gl.uniform1f(progP.u.uCalm, sm(cl((c.W - 0.82) / 0.18, 0, 1)));
+      gl.uniform2f(progP.u.uPx, 1 / c.w, 1 / c.h);
+      gl.uniform1f(progP.u.uAlpha, c.a);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+  }
+
+  // ---- the frame ----
+  var last = 0, raf = 0, hidden = false, t0 = performance.now();
+  function show() {
+    hidden = false;
+    if (belt.style.visibility) belt.style.visibility = '';
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+  function park() {
+    hidden = true; belt.style.visibility = 'hidden';
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+  }
+  function tick(now) {
+    raf = 0;
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+
+    /* inside a work the belt holds its pose and stops drawing entirely —
+       the sheet it handed over is the detail world's own ground now */
+    if (state.mode === 'detail' && (ent.t >= 1 || (ent.t === 0 && ent.to === 0))) { park(); return; }
+
+    // ---- where the belt stands ----
+    if (glide) {
+      glide.t = Math.min(1, glide.t + dt / glide.dur);
+      off = mix(glide.from, glide.to, eio(glide.t));
+      if (glide.t >= 1) { var then = glide.then; glide = null; if (then) then(); }
+    } else if (!dragging && idx.t < 0.02 && ent.t === 0 && ent.to === 0) {
+      off += ((reduce ? 0 : BASE) + mom) * dt;
+      mom *= Math.exp(-2.4 * dt);
+      if (Math.abs(mom) < 0.4) mom = 0;
+    }
+
+    // ---- the blends ----
+    if (ent.to !== 1) idx.t = approach(idx.t, idx.to, dt / idx.dur);
+    if (ent.to === 1 && !glide) ent.t = Math.min(1, ent.t + dt / (reduce ? 0.001 : ent.dur));
+    if (ent.to === 0 && ent.t > 0) {
+      ent.t = Math.max(0, ent.t - dt / (reduce ? 0.001 : 0.5));
+      if (ent.t === 0) ent.slot = -1;
+    }
+    /* the hash is written partway through the expansion, so the detail world
+       fades in over a sheet that is still growing — one continuous move */
+    if (ent.to === 1 && !ent.fired && ent.t >= 0.55) {
+      ent.fired = true;
+      location.hash = '#/p/' + PROJECTS[ent.proj].slug;
+    }
+    if (ent.to === 1 && ent.t >= 1 && idx.t > 0) { idx.t = idx.to = 0; }
+    for (var i = 0; i < N; i++) lift[i] += (liftTo[i] - lift[i]) * (1 - Math.exp(-11 * dt));
+
+    // ---- pose every sheet ----
+    var cards = [], best = -1, bestW = 0.12;
+    for (var k = 0; k < A.length; k++) {
+      var p = k % N;
+      var dx = wrap(k * G.pitch - off);
+      var cxp = G.cx + dx, cyp = G.cy;
+      var w = G.pw, h = G.ph, rot = 0, alpha = 1;
+      var n = cl(dx / (G.pitch * 0.95), -1, 1);
+      var W = 1 - sm(Math.abs(n));
+      var z = 120 - Math.abs(dx) / 10;          // on the belt, the nearest sheet reads on top
+
+      if (idx.t > 0.0001) {
+        var pA = sm(cl((idx.t - idx.delay[k]) / 0.62, 0, 1));   // collapse inward
+        var pB = sm(cl((idx.t - 0.42) / 0.58, 0, 1));           // and the stack travels right
+        var keep = idx.pick[p] === k;
+        var si = N - 1 - p;                                     // 01 finishes on top
+        var stx = G.vw * (G.vw < 900 ? 0.60 : 0.735);
+        var ox = (si - (N - 1) / 2) * 8, oy = (si - (N - 1) / 2) * -6;
+        var lf = lift[p] * pB;
+        var tx = G.cx + pB * (stx - G.cx + ox) - lf * G.pw * 0.13;
+        var ty = G.cy + pB * oy - lf * G.ph * 0.055;
+        var gr = 1.05 + lf * 0.05;
+        cxp = mix(cxp, tx, pA); cyp = mix(cyp, ty, pA);
+        w = mix(w, G.pw * gr, pA); h = mix(h, G.ph * gr, pA);
+        rot = pA * pB * ROT[p];
+        if (!keep) alpha = 1 - pA;
+        /* the threshold is a belt idea: it lets go early in the collapse, so
+           the stack forms out of clean sheets rather than smeared ones */
+        W *= 1 - Math.min(1, pA * 2);
+        z = keep ? (60 + si * 2 + lift[p] * 40) : -1;
+      }
+
+      if (ent.t > 0.0001) {
+        var e = eio(ent.t);
+        if (k === ent.slot) {
+          var s = Math.max(G.vw / G.pw, G.vh / G.ph) * 1.02;
+          cxp = mix(cxp, G.cx, e); cyp = mix(cyp, G.vh / 2, e);
+          w = mix(w, G.pw * s, e); h = mix(h, G.ph * s, e);
+          rot *= 1 - e;
+          W *= 1 - e;                            // the effect resolves as you walk in
+          alpha = 1; z = 500;
+        } else {
+          cxp += e * (cxp < G.cx ? -1 : 1) * G.vw * 0.62;   // the rest part around it
+          alpha *= 1 - Math.min(1, e * 1.6);
+        }
+      }
+
+      if (W > bestW) { bestW = W; best = p; }
+      cards.push({ k: k, p: p, x: cxp - w / 2, y: cyp - h / 2, w: w, h: h, rot: rot, a: alpha, W: W, n: n, z: z });
+    }
+    cards.sort(function (a, b) { return a.z - b.z; });
+
+    // the anchors ride the same poses: one transform each, never a layout
+    for (i = 0; i < cards.length; i++) {
+      var c = cards[i], el = A[c.k];
+      el.style.transform = 'translate3d(' + c.x.toFixed(2) + 'px,' + c.y.toFixed(2) + 'px,0) rotate(' +
+                           (c.rot * 57.2958).toFixed(3) + 'deg) scale(' + (c.w / 100).toFixed(5) + ',' + (c.h / 100).toFixed(5) + ')';
+      el.style.zIndex = String(600 + i);
+      var vis = c.a > 0.02;
+      el.style.opacity = c.a < 1 ? c.a.toFixed(3) : '';
+      el.style.pointerEvents = vis ? '' : 'none';
+    }
+    if (idx.t < 0.4 && ent.t < 0.2) readout(best);
+    if (gl) paint(cards, reduce ? 3 : (now - t0) / 1000);
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  // ---- input: drag, wheel, swipe. All of it feeds the same offset. ----
+  function live() { return state.mode === 'landing' && ent.to !== 1; }
+  belt.addEventListener('wheel', function (e) {
+    if (!live() || indexIsOpen()) return;
+    e.preventDefault();
+    var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    d *= (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? G.vw : 1);
+    glide = null;
+    off += d * 1.05;
+    mom = cl(mom + d * 2.0, -1800, 1800);       // and it coasts back to the belt's pace
+    show();
+  }, { passive: false });
+  belt.addEventListener('pointerdown', function (e) {
+    if (!live() || (e.button !== undefined && e.button !== 0)) return;
+    dragging = true; moved = 0; vx = 0;
+    lastX = e.clientX; lastT = performance.now();
+    glide = null; mom = 0;
+    belt.classList.add('grabbing');
+    try { belt.setPointerCapture(e.pointerId); } catch (err) {}
+    show();
+  });
+  belt.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var t = performance.now(), dtm = Math.max(8, t - lastT) / 1000;
+    var d = e.clientX - lastX;
+    lastX = e.clientX; lastT = t;
+    moved += Math.abs(d);
+    off -= d;
+    vx = vx * 0.6 + (d / dtm) * 0.4;
+    show();
+  });
+  ['pointerup', 'pointercancel'].forEach(function (ev) {
+    belt.addEventListener(ev, function () {
+      if (!dragging) return;
+      dragging = false;
+      belt.classList.remove('grabbing');
+      mom = cl(-vx, -2400, 2400);               // the throw carries, then the belt reclaims it
+      show();
+    });
+  });
+  /* a sheet is a link, but a drag that ends on one is not a click */
+  hit.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('.pst');
+    if (!a) return;
+    e.preventDefault();
+    if (moved > 6) { moved = 0; return; }
+    enter(+a.dataset.p);
+  });
+  /* tabbing through the work brings each sheet to the threshold, and
+     pointing at one inside the stack fronts it exactly as its row does */
+  hit.addEventListener('focusin', function (e) {
+    var a = e.target.closest && e.target.closest('.pst');
+    if (!a || dragging || idx.t > 0.1 || !live()) return;
+    var k = +a.dataset.k, dx = wrap(k * G.pitch - off);
+    if (Math.abs(dx) < 4) return;
+    mom = 0;
+    glide = { from: off, to: off + dx, t: 0, dur: reduce ? 0.001 : 0.42, then: null };
+    show();
+  });
+  hit.addEventListener('pointerover', function (e) {
+    var a = e.target.closest && e.target.closest('.pst');
+    if (!a || idx.t < 0.9) return;
+    var row = document.querySelector('#pindex .prow[data-i="' + a.dataset.p + '"]');
+    if (row) previewRow(row);
+  });
+
+  var reT = 0;
+  addEventListener('resize', function () {
+    clearTimeout(reT);
+    reT = setTimeout(function () { measure(); show(); }, 90);
+  });
+
+  measure();
+  if (!initGL()) cv.style.display = 'none';     // no WebGL: the anchors' own <img> stands in
+  beltApi = { enter: enter, exit: exit, toIndex: toIndex, front: setFront, wake: show };
+  show();
+})();
 
 route(true);
 bbWake();
